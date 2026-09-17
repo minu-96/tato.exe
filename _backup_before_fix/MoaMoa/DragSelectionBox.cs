@@ -8,7 +8,7 @@ public class DragSelectionBox : MonoBehaviour
     [SerializeField] private RectTransform selectionBox;
     [SerializeField] private Canvas canvas;
     [SerializeField] private CellSpawner appleSpawner;
-    [SerializeField] private MoaMoaGameManager gameManager;
+    [SerializeField] private GameManager gameManager;
 
     private readonly List<Cell> currentSelectedApples = new List<Cell>();
 

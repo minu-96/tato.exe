@@ -43,7 +43,7 @@ public class SnakeHead : MonoBehaviour
 
     void Update()
     {
-        if (SnakeGameManager.Instance != null && SnakeGameManager.Instance.IsIntroPlaying) return;
+        if (GameManager.Instance != null && GameManager.Instance.IsIntroPlaying) return;
 
         GetInput();
 
@@ -103,7 +103,7 @@ void Move()
     {
         if (segments[i].GetTarget() == targetPos)
         {
-            SnakeGameManager.Instance.GameOver();
+            GameManager.Instance.GameOver();
             return; // 더 진행 안 함
         }
     }

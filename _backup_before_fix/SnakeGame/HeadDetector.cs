@@ -9,12 +9,12 @@ public class HeadDetector : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Wall"))
-            SnakeGameManager.Instance.GameOver();
+            GameManager.Instance.GameOver();
         else if (other.CompareTag("Apple"))
         {
             head.AddSegment();
-            SnakeGameManager.Instance.SpawnApple();
-            SnakeGameManager.Instance.AddScore();
+            GameManager.Instance.SpawnApple();
+            GameManager.Instance.AddScore();
         }
     }
 }

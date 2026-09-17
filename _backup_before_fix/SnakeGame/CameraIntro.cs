@@ -22,8 +22,8 @@ public class CameraIntro : MonoBehaviour
 
     void Start()
     {
-        if (SnakeGameManager.Instance != null)
-            SnakeGameManager.Instance.SetIntroPlaying(true);
+        if (GameManager.Instance != null)
+            GameManager.Instance.SetIntroPlaying(true);
 
         StartCoroutine(MoveDown());
     }
@@ -43,7 +43,7 @@ public class CameraIntro : MonoBehaviour
 
         transform.position = endPos;
 
-        if (SnakeGameManager.Instance != null)
-            SnakeGameManager.Instance.SetIntroPlaying(false);
+        if (GameManager.Instance != null)
+            GameManager.Instance.SetIntroPlaying(false);
     }
 }

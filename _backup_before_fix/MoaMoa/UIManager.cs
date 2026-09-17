@@ -12,7 +12,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Restart Confirm")]
     [SerializeField] private GameObject confirmPanel;     // 비활성 상태로 둠
-    [SerializeField] private MoaMoaGameManager gameManager;
+    [SerializeField] private GameManager gameManager;
 
     private void Start()
     {
