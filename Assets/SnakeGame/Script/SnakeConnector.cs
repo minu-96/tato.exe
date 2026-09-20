@@ -11,6 +11,10 @@ public class SnakeConnector : MonoBehaviour
 
     void LateUpdate() // Lerp 이후의 '보이는 위치' 기준으로 갱신
     {
+        // stemPrefab(줄기 프리팹)이나 head가 없으면 연결선 그리기를 건너뜀
+        // (인스펙터 미할당 시 매 프레임 예외가 쏟아지는 것을 방지)
+        if (stemPrefab == null || head == null) return;
+
         List<Transform> points = head.GetBodyTransforms();
         int needed = points.Count - 1; // 연결선 개수 = 세그먼트 사이 간격 수
 
