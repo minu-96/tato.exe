@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab3c801ddd6f1ef41a902a9f5e850c50, type: 3}
+  m_Name: BattleTheme
+  m_EditorClassIdentifier: Assembly-CSharp::TatoGames.CardGame.BattleTheme
+  background: {fileID: 0}
+  backgroundTint: {r: 1, g: 1, b: 1, a: 1}
+  cardFrame: {fileID: 0}
+  cardFrameAttack: {fileID: 0}
+  cardFrameDefense: {fileID: 0}
+  cardFrameSkill: {fileID: 0}
+  cardFrameRoot: {fileID: 0}
+  cardArtFallback: {fileID: 0}
+  costBadge: {fileID: 0}
+  barBackground: {fileID: 0}
+  barFill: {fileID: 0}
+  blockIcon: {fileID: 0}
+  wardIcon: {fileID: 0}
+  energyOrb: {fileID: 0}
+  intentAttack: {fileID: 0}
+  intentBlock: {fileID: 0}
+  intentDebuff: {fileID: 0}
+  intentBuff: {fileID: 0}
+  iconVulnerable: {fileID: 0}
+  iconWeak: {fileID: 0}
+  iconPoison: {fileID: 0}
+  iconStrength: {fileID: 0}
+  iconDexterity: {fileID: 0}
+  iconRegen: {fileID: 0}
+  buttonIdle: {fileID: 0}
+  buttonHover: {fileID: 0}
+  buttonPressed: {fileID: 0}
+  panelColor: {r: 0.14, g: 0.15, b: 0.19, a: 0.92}
+  cardColor: {r: 0.18, g: 0.2, b: 0.24, a: 1}
+  cardDisabledColor: {r: 0.11, g: 0.12, b: 0.14, a: 1}
+  accentColor: {r: 1, g: 0.78, b: 0.2, a: 1}
+  hpColor: {r: 0.78, g: 0.25, b: 0.25, a: 1}
+  blockColor: {r: 0.35, g: 0.62, b: 0.85, a: 1}
+  wardColor: {r: 0.65, g: 0.45, b: 0.85, a: 1}

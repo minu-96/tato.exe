@@ -1,8 +1,10 @@
+using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 using TatoGames.Launcher;
+using TatoGames.CardGame;
 
 /// <summary>
 /// 비어 있던 탭 패널(감자창고·상점·업적)을 현재 에셋 기준으로 채운다.
@@ -47,11 +49,13 @@ public static class LauncherPanelFiller
 
         EnsureTransition();
         WireLaunchButtons(content);
+        WireHudStats(content);
+        RegisterLauncherScene();
 
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene, ScenePath);
         AssetDatabase.Refresh();
-        Debug.Log("[TatoGames] 완료 → 탭 배치 + 전환 시스템 + 실행 버튼 배선");
+        Debug.Log("[TatoGames] 완료 → 탭 배치 + 전환 + 실행 버튼 + 토인/컬렉션 연동");
     }
 
     // ══════════════════════════════════════════════ 감자창고(컬렉션) ══════════
@@ -72,10 +76,23 @@ public static class LauncherPanelFiller
         fhlg.spacing = 8; fhlg.childAlignment = TextAnchor.MiddleLeft;
         fhlg.childControlWidth = fhlg.childControlHeight = false;
         fhlg.childForceExpandWidth = fhlg.childForceExpandHeight = false;
-        foreach (var name in new[] { "All", "Common", "Rare", "Epic", "Legendary" })
-            BtnInLayout(filterBar, "Filter_" + name,
-                        S("TATOstorage/Filter/" + name + "_Idle"), null,
-                        S("TATOstorage/Filter/" + name + "_Pressed"));
+        // 필터 정의: 에셋명 → 등급 (Epic = 초월/Transcendent)
+        var filterDefs = new (string name, bool all, Rarity rarity)[]
+        {
+            ("All", true, Rarity.Common),
+            ("Common", false, Rarity.Common),
+            ("Rare", false, Rarity.Rare),
+            ("Epic", false, Rarity.Transcendent),
+            ("Legendary", false, Rarity.Legendary),
+        };
+        var cvFilters = new System.Collections.Generic.List<CollectionView.RarityFilter>();
+        foreach (var d in filterDefs)
+        {
+            var btn = BtnInLayout(filterBar, "Filter_" + d.name,
+                                  S("TATOstorage/Filter/" + d.name + "_Idle"), null,
+                                  S("TATOstorage/Filter/" + d.name + "_Pressed"));
+            cvFilters.Add(new CollectionView.RarityFilter { button = btn, all = d.all, rarity = d.rarity });
+        }
 
         // 우측: 검색 + 정렬
         var toolBar = NewRect("SearchSort", panel);
@@ -92,10 +109,23 @@ public static class LauncherPanelFiller
         var openList = Img(sort.transform, "OpenList", S("TATOstorage/Sort/Dropdown"), 0f, -70f);
         openList.gameObject.SetActive(false); // 열린 목록은 기본 숨김
 
+        // 런 덱 장수 표시 (필터 줄 아래, 우측)
+        var deckLbl = NewRect("DeckCount", panel);
+        deckLbl.anchorMin = deckLbl.anchorMax = deckLbl.pivot = new Vector2(1, 1);
+        deckLbl.anchoredPosition = new Vector2(-24, -220);
+        deckLbl.sizeDelta = new Vector2(440, 30);
+        var deckTxt = deckLbl.gameObject.AddComponent<Text>();
+        deckTxt.font = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
+        deckTxt.fontSize = 20; deckTxt.color = new Color(1f, 0.85f, 0.5f);
+        deckTxt.alignment = TextAnchor.MiddleRight;
+        deckTxt.horizontalOverflow = HorizontalWrapMode.Overflow;
+        deckTxt.raycastTarget = false;
+        deckTxt.text = "런 덱";
+
         // ── 세로 스크롤: "보유 카드"만 표시 ──
         // 지금 보유 = 시작덱 4종(귀속). 미니게임/보상 카드는 획득 시 컬렉션에 추가된다(§10.7).
         // 전용 카드 아트가 없어 card.png를 placeholder로 쓰고 이름 라벨로 구분한다.
-        var grid = MakeScroll(panel, "Scroll_Cards", horizontal: false, l: 24, b: 24, r: 24, t: 236);
+        var grid = MakeScroll(panel, "Scroll_Cards", horizontal: false, l: 24, b: 24, r: 24, t: 264);
         var g = grid.gameObject.AddComponent<GridLayoutGroup>();
         g.cellSize = new Vector2(166, 300);   // 카드(250) + 이름 라벨(50)
         g.spacing = new Vector2(40, 24);
@@ -105,10 +135,25 @@ public static class LauncherPanelFiller
         var fit = grid.gameObject.AddComponent<ContentSizeFitter>();
         fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         var labelFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
+        // 에디터 프리뷰: 시작덱 (플레이 시 CollectionView가 실제 보유분으로 교체)
         foreach (var card in StarterDeck)
             OwnedCardCell(grid.transform, card.id, card.name, labelFont);
         LayoutRebuilder.ForceRebuildLayoutImmediate(grid);
+
+        // 런타임: 보유 카드(시작덱 + 게임에서 획득)로 다시 채움 — 게임 보상이 이어진다
+        var cv = grid.gameObject.AddComponent<CollectionView>();
+        cv.content = grid;
+        cv.allCards = LoadAllCardData();
+        cv.labelFont = labelFont;
+        cv.cardArt = S("Achievement/card");
+        cv.filters = cvFilters;   // 등급 필터 작동 연결
+        cv.deckCountLabel = deckTxt;
     }
+
+    static CardData[] LoadAllCardData() =>
+        AssetDatabase.FindAssets("t:CardData", new[] { "Assets/CardGame/Data/Cards" })
+            .Select(g => AssetDatabase.LoadAssetAtPath<CardData>(AssetDatabase.GUIDToAssetPath(g)))
+            .Where(c => c != null).ToArray();
 
     // ══════════════════════════════════════════════════════ 상점 ══════════════
     // 가로 스크롤: 대표타일(TATO.EXE) + 게임타일 2행 그리드 / 우하단 알림(고정)
@@ -214,8 +259,8 @@ public static class LauncherPanelFiller
     // 미니게임별 대상 씬 + 가정 해상도(각 씬 Canvas 기준 해상도에서 추출 — 확정 필요).
     static void WireLaunchButtons(Transform content)
     {
-        // 홈: 본편 카드게임 — 메인 씬 미제작이라 씬 이름은 비워둠(인스펙터에서 지정)
-        SetLaunch(content, "Panel_Home/Btn_GameStart", "", 1280, 720, "tato.exe");
+        // 홈: 본편 카드게임 = MVP 전투 씬(Battle). Build MVP Battle로 생성됨
+        SetLaunch(content, "Panel_Home/Btn_GameStart", "Battle", 1280, 720, "tato.exe");
         // 미니게임 3종
         SetLaunch(content, "Panel_Minigame/Game_poootato/Btn_GameStart",
                   "SnakeTitle", 1280, 720, "늘어나라_pooo-tato.exe");
@@ -245,6 +290,68 @@ public static class LauncherPanelFiller
         }
         if (tr.loadingFont == null)
             tr.loadingFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/ThePotato/TextMesh Pro/DOSGothic.ttf");
+    }
+
+    // 이름으로 자손 전체에서 찾기 (칩 위치가 좌/우 어디든 대응)
+    static Transform FindDeep(Transform root, string name)
+    {
+        if (root == null) return null;
+        if (root.name == name) return root;
+        for (int i = 0; i < root.childCount; i++)
+        {
+            var r = FindDeep(root.GetChild(i), name);
+            if (r != null) return r;
+        }
+        return null;
+    }
+
+    // 상단 HUD 칩 연동 (§3). 칩 '이름'으로 찾으므로 좌/우 어디로 옮겨도 따라간다.
+    //   Chip_TOIN(코인)=토인 · Chip_Basket(바구니)=런 덱 장수 · Chip_Storage(창고)=보유 장수
+    static void WireHudStats(Transform content)
+    {
+        var canvas = content.parent;   // LauncherCanvas
+        BindStat(canvas, "Chip_TOIN", HudStat.Stat.Toin);
+        BindStat(canvas, "Chip_Basket", HudStat.Stat.DeckCount);
+        BindStat(canvas, "Chip_Storage", HudStat.Stat.CollectionCount);
+    }
+
+    static void BindStat(Transform canvas, string chipName, HudStat.Stat stat)
+    {
+        var chip = FindDeep(canvas, chipName);
+        if (chip == null) { Debug.LogWarning($"[TatoGames] {chipName} 없음 — HUD 연동 생략"); return; }
+
+        // 예전 ToinDisplay 등 사라진 스크립트 잔재 정리
+        GameObjectUtility.RemoveMonoBehavioursWithMissingScript(chip.gameObject);
+
+        var labelT = chip.Find("Count");
+        Text label;
+        if (labelT == null)
+        {
+            var rt = NewRect("Count", chip);
+            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
+            rt.offsetMin = new Vector2(44, 0); rt.offsetMax = new Vector2(-14, 0);  // 아이콘 우측 여백
+            label = rt.gameObject.AddComponent<Text>();
+            label.font = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
+            label.fontSize = 26; label.color = Color.white;
+            label.alignment = TextAnchor.MiddleRight;
+            label.horizontalOverflow = HorizontalWrapMode.Overflow;
+            label.raycastTarget = false;
+        }
+        else label = labelT.GetComponent<Text>();
+        label.text = "0";
+
+        var hs = chip.GetComponent<HudStat>() ?? chip.gameObject.AddComponent<HudStat>();
+        hs.stat = stat;
+        hs.label = label;
+    }
+
+    // Launcher 씬을 Build Settings에 등록 (전투 '나가기'에서 로드하려면 필요)
+    static void RegisterLauncherScene()
+    {
+        var scenes = EditorBuildSettings.scenes.ToList();
+        if (scenes.Any(s => s.path == ScenePath)) return;
+        scenes.Add(new EditorBuildSettingsScene(ScenePath, true));
+        EditorBuildSettings.scenes = scenes.ToArray();
     }
 
     // ══════════════════════════════════════════════════════ 스크롤 헬퍼 ═══════

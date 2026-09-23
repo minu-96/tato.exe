@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f79e96e277c03041ba14fe0dfeb6774, type: 3}
+  m_Name: enemy_field_mole
+  m_EditorClassIdentifier: Assembly-CSharp::TatoGames.CardGame.EnemyData
+  id: enemy_field_mole
+  enemyName: "\uBC2D\uB450\uB354\uC9C0"
+  tier: 0
+  artwork: {fileID: 0}
+  hp: 18
+  blockStart: 5
+  wardStart: 0
+  wardRefresh: 0
+  pattern:
+  - label: "\uD30C\uACE0\uB4E4\uAE30"
+    kind: 1
+    amount: 5
+    hits: 1
+    status: 0
+  - label: "\uACF5\uACA9"
+    kind: 0
+    amount: 6
+    hits: 1
+    status: 0
+  - label: "\uACF5\uACA9"
+    kind: 0
+    amount: 4
+    hits: 1
+    status: 0
+  patternLoop: 1
+  transformOnBlockBreak: 0
+  phase2Name: 
+  phase2Hp: 0
+  phase2Pattern: []

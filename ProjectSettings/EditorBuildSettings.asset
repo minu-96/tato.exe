@@ -62,5 +62,11 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/MoaMoa/Scane/MoaMoaInGame.unity
     guid: 9bca6fccd60a58a4286656f2eb1eb665
+  - enabled: 1
+    path: Assets/CardGame/Scenes/Battle.unity
+    guid: 30dcab49285653c4890159a04c1e22cd
+  - enabled: 1
+    path: Assets/Launcher/Scenes/Launcher.unity
+    guid: c99f610d1273145edb485be09811ebc5
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
