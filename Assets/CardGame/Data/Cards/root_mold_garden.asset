@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TatoGames.CardGame.CardData
   id: root_mold_garden
   displayName: "\uACF0\uD321\uC774 \uC815\uC6D0"
-  description: "3\uD134 \uB3D9\uC548 \uC801\uC5D0\uAC8C \uC911\uB3C5 +1"
+  description: "3\uD134 \uB3D9\uC548 \uC801\uC5D0\uAC8C \uC911\uB3C5 +2"
   type: 3
   rarity: 1
   cost: 1
@@ -23,7 +23,7 @@ MonoBehaviour:
   artwork: {fileID: 5189691121816951081, guid: 09acb36a6bf3c43f892b3bf371761182, type: 3}
   effects:
   - type: 9
-    value: 1
+    value: 2
     hits: 1
     target: 0
     status: 3
@@ -34,4 +34,4 @@ MonoBehaviour:
     hits: 1
     target: 0
     status: 3
-    duration: 3
+    duration: 4

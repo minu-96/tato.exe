@@ -176,8 +176,12 @@ public static class CardLibraryGenerator
                  "매 턴 적이 중독으로 얻는 피해 +1 (지속)", L(AmpPoison(1)), L(AmpPoison(2))),
             Make("skl_plague", "역병", SKL, RARE, 2, FIELD,
                  "중독 6 + 취약 3", L(St(StatusType.Poison, 6), St(StatusType.Vulnerable, 3)), L(St(StatusType.Poison, 8), St(StatusType.Vulnerable, 3))),
+            // [수정] 중독은 발동 후 매 턴 −1 이라, 매 턴 +1 은 감소와 정확히 상쇄되어
+            // 스택이 전혀 안 쌓였다(총 3피해). +2로 올려야 비로소 누적된다.
+            // 실측 총 피해: (1,3)=3 → (2,3)=15 / 싹 (2,4)=24
+            //   비교) 역병(중독6·2코스트 희귀)=21, 독포자(중독3·1코스트 일반)=6
             Make("root_mold_garden", "곰팡이 정원", ROOT, RARE, 1, FIELD,
-                 "3턴 동안 적에게 중독 +1", L(PoisonTurns(1, 3)), L(PoisonTurns(2, 3))),
+                 "3턴 동안 적에게 중독 +2", L(PoisonTurns(2, 3)), L(PoisonTurns(2, 4))),
 
             // ── 메인 게임(전투 보상) 10종 ──
             // 세 미니게임이 공격·방어·중독 축을 하나씩 가져갔으므로, 여기는 네 번째 축을

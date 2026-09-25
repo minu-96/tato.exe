@@ -35,17 +35,133 @@ namespace TatoGames.Launcher
         [Tooltip("런 덱 장수 표시 라벨(선택)")]
         public Text deckCountLabel;
 
+        [Tooltip("카드 이름 검색")]
+        public InputField searchField;
+
+        [Tooltip("정렬 드롭다운 — SortLabels 순서와 같다")]
+        public Dropdown sortDropdown;
+
+        /// <summary>정렬 기준. 드롭다운 항목 순서와 1:1로 맞춘다.</summary>
+        public enum SortMode
+        {
+            RecentFirst,   // 얻은 순 (최신)
+            OldestFirst,   // 얻은 순 (오래된)
+            Name,          // 이름순
+            RarityDesc,    // 희귀도 높은 순
+            ExpirySoon,    // 기한 짧은 순 — 곧 썩는 것부터
+            DeckFirst,     // 덱에 든 것 먼저
+        }
+
+        /// <summary>드롭다운에 표시할 이름 (SortMode 순서 그대로).</summary>
+        public static readonly string[] SortLabels =
+        {
+            "얻은 순 (최신)",
+            "얻은 순 (오래된)",
+            "이름순",
+            "희귀도 높은 순",
+            "기한 짧은 순",
+            "덱에 든 것 먼저",
+        };
+
+        SortMode sortMode = SortMode.RecentFirst;
+        string searchQuery = "";
+
         static readonly Color OkColor = new(1f, 0.85f, 0.5f);
         static readonly Color WarnColor = new(1f, 0.45f, 0.4f);
         static readonly Color LockColor = new(0.65f, 0.7f, 0.8f);
 
         bool showAll = true;
         Rarity activeRarity;
+        int matchCount;
 
         void Start()
         {
             SetupFilters();
+            SetupSearchSort();
             Rebuild();
+        }
+
+        void SetupSearchSort()
+        {
+            if (searchField != null)
+            {
+                // 입력할 때마다 즉시 걸러준다
+                searchField.onValueChanged.AddListener(q => { searchQuery = q ?? ""; Rebuild(); });
+            }
+
+            if (sortDropdown != null)
+            {
+                sortDropdown.ClearOptions();
+                sortDropdown.AddOptions(new List<string>(SortLabels));
+                sortDropdown.value = (int)sortMode;
+                sortDropdown.RefreshShownValue();
+                sortDropdown.onValueChanged.AddListener(v => { sortMode = (SortMode)v; Rebuild(); });
+            }
+        }
+
+        /// <summary>이름에 검색어가 들어있나 (대소문자 무시). 카드 데이터가 없으면 id로 대조).</summary>
+        bool MatchesSearch(CardInstance inst, CardData card)
+        {
+            if (string.IsNullOrWhiteSpace(searchQuery)) return true;
+            string q = searchQuery.Trim();
+            string name = card != null ? card.displayName : inst.cardId;
+            if (!string.IsNullOrEmpty(name) &&
+                name.IndexOf(q, System.StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            return !string.IsNullOrEmpty(inst.cardId) &&
+                   inst.cardId.IndexOf(q, System.StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        /// <summary>
+        /// 정렬. 한글 이름은 유니코드 순서가 곧 가나다 순이라 Ordinal 비교로 충분하다.
+        /// 기한은 짧은 것부터(곧 썩는 카드를 먼저 처리하게) — 귀속은 기한이 없어 맨 뒤로 간다.
+        /// </summary>
+        List<CardInstance> SortInstances(List<CardInstance> list, Dictionary<string, CardData> byId)
+        {
+            CardData Data(CardInstance c) => byId.TryGetValue(c.cardId, out var d) ? d : null;
+            string Name(CardInstance c) { var d = Data(c); return d != null ? d.displayName : c.cardId; }
+            int Rarity(CardInstance c) { var d = Data(c); return d != null ? (int)d.rarity : -1; }
+
+            switch (sortMode)
+            {
+                case SortMode.OldestFirst:
+                    list.Sort((a, b) => a.instanceId.CompareTo(b.instanceId)); break;
+                case SortMode.Name:
+                    list.Sort((a, b) =>
+                    {
+                        int c = string.CompareOrdinal(Name(a), Name(b));
+                        return c != 0 ? c : a.instanceId.CompareTo(b.instanceId);
+                    });
+                    break;
+                case SortMode.RarityDesc:
+                    list.Sort((a, b) =>
+                    {
+                        int c = Rarity(b).CompareTo(Rarity(a));
+                        if (c != 0) return c;
+                        c = string.CompareOrdinal(Name(a), Name(b));
+                        return c != 0 ? c : a.instanceId.CompareTo(b.instanceId);
+                    });
+                    break;
+                case SortMode.ExpirySoon:
+                    list.Sort((a, b) =>
+                    {
+                        int c = a.RunsLeftToPlay.CompareTo(b.RunsLeftToPlay);
+                        return c != 0 ? c : a.instanceId.CompareTo(b.instanceId);
+                    });
+                    break;
+                case SortMode.DeckFirst:
+                {
+                    var deck = new HashSet<int>(PlayerData.DeckIds());
+                    list.Sort((a, b) =>
+                    {
+                        int c = deck.Contains(b.instanceId).CompareTo(deck.Contains(a.instanceId));
+                        return c != 0 ? c : b.instanceId.CompareTo(a.instanceId);
+                    });
+                    break;
+                }
+                default:   // RecentFirst
+                    list.Sort((a, b) => b.instanceId.CompareTo(a.instanceId)); break;
+            }
+            return list;
         }
 
         // ── 등급 필터 ──
@@ -101,12 +217,23 @@ namespace TatoGames.Launcher
                 foreach (var c in lib.cards)
                     if (c != null && !string.IsNullOrEmpty(c.id) && !byId.ContainsKey(c.id)) byId[c.id] = c;
 
+            // 등급 필터 → 이름 검색 → 정렬 순으로 거른다
+            var shown = new List<CardInstance>();
             foreach (var inst in PlayerData.Instances())
             {
                 byId.TryGetValue(inst.cardId, out var card);
                 if (!showAll && (card == null || card.rarity != activeRarity)) continue;
+                if (!MatchesSearch(inst, card)) continue;
+                shown.Add(inst);
+            }
+
+            foreach (var inst in SortInstances(shown, byId))
+            {
+                byId.TryGetValue(inst.cardId, out var card);
                 BuildCell(inst, card);
             }
+
+            matchCount = shown.Count;
 
             UpdateDeckLabel();
         }
@@ -125,6 +252,12 @@ namespace TatoGames.Launcher
                 // 런이 진행 중이면 편성이 잠긴다 — 이유를 먼저 보여줘서 눌러보고 거절당하지 않게
                 deckCountLabel.text = $"런 진행 중 — 덱 편성 잠김  (현재 {PlayerData.DeckSize()}장)";
                 deckCountLabel.color = LockColor;
+                return;
+            }
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                deckCountLabel.text = $"\"{searchQuery.Trim()}\" 검색 결과 {matchCount}장  ·  런 덱 {PlayerData.DeckSize()}장";
+                deckCountLabel.color = OkColor;
                 return;
             }
             deckCountLabel.text = $"런 덱  {PlayerData.DeckSize()}장  (최소 {PlayerData.MinDeck} · 최대 {PlayerData.MaxDeck})";

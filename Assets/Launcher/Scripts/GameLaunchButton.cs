@@ -34,6 +34,14 @@ namespace TatoGames.Launcher
                 Debug.LogWarning($"[TatoGames] {name}: sceneName 미설정 — 전환 취소 (인스펙터에서 대상 씬 지정)");
                 return;
             }
+
+            // 설치되지 않은 프로그램은 실행할 수 없다 (§4 저장공간)
+            var entry = StorageData.FindByScene(sceneName);
+            if (entry != null && !StorageData.IsInstalled(entry.id))
+            {
+                Debug.Log($"[TatoGames] {entry.displayName} 미설치 — 상점에서 설치하세요");
+                return;
+            }
             LauncherTransition.Request(sceneName, width, height, fullscreen, exeLabel);
         }
     }

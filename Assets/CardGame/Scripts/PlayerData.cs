@@ -330,6 +330,47 @@ namespace TatoGames.CardGame
             return Instances().Where(c => deck.Contains(c.instanceId) && !c.IsRotten).ToList();
         }
 
+        /// <summary>
+        /// 그 출처에서 얻은 카드를 전부 없앤다 (§13.2 손실 채널 — 미니게임 삭제).
+        /// 귀속(시작덱)은 면제. 반환값 = 사라진 장수.
+        /// </summary>
+        public static int DestroyBySource(AcquireSource source)
+        {
+            var lib = CardLibrary.Load();
+            if (lib == null) return 0;
+
+            var all = Instances();
+            bool Match(CardInstance c)
+            {
+                if (c.bound) return false;
+                var d = lib.Find(c.cardId);
+                return d != null && d.source == source;
+            }
+
+            var doomed = all.Where(Match).Select(c => c.instanceId).ToHashSet();
+            if (doomed.Count == 0) return 0;
+
+            SaveInstances(all.Where(c => !doomed.Contains(c.instanceId)).ToList());
+            SaveDeck(DeckIds().Where(id => !doomed.Contains(id)).ToList());
+            PlayerPrefs.Save();
+            TopUpDeck();
+            RaiseChanged();
+            return doomed.Count;
+        }
+
+        /// <summary>그 출처 카드를 몇 장 갖고 있나 (삭제 경고용).</summary>
+        public static int CountBySource(AcquireSource source)
+        {
+            var lib = CardLibrary.Load();
+            if (lib == null) return 0;
+            return Instances().Count(c =>
+            {
+                if (c.bound) return false;
+                var d = lib.Find(c.cardId);
+                return d != null && d.source == source;
+            });
+        }
+
         /// <summary>창고에 쌓인 썩은 카드 수 (판매 안내용).</summary>
         public static int RottenCount() => Instances().Count(c => c.IsSpent);
 
@@ -353,6 +394,7 @@ namespace TatoGames.CardGame
             SaveInstances(list);
             PlayerPrefs.Save();
             AddToin(-UpgradeCost);   // 저장 + 변경 알림
+            Launcher.Achievements.Bump(Launcher.Achievements.CardsUpgraded);
             return true;
         }
 

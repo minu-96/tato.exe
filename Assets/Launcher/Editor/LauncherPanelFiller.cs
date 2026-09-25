@@ -45,6 +45,7 @@ public static class LauncherPanelFiller
 
         BuildMinigame(content.Find("Panel_Minigame"));
         BuildSettings(content.Find("Panel_Setting"));
+        BuildPatchNote(content.Find("Panel_Patch"));
         BuildStorage(content.Find("Panel_Storage"));
         BuildShop(content.Find("Panel_Shop"));
         BuildAchieve(content.Find("Panel_Achieve"));
@@ -64,11 +65,11 @@ public static class LauncherPanelFiller
     // 상단 고정: 등급 필터 5 + 검색 + 정렬 / 하단: 세로 스크롤 카드 그리드
     // 미니게임 타일 배치 — 원본 씬 좌표 그대로 (타일 234×294, 버튼 171×61)
     const float TileY = 91f, BtnY = -76.5f;
-    static readonly (string obj, string tile, float x)[] MinigameTiles =
+    static readonly (string obj, string tile, float x, string gameId)[] MinigameTiles =
     {
-        ("Game_thepotato", "Minigame/Tile/thepotato", -377f),
-        ("Game_poootato",  "Minigame/Tile/poootato",  -136.5f),
-        ("Game_moamoa",    "Minigame/Tile/moamoa",     103f),
+        ("Game_thepotato", "Minigame/Tile/thepotato", -377f,   "field"),
+        ("Game_poootato",  "Minigame/Tile/poootato",  -136.5f, "snake"),
+        ("Game_moamoa",    "Minigame/Tile/moamoa",     103f,   "moamoa"),
     };
 
     /// <summary>
@@ -88,12 +89,22 @@ public static class LauncherPanelFiller
                       hover: S("Minigame/Tile/Button/Start/Hover"),
                       press: S("Minigame/Tile/Button/Start/Pressed"));
 
-        foreach (var (obj, tile, x) in MinigameTiles)
+        var mgFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
+        foreach (var (obj, tile, x, gameId) in MinigameTiles)
         {
             var img = Img(panel, obj, S(tile), x, TileY);
             img.rectTransform.sizeDelta = new Vector2(234, 294);
             // 실제 대상 씬·해상도는 WireLaunchButtons가 채운다
-            Btn(img.transform, "Btn_GameStart", start.idle, start.hover, start.press, 0f, BtnY, 171, 61);
+            var b = Btn(img.transform, "Btn_GameStart", start.idle, start.hover, start.press, 0f, BtnY, 171, 61);
+
+            // 설치 여부에 따라 잠기도록 (§4 저장공간)
+            var st = img.gameObject.AddComponent<MinigameTileState>();
+            st.gameId = gameId;
+            st.launchButton = b;
+            st.tileImage = img;
+            st.caption = InfoText(img.transform, mgFont);
+            st.caption.fontSize = 18;
+            st.caption.color = new Color(1f, 0.6f, 0.5f);
         }
 
         // 구매 타일 — 아직 살 수 있는 게임이 없어 버튼만 두고 비워둔다
@@ -150,6 +161,59 @@ public static class LauncherPanelFiller
         EditorUtility.SetDirty(view);
     }
 
+    /// <summary>레이아웃 그룹 안에 들어가는 검색 입력창. 배경은 기존 검색창 아트.</summary>
+    static InputField MakeSearchField(Transform parent, string name, Font font, Sprite bg, float w, float h)
+    {
+        var go = DefaultControls.CreateInputField(new DefaultControls.Resources { standard = bg });
+        go.name = name;
+        go.transform.SetParent(parent, false);
+        go.GetComponent<RectTransform>().sizeDelta = new Vector2(w, h);
+
+        var field = go.GetComponent<InputField>();
+        foreach (var t in go.GetComponentsInChildren<Text>(true))
+        {
+            t.font = font; t.fontSize = 18;
+            t.color = new Color(0.12f, 0.12f, 0.14f);
+        }
+        if (field.placeholder is Text ph)
+        {
+            ph.text = "카드 이름 검색";
+            ph.color = new Color(0.45f, 0.45f, 0.5f);
+            ph.fontStyle = FontStyle.Normal;
+        }
+        // 돋보기 아이콘 자리를 비워두도록 좌측 여백을 준다
+        var area = go.transform.Find("Text") as RectTransform;
+        if (area != null) { area.offsetMin = new Vector2(34, 2); area.offsetMax = new Vector2(-8, -2); }
+        var phRt = go.transform.Find("Placeholder") as RectTransform;
+        if (phRt != null) { phRt.offsetMin = new Vector2(34, 2); phRt.offsetMax = new Vector2(-8, -2); }
+        return field;
+    }
+
+    /// <summary>레이아웃 그룹 안에 들어가는 드롭다운. 닫힌 모습·열린 목록 스프라이트를 각각 쓴다.</summary>
+    static Dropdown MakeDropdownInLayout(Transform parent, string name, Font font,
+                                         Sprite closed, Sprite list, float w, float h)
+    {
+        var go = DefaultControls.CreateDropdown(new DefaultControls.Resources { standard = closed });
+        go.name = name;
+        go.transform.SetParent(parent, false);
+        go.GetComponent<RectTransform>().sizeDelta = new Vector2(w, h);
+
+        var dd = go.GetComponent<Dropdown>();
+        foreach (var t in go.GetComponentsInChildren<Text>(true))
+        {
+            t.font = font; t.fontSize = 17;
+            t.color = new Color(0.12f, 0.12f, 0.14f);
+        }
+        // 열린 목록 배경
+        if (dd.template != null)
+        {
+            var img = dd.template.GetComponent<Image>();
+            if (img != null && list != null) img.sprite = list;
+            dd.template.sizeDelta = new Vector2(dd.template.sizeDelta.x, 200);
+        }
+        return dd;
+    }
+
     /// <summary>Unity 기본 드롭다운을 코드로 생성(템플릿까지 자동). 스프라이트만 우리 것으로.</summary>
     static Dropdown MakeDropdown(Transform parent, string name, Font font, Sprite bg, float x, float y)
     {
@@ -193,6 +257,42 @@ public static class LauncherPanelFiller
         var t = rt.gameObject.AddComponent<Text>();
         t.text = text; t.font = font; t.fontSize = 22; t.color = Color.white;
         t.alignment = TextAnchor.MiddleLeft; t.raycastTarget = false;
+        t.horizontalOverflow = HorizontalWrapMode.Overflow;
+        return t;
+    }
+
+    /// <summary>패치노트 탭 — 세로 스크롤에 버전별 변경 사항.</summary>
+    static void BuildPatchNote(Transform panel)
+    {
+        if (panel == null) { Debug.LogWarning("[TatoGames] Panel_Patch 없음"); return; }
+        EnsureTitle(panel, S("patchnote/name"));
+        ClearContent(panel);
+
+        var content = MakeScroll(panel, "Scroll_Patch", horizontal: false, l: 40, b: 28, r: 40, t: 176);
+        var vlg = content.gameObject.AddComponent<VerticalLayoutGroup>();
+        vlg.spacing = 4; vlg.childAlignment = TextAnchor.UpperLeft;
+        vlg.padding = new RectOffset(8, 8, 8, 8);
+        vlg.childControlWidth = true; vlg.childControlHeight = true;
+        vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
+        var fit = content.gameObject.AddComponent<ContentSizeFitter>();
+        fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        var view = panel.gameObject.GetComponent<PatchNoteView>() ?? panel.gameObject.AddComponent<PatchNoteView>();
+        view.content = content;
+        view.labelFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
+        EditorUtility.SetDirty(view);
+    }
+
+    /// <summary>타일 하단의 이름·가격·용량 표시.</summary>
+    static Text InfoText(Transform tile, Font font)
+    {
+        var rt = NewRect("Info", tile);
+        rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0f);
+        rt.sizeDelta = new Vector2(220, 52);
+        rt.anchoredPosition = new Vector2(0f, 8f);
+        var t = rt.gameObject.AddComponent<Text>();
+        t.font = font; t.fontSize = 17; t.color = Color.white;
+        t.alignment = TextAnchor.LowerCenter; t.raycastTarget = false;
         t.horizontalOverflow = HorizontalWrapMode.Overflow;
         return t;
     }
@@ -241,10 +341,14 @@ public static class LauncherPanelFiller
         thlg.spacing = 12; thlg.childAlignment = TextAnchor.MiddleRight;
         thlg.childControlWidth = thlg.childControlHeight = false;
         thlg.childForceExpandWidth = thlg.childForceExpandHeight = false;
-        ImgInLayout(toolBar, "SearchBox", S("TATOstorage/Search/Idle"));
-        var sort = ImgInLayout(toolBar, "SortDropdown", S("TATOstorage/Sort/Options"));
-        var openList = Img(sort.transform, "OpenList", S("TATOstorage/Sort/Dropdown"), 0f, -70f);
-        openList.gameObject.SetActive(false); // 열린 목록은 기본 숨김
+        // 검색창·정렬 드롭다운은 실제로 동작하는 위젯이다 (예전엔 그림만 있었다).
+        // 아트는 기존 스프라이트를 그대로 쓴다: Search/Idle 200×36, Sort/Options 102×36
+        var storageFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
+        var search = MakeSearchField(toolBar, "SearchBox", storageFont,
+                                     S("TATOstorage/Search/Idle"), 200, 36);
+        var sortDd = MakeDropdownInLayout(toolBar, "SortDropdown", storageFont,
+                                          S("TATOstorage/Sort/Options"),
+                                          S("TATOstorage/Sort/Dropdown"), 150, 36);
 
         // 런 덱 장수 표시 (필터 줄 아래, 우측)
         var deckLbl = NewRect("DeckCount", panel);
@@ -282,6 +386,8 @@ public static class LauncherPanelFiller
         cv.content = grid;
         cv.allCards = LoadAllCardData();
         cv.labelFont = labelFont;
+        cv.searchField = search;
+        cv.sortDropdown = sortDd;
         cv.cardArt = S("Achievement/card");
         cv.filters = cvFilters;   // 등급 필터 작동 연결
         cv.deckCountLabel = deckTxt;
@@ -312,24 +418,44 @@ public static class LauncherPanelFiller
         var featured = ImgInLayout(content, "Featured_TATOEXE", S("Shop/Tile/TATOEXE"));
         Btn(featured.transform, "Btn_Owned", S("Shop/Tile/Button/OWNED_Idle"), null, null, 0f, -188f);
 
-        // 게임 타일 2행 그리드 (가로로 흐름)
+        // 게임 타일 — 저장공간 카탈로그(StorageData.Catalog)에서 생성
+        var shopFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
+        var shop = panel.gameObject.GetComponent<ShopView>() ?? panel.gameObject.AddComponent<ShopView>();
+        shop.tiles.Clear();
+
         var gridGO = NewRect("Tiles", content);
         var gg = gridGO.gameObject.AddComponent<GridLayoutGroup>();
         gg.cellSize = new Vector2(234, 294);
-        gg.spacing = new Vector2(16, 0);
-        gg.startAxis = GridLayoutGroup.Axis.Vertical;          // 위→아래 먼저 채우고 다음 열
+        gg.spacing = new Vector2(16, 12);
+        gg.startAxis = GridLayoutGroup.Axis.Vertical;
         gg.constraint = GridLayoutGroup.Constraint.FixedRowCount;
         gg.constraintCount = 2;
         var gfit = gridGO.gameObject.AddComponent<ContentSizeFitter>();
         gfit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
         gfit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        for (int i = 0; i < 8; i++)
+
+        foreach (var g in StorageData.Catalog)
         {
-            var tile = ImgInLayout(gridGO, "Shop_Tile_" + i, S("Minigame/Tile/poootato"));
-            Btn(tile.transform, "Btn_Buy",
-                S("Shop/Tile/Button/Idle"), S("Shop/Tile/Button/Hover"), S("Shop/Tile/Button/Pressed"),
-                0f, -76.5f, 171f, 61f);
+            if (g.core) continue;   // 본편은 위의 대표 타일이 담당
+            var tile = ImgInLayout(gridGO, "Shop_" + g.id, S(g.tileSprite));
+            var buy = Btn(tile.transform, "Btn_Buy",
+                          S("Shop/Tile/Button/Idle"), S("Shop/Tile/Button/Hover"), S("Shop/Tile/Button/Pressed"),
+                          0f, -76.5f, 171f, 61f);
+            shop.tiles.Add(new ShopView.Tile
+            {
+                gameId = g.id,
+                button = buy,
+                caption = CenterText(buy.transform, "구매", shopFont, 20),
+                info = InfoText(tile.transform, shopFont),
+            });
         }
+
+        // 상단: 저장공간 / 하단: 안내 한 줄
+        shop.storageLabel = Label(panel, "Label_Storage", "", shopFont, -300f, -150f);
+        shop.noticeLabel  = Label(panel, "Label_Notice",  "", shopFont, -300f, -320f);
+        shop.noticeLabel.fontSize = 19;
+        EditorUtility.SetDirty(shop);
+
         LayoutRebuilder.ForceRebuildLayoutImmediate(content);
 
         // 할인 알림 — 스크롤과 무관하게 우하단 고정
@@ -352,13 +478,16 @@ public static class LauncherPanelFiller
         g.constraintCount = 5;
         var fit = grid.gameObject.AddComponent<ContentSizeFitter>();
         fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        for (int i = 0; i < 15; i++)
-        {
-            var card = ImgInLayout(grid.transform, "Achieve_" + i, S("Achievement/card"));
-            // 슬리브 프레임 오버레이 — 기본 획득(Acquired). 미획득 카드는 에디터에서
-            // Sleeve 스프라이트를 Unacquired로 교체.
-            Img(card.transform, "Sleeve", S("Achievement/Card_Sleeve/Acquired"), 0f, 0f);
-        }
+        var achFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
+        var av = panel.gameObject.GetComponent<AchievementView>() ?? panel.gameObject.AddComponent<AchievementView>();
+        av.content = grid;
+        av.cardSprite = S("Achievement/card");
+        av.sleeveAcquired = S("Achievement/Card_Sleeve/Acquired");
+        av.sleeveLocked = S("Achievement/Card_Sleeve/Unacquired");
+        av.labelFont = achFont;
+        av.progressLabel = Label(panel, "Label_Progress", "", achFont, -300f, -150f);
+        EditorUtility.SetDirty(av);
+
         LayoutRebuilder.ForceRebuildLayoutImmediate(grid);
     }
 

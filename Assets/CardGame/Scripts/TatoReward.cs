@@ -36,6 +36,8 @@ namespace TatoGames.CardGame
         public static Result Grant(AcquireSource source, int record)
         {
             var result = new Result();
+            // 보상 여부와 무관하게 "한 판 했다"는 사실은 기록한다
+            Launcher.Achievements.Bump(Launcher.Achievements.MinigamesPlayed);
 
             var lib = CardLibrary.Load();
             if (lib == null)

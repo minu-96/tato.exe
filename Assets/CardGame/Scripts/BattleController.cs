@@ -78,7 +78,10 @@ namespace TatoGames.CardGame
             if (!RunState.Active)
             {
                 RunState.StartRun(playerMaxHp);
+                TatoGames.Launcher.Achievements.Bump(TatoGames.Launcher.Achievements.RunsStarted);
                 int rotted = PlayerData.AgeAll();
+                if (rotted > 0)
+                    TatoGames.Launcher.Achievements.Bump(TatoGames.Launcher.Achievements.CardsRotted, rotted);
                 if (rotted > 0)
                     startNotice = $"카드 {rotted}장이 썩었습니다 — " +
                                   $"감자창고에서 장당 {PlayerData.RottenSellPrice}토인에 팔 수 있어요";
@@ -399,6 +402,9 @@ namespace TatoGames.CardGame
         void Win()
         {
             over = true;
+            TatoGames.Launcher.Achievements.Bump(TatoGames.Launcher.Achievements.BattlesWon);
+            if (RunState.IsBossNode)
+                TatoGames.Launcher.Achievements.Bump(TatoGames.Launcher.Achievements.BossesKilled);
             if (RunState.Active) RunState.PlayerHp = player.hp;   // 체력은 노드를 넘어 유지
             Refresh();
             message.text = "승리!";
@@ -436,6 +442,7 @@ namespace TatoGames.CardGame
 
         void ShowRunClear()
         {
+            TatoGames.Launcher.Achievements.Bump(TatoGames.Launcher.Achievements.RunsCleared);
             RunState.End();
             if (mapPanel != null) mapPanel.SetActive(false);
             message.text = "런 클리어!  보스를 쓰러뜨렸습니다.";
