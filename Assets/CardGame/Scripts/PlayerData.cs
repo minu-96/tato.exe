@@ -12,10 +12,46 @@ namespace TatoGames.CardGame
     {
         public int instanceId;
         public string cardId;
-        public bool bound;      // 시작덱 귀속: 판매 불가 (덱에서 빼는 건 자유)
+        public bool bound;      // 시작덱 귀속: 판매·썩음 면제 (덱에서 빼는 건 자유)
         public UpgradeKind upgrade = UpgradeKind.None;
 
+        /// <summary>지나온 런 수 (§7 시간축 = 런 수). 런이 끝날 때마다 보유 카드 전부 +1.</summary>
+        public int age;
+
+        /// <summary>이 나이가 되면 썩는다. 획득 시 희귀도별 범위에서 한 번 굴려 고정.</summary>
+        public int rotAt;
+
         public bool IsUpgraded => upgrade != UpgradeKind.None;
+
+        CardState StateAt(int a)
+        {
+            if (bound || rotAt <= 0) return CardState.Fresh;
+            if (a >= rotAt) return CardState.Rotten;
+            if (a >= rotAt - 1) return CardState.Sprouted;
+            return CardState.Fresh;
+        }
+
+        /// <summary>
+        /// 지금 이 나이에서의 상태 (생 / 싹 / 썩음, §8.1). 전투 덱을 만들 때 쓰는 "실제" 상태.
+        /// 썩기 직전 딱 1런이 싹 = 경고 + 라스트 찬스 강화.
+        /// 귀속(시작덱)은 늙지 않는다(§8.2) — 대신 싹 버프도 받지 못한다.
+        /// </summary>
+        public CardState State => StateAt(age);
+
+        public bool IsRotten => State == CardState.Rotten;
+
+        /// <summary>
+        /// <b>다음 런에서</b> 가질 상태 — 감자창고 표시용.
+        /// 나이는 런이 시작될 때 먹으므로, 런처에서 보이는 `State`는 이미 끝난 런의 것이라
+        /// 한 칸 뒤처진다. 플레이어가 덱을 짤 때 알고 싶은 건 "다음 런에 뭐가 되나"다.
+        /// </summary>
+        public CardState NextRunState => StateAt(age + 1);
+
+        /// <summary>앞으로 실제로 플레이할 수 있는 런 수. 0이면 다음 런에 썩어 못 쓴다.</summary>
+        public int RunsLeftToPlay => bound ? int.MaxValue : Mathf.Max(0, rotAt - age - 1);
+
+        /// <summary>다 쓴 카드 — 다음 런에 썩으므로 두 번 다시 낼 수 없다. 판매 대상.</summary>
+        public bool IsSpent => !bound && NextRunState == CardState.Rotten;
     }
 
     /// <summary>
@@ -27,6 +63,30 @@ namespace TatoGames.CardGame
     /// </summary>
     public static class PlayerData
     {
+        /// <summary>
+        /// 희귀도별 수명 (런 단위, 양끝 포함). 획득 시 이 범위에서 한 번 굴려 인스턴스에 고정한다.
+        /// 마지막 1런은 싹(라스트 찬스)이므로, 실제로 '생'으로 쓰는 건 rotAt−1런.
+        /// </summary>
+        public static readonly Dictionary<Rarity, Vector2Int> RotLife = new()
+        {
+            { Rarity.Common,        new Vector2Int(3, 5) },
+            { Rarity.Rare,          new Vector2Int(5, 8) },
+            { Rarity.Transcendent,  new Vector2Int(7, 10) },
+            { Rarity.Legendary,     new Vector2Int(10, 13) },
+        };
+
+        /// <summary>썩은 카드 판매가 — 희귀도와 무관하게 동일(§13.2 손실 채널 정리용).</summary>
+        public const int RottenSellPrice = 3;
+
+        /// <summary>구버전 저장(수명 정보 없음)에서 올라온 카드의 기본 수명.</summary>
+        const int LegacyRotAt = 4;
+
+        public static int RollRotAt(Rarity rarity)
+        {
+            var r = RotLife.TryGetValue(rarity, out var v) ? v : RotLife[Rarity.Common];
+            return Random.Range(r.x, r.y + 1);   // 양끝 포함
+        }
+
         public const int MinDeck = 8;
         public const int MaxDeck = 30;
 
@@ -71,7 +131,15 @@ namespace TatoGames.CardGame
                 if (!int.TryParse(f[0], out int iid)) continue;
                 var up = UpgradeKind.None;
                 if (f.Length >= 4) up = f[3] switch { "1" => UpgradeKind.Plus, "2" => UpgradeKind.Minus, _ => UpgradeKind.None };
-                list.Add(new CardInstance { instanceId = iid, cardId = f[1], bound = f[2] == "1", upgrade = up });
+                bool bound = f[2] == "1";
+                // 나이·수명은 5·6번째 칸. 없으면 구버전 저장 → 기본값으로 올린다.
+                int age = f.Length >= 5 && int.TryParse(f[4], out int a) ? a : 0;
+                int rotAt = f.Length >= 6 && int.TryParse(f[5], out int r) ? r : (bound ? 0 : LegacyRotAt);
+                list.Add(new CardInstance
+                {
+                    instanceId = iid, cardId = f[1], bound = bound, upgrade = up,
+                    age = age, rotAt = rotAt,
+                });
             }
             return list;
         }
@@ -104,17 +172,21 @@ namespace TatoGames.CardGame
         static void SaveInstances(List<CardInstance> list)
         {
             var recs = list.Select(c =>
-                $"{c.instanceId}|{c.cardId}|{(c.bound ? 1 : 0)}|{(int)c.upgrade}");
+                $"{c.instanceId}|{c.cardId}|{(c.bound ? 1 : 0)}|{(int)c.upgrade}|{c.age}|{c.rotAt}");
             PlayerPrefs.SetString(InstancesKey, string.Join(";", recs));
         }
 
         /// <summary>카드 1장 획득 → 새 인스턴스. 덱에 여유가 있으면 자동으로 덱에 넣는다.</summary>
-        public static void AddCard(string cardId)
+        public static void AddCard(string cardId, Rarity rarity = Rarity.Common)
         {
             if (string.IsNullOrEmpty(cardId)) return;
             var list = Instances();
             int next = list.Count == 0 ? 1 : list.Max(c => c.instanceId) + 1;
-            var inst = new CardInstance { instanceId = next, cardId = cardId, bound = false };
+            var inst = new CardInstance
+            {
+                instanceId = next, cardId = cardId, bound = false,
+                age = 0, rotAt = RollRotAt(rarity),   // 수명은 획득 시 한 번만 굴린다
+            };
             list.Add(inst);
             SaveInstances(list);
 
@@ -122,6 +194,74 @@ namespace TatoGames.CardGame
             if (deck.Count < MaxDeck) { deck.Add(inst.instanceId); SaveDeck(deck); }
             PlayerPrefs.Save();
             RaiseChanged();
+        }
+
+        // ── 나이 / 썩음 (§7 · §8.1) ──
+
+        /// <summary>
+        /// 런이 끝날 때 호출. 보유 카드 <b>전부</b>가 한 살 먹는다(덱에 넣었든 아니든 — 쟁여두기 방지).
+        /// 귀속 카드는 면제. 이번에 썩은 카드는 덱에서 자동으로 빠지고 창고에는 남는다.
+        /// 반환값 = 이번에 새로 썩은 장수.
+        /// </summary>
+        public static int AgeAll()
+        {
+            var list = Instances();
+            int newlyRotten = 0;
+
+            foreach (var c in list)
+            {
+                if (c.bound) continue;
+                bool wasRotten = c.IsRotten;
+                c.age++;
+                if (!wasRotten && c.IsRotten) newlyRotten++;
+            }
+            SaveInstances(list);
+
+            // 썩은 카드는 덱에서 제외 (창고에는 남아 판매 대상이 된다)
+            var rotten = new HashSet<int>(list.Where(c => c.IsRotten).Select(c => c.instanceId));
+            if (rotten.Count > 0)
+                SaveDeck(DeckIds().Where(id => !rotten.Contains(id)).ToList());
+
+            PlayerPrefs.Save();
+            TopUpDeck();
+            RaiseChanged();
+            return newlyRotten;
+        }
+
+        /// <summary>썩은 카드 판매 — 희귀도 무관 고정가. 귀속은 판매 불가(§8.2).</summary>
+        public static bool TrySellRotten(int instanceId, out string reason)
+        {
+            reason = null;
+            var list = Instances();
+            var inst = list.FirstOrDefault(c => c.instanceId == instanceId);
+            if (inst == null) { reason = "카드를 찾을 수 없어요"; return false; }
+            if (inst.bound) { reason = "귀속 카드는 팔 수 없어요"; return false; }
+            // 이미 썩었거나, 다음 런에 썩어서 두 번 다시 낼 수 없는 카드
+            if (!inst.IsSpent) { reason = "아직 쓸 수 있는 카드예요"; return false; }
+
+            list.Remove(inst);
+            SaveInstances(list);
+            SaveDeck(DeckIds().Where(id => id != instanceId).ToList());
+            PlayerPrefs.Save();
+            AddToin(RottenSellPrice);   // 저장 + 변경 알림
+            return true;
+        }
+
+        /// <summary>창고에 쌓인 썩은 카드를 한 번에 정리. 반환 = 받은 토인.</summary>
+        public static int SellAllRotten()
+        {
+            var list = Instances();
+            var rotten = list.Where(c => c.IsSpent).ToList();
+            if (rotten.Count == 0) return 0;
+
+            var ids = new HashSet<int>(rotten.Select(c => c.instanceId));
+            SaveInstances(list.Where(c => !ids.Contains(c.instanceId)).ToList());
+            SaveDeck(DeckIds().Where(id => !ids.Contains(id)).ToList());
+            PlayerPrefs.Save();
+
+            int gained = rotten.Count * RottenSellPrice;
+            AddToin(gained);
+            return gained;
         }
 
         // ── 런 덱 ──
@@ -141,6 +281,15 @@ namespace TatoGames.CardGame
 
         public static int DeckSize() => DeckIds().Count;
 
+        /// <summary>
+        /// 런이 진행 중인가 — 중단하고 런처에 나와 있어도 true.
+        /// 이 동안에는 덱을 바꿀 수 없다: 그러지 않으면 전투 중에 나가서 덱을 갈아끼우거나
+        /// (§10.7 "복사가 아니라 이동" 위반), 죽기 직전 이탈로 손실을 회피할 수 있다.
+        /// </summary>
+        public static bool RunInProgress => RunState.Active;
+
+        public const string DeckLockedReason = "런이 진행 중이라 덱을 바꿀 수 없어요 (끝내야 편성 가능)";
+
         /// <summary>덱에 넣기/빼기. 최소 8 · 최대 30을 어기면 false와 사유를 돌려준다.</summary>
         public static bool TrySetInDeck(int instanceId, bool inDeck, out string reason)
         {
@@ -148,10 +297,16 @@ namespace TatoGames.CardGame
             bool has = deck.Contains(instanceId);
             reason = null;
 
+            // 런 도중에는 편성 잠금 (대장간의 강화·제거는 런의 일부라 별도 경로로 허용)
+            if (RunInProgress) { reason = DeckLockedReason; return false; }
+
             if (inDeck)
             {
                 if (has) return true;
                 if (deck.Count >= MaxDeck) { reason = $"덱은 최대 {MaxDeck}장까지예요"; return false; }
+                var target = Instances().FirstOrDefault(c => c.instanceId == instanceId);
+                if (target != null && target.IsSpent)
+                { reason = "다음 런에 썩어서 쓸 수 없어요"; return false; }
                 deck.Add(instanceId);
             }
             else
@@ -171,8 +326,12 @@ namespace TatoGames.CardGame
         public static List<CardInstance> DeckInstances()
         {
             var deck = new HashSet<int>(DeckIds());
-            return Instances().Where(c => deck.Contains(c.instanceId)).ToList();
+            // 썩은 카드는 AgeAll에서 이미 덱에서 빠지지만, 저장이 어긋나도 전투에 안 섞이도록 한 번 더 거른다
+            return Instances().Where(c => deck.Contains(c.instanceId) && !c.IsRotten).ToList();
         }
+
+        /// <summary>창고에 쌓인 썩은 카드 수 (판매 안내용).</summary>
+        public static int RottenCount() => Instances().Count(c => c.IsSpent);
 
         // ── 대장간 (§10.10 업그레이드 · §10.8 자율 제거) ──
         public const int UpgradeCost = 30;   // [임시]
@@ -257,6 +416,7 @@ namespace TatoGames.CardGame
             {
                 if (deck.Count >= MinDeck) break;
                 if (inDeck.Contains(c.instanceId)) continue;
+                if (c.IsRotten) continue;             // 썩은 카드로는 채우지 않는다
                 deck.Add(c.instanceId);
             }
             SaveDeck(deck);

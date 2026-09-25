@@ -21,11 +21,18 @@ namespace TatoGames.CardGame
             EffectType.EffectDefense => $"효과방어 {e.value}",
             EffectType.ApplyStatus => $"{Kor(e.status)} {e.value}",
             EffectType.DrawPerRemainingEnergy => $"남은 에너지×{e.value} 드로우",
-            EffectType.RetainBlock => "블록 유지",
-            EffectType.ReflectHalfDamage => "피해 절반 반사",
+            EffectType.TemporaryBlock => $"{e.value} 블록 (이번 턴만)",
+            EffectType.ReflectHalfDamage => "받은 피해 절반 반사",
             EffectType.DisableBlockThisTurn => "이번 턴 블록 불가",
             EffectType.AmplifyPoisonPerTurn => $"중독 피해 +{e.value}",
             EffectType.ApplyStatusForTurns => $"{e.duration}턴 {Kor(e.status)} +{e.value}",
+            EffectType.Heal => $"체력 {e.value} 회복",
+            EffectType.Draw => $"카드 {e.value}장 뽑기",
+            EffectType.GainEnergy => $"에너지 +{e.value}",
+            EffectType.DamageFromBlock => $"방어의 {e.value}%만큼 추가 피해",
+            EffectType.DamageConsumingBlock => e.value >= 100
+                ? "방어를 모두 소모해 그만큼 피해"
+                : $"방어의 {e.value}%를 소모해 그만큼 피해",
             _ => e.type.ToString(),
         };
 

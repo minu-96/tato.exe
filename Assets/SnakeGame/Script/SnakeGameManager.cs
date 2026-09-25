@@ -85,6 +85,10 @@ public class SnakeGameManager : MonoBehaviour
 
     public void GameOver()
     {
+        // 점수에 따라 '늘어나라' 출처 카드를 수급한다 (§8). 규칙은 CardLibrary에서 읽으므로
+        // 이 씬에 배선할 것이 없다. 판이 끝날 때 한 번만 부를 것.
+        TatoGames.CardGame.TatoReward.Grant(TatoGames.CardGame.AcquireSource.Neulteona, score);
+
         gameOverPanel.SetActive(true);
         Time.timeScale = 0f;
     }

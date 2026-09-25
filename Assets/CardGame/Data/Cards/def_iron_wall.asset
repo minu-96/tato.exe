@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aa4ec3f5cd36c43db823ac995634106d, type: 3}
-  m_Name: def_iron_wall
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TatoGames.CardGame.CardData
   id: def_iron_wall
   displayName: "\uCCA0\uBCBD"
-  description: "12 \uBE14\uB85D, \uB2E4\uC74C \uD134\uAE4C\uC9C0 \uC720\uC9C0"
+  description: "12 \uBE14\uB85D (\uB204\uC801\uB418\uC9C0 \uC54A\uACE0 \uB2E4\uC74C \uD134\uC5D0 \uC0AC\uB77C\uC9D0)"
   type: 1
   rarity: 1
   cost: 2
@@ -22,27 +22,15 @@ MonoBehaviour:
   keyword: 0
   artwork: {fileID: 5189691121816951081, guid: 09acb36a6bf3c43f892b3bf371761182, type: 3}
   effects:
-  - type: 1
+  - type: 5
     value: 12
     hits: 1
     target: 1
     status: 0
     duration: 0
-  - type: 5
-    value: 0
-    hits: 1
-    target: 1
-    status: 0
-    duration: 0
   sproutEffects:
-  - type: 1
-    value: 16
-    hits: 1
-    target: 1
-    status: 0
-    duration: 0
   - type: 5
-    value: 0
+    value: 15
     hits: 1
     target: 1
     status: 0

@@ -34,10 +34,18 @@ namespace TatoGames.CardGame
         EffectDefense,          // 효과 방어 — 디버프 N건 무효
         ApplyStatus,            // 상태이상 부여 (status = 종류, value = 스택)
         DrawPerRemainingEnergy, // 턴 종료 시 남은 에너지 × value 장 드로우 (연쇄 수확)
-        RetainBlock,            // 블록 유지형 — 다음 턴까지 유지 (철벽)
-        ReflectHalfDamage,      // 이번 턴 받은 피해 절반 반사 (되받아치기)
+        TemporaryBlock,         // 이번 턴 한정 블록 — 누적되지 않고 다음 턴 시작에 소멸 (철벽)
+        ReflectHalfDamage,      // 다음 적 턴에 받은 피해(막아낸 몫 포함) 절반 반사 (되받아치기)
         DisableBlockThisTurn,   // 이번 턴 블록 사용 불가 (돌진의 부작용)
         AmplifyPoisonPerTurn,   // 매 턴 적이 중독으로 얻는 피해 +value (뿌리내림, 지속)
-        ApplyStatusForTurns     // duration턴 동안 매 턴 status +value (곰팡이 정원)
+        ApplyStatusForTurns,    // duration턴 동안 매 턴 status +value (곰팡이 정원)
+
+        // ── 메인 게임(전투 출처) 카드용 — 축을 잇는 범용 효과 ──
+        // ※ 뒤에만 추가할 것. 중간에 끼우면 기존 SO 에셋의 직렬화(int)가 어긋난다.
+        Heal,                   // 체력 즉시 회복 value
+        Draw,                   // 카드 value장 뽑기
+        GainEnergy,             // 이번 턴 에너지 +value
+        DamageFromBlock,        // 누적 방어의 value%만큼 피해 (방어는 유지)
+        DamageConsumingBlock    // 누적 방어의 value%를 소모하고, 소모한 만큼 피해
     }
 }

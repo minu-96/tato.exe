@@ -12,7 +12,7 @@ using TatoGames.CardGame;
 ///
 /// LauncherUIBuilder.Build()와 달리 새 씬을 만들지 않고 기존 Launcher.unity를 열어
 /// 대상 패널의 (Title 제외) 자식만 지우고 다시 채우므로, 사용자가 손으로 배치한
-/// 홈·미니게임 패널은 건드리지 않는다. 여러 번 실행해도 결과가 같다(idempotent).
+/// 홈 패널은 건드리지 않는다. 여러 번 실행해도 결과가 같다(idempotent).
 ///
 /// 구조 원칙(해상도 정책 미결 상태 대응 — 좌표 하드코딩 대신 유연 레이아웃):
 ///  - 각 패널은 Content(1080×820 기준)를 꽉 채우는 Stretch. Title은 상단 160px.
@@ -26,7 +26,7 @@ public static class LauncherPanelFiller
     const string Base = "Assets/Resorces/Launcher/Main/";
     const string ScenePath = "Assets/Launcher/Scenes/Launcher.unity";
 
-    [MenuItem("TatoGames/Fill Tab Panels (Storage·Shop·Achieve)")]
+    [MenuItem("TatoGames/Fill Tab Panels (Minigame·Storage·Shop·Achieve)")]
     public static void Fill()
     {
         if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
@@ -43,6 +43,7 @@ public static class LauncherPanelFiller
             return;
         }
 
+        BuildMinigame(content.Find("Panel_Minigame"));
         BuildStorage(content.Find("Panel_Storage"));
         BuildShop(content.Find("Panel_Shop"));
         BuildAchieve(content.Find("Panel_Achieve"));
@@ -55,11 +56,64 @@ public static class LauncherPanelFiller
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene, ScenePath);
         AssetDatabase.Refresh();
-        Debug.Log("[TatoGames] 완료 → 탭 배치 + 전환 + 실행 버튼 + 토인/컬렉션 연동");
+        Debug.Log("[TatoGames] 완료 → 미니게임·탭 배치 + 전환 + 실행 버튼 + 토인/컬렉션 연동");
     }
 
     // ══════════════════════════════════════════════ 감자창고(컬렉션) ══════════
     // 상단 고정: 등급 필터 5 + 검색 + 정렬 / 하단: 세로 스크롤 카드 그리드
+    // 미니게임 타일 배치 — 원본 씬 좌표 그대로 (타일 234×294, 버튼 171×61)
+    const float TileY = 91f, BtnY = -76.5f;
+    static readonly (string obj, string tile, float x)[] MinigameTiles =
+    {
+        ("Game_thepotato", "Minigame/Tile/thepotato", -377f),
+        ("Game_poootato",  "Minigame/Tile/poootato",  -136.5f),
+        ("Game_moamoa",    "Minigame/Tile/moamoa",     103f),
+    };
+
+    /// <summary>
+    /// 미니게임 탭 = 게임 타일 3개 + 구매 타일 1개.
+    /// 원래는 씬에 손으로 만들어 두었는데, Build Launcher Shell이 패널을 다시 만들면
+    /// 통째로 날아갔다. 여기서 코드로 재생성해 그 사고를 막는다.
+    /// 오브젝트 이름·경로는 WireLaunchButtons가 찾는 것과 같아야 한다
+    /// (Panel_Minigame/Game_xxx/Btn_GameStart).
+    /// </summary>
+    static void BuildMinigame(Transform panel)
+    {
+        if (panel == null) { Debug.LogWarning("[TatoGames] Panel_Minigame 없음"); return; }
+        EnsureTitle(panel, S("Minigame/name"));
+        ClearContent(panel);
+
+        var start  = (idle: S("Minigame/Tile/Button/Start/Idle"),
+                      hover: S("Minigame/Tile/Button/Start/Hover"),
+                      press: S("Minigame/Tile/Button/Start/Pressed"));
+
+        foreach (var (obj, tile, x) in MinigameTiles)
+        {
+            var img = Img(panel, obj, S(tile), x, TileY);
+            img.rectTransform.sizeDelta = new Vector2(234, 294);
+            // 실제 대상 씬·해상도는 WireLaunchButtons가 채운다
+            Btn(img.transform, "Btn_GameStart", start.idle, start.hover, start.press, 0f, BtnY, 171, 61);
+        }
+
+        // 구매 타일 — 아직 살 수 있는 게임이 없어 버튼만 두고 비워둔다
+        var buy = Img(panel, "Purchase", S("Minigame/Tile/Purchase"), 344f, TileY);
+        buy.rectTransform.sizeDelta = new Vector2(234, 294);
+        Btn(buy.transform, "Btn_Purchase",
+            S("Minigame/Tile/Button/Purchase/Idle"),
+            S("Minigame/Tile/Button/Purchase/Hover"),
+            S("Minigame/Tile/Button/Purchase/Pressed"), 0f, BtnY, 171, 61);
+    }
+
+    /// <summary>패널에 Title이 없으면 만든다(ClearContent가 보존하는 이름).</summary>
+    static void EnsureTitle(Transform panel, Sprite sp)
+    {
+        if (panel.Find("Title") != null || sp == null) return;
+        var img = Img(panel, "Title", sp, 0f, 0f);
+        img.rectTransform.anchorMin = img.rectTransform.anchorMax = new Vector2(0.5f, 1f);
+        img.rectTransform.pivot = new Vector2(0.5f, 1f);
+        img.rectTransform.anchoredPosition = Vector2.zero;
+    }
+
     static void BuildStorage(Transform panel)
     {
         if (panel == null) { Debug.LogWarning("[TatoGames] Panel_Storage 없음"); return; }

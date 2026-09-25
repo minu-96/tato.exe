@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aa4ec3f5cd36c43db823ac995634106d, type: 3}
-  m_Name: def_dirt_wall
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TatoGames.CardGame.CardData
   id: def_dirt_wall
   displayName: "\uD759\uBCBD"

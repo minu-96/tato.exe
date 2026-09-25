@@ -22,7 +22,7 @@ namespace TatoGames.CardGame
         public CardData[] rewardPool;
 
         [Header("플레이어 기본 수치 (§9)")]
-        public int playerMaxHp = 60;
+        public int playerMaxHp = 36;
         public int maxEnergy = 2;
         public int drawCount = 5;
         public int handLimit = 8;
@@ -41,6 +41,7 @@ namespace TatoGames.CardGame
         int energy;
         bool over;
         bool transformed;   // 감자벌레 2페이즈 진입 여부
+        string startNotice = "";   // 런 시작 알림(썩음) — 첫 턴이 끝나면 지운다
 
         // ── UI 참조 ──
         CombatantPanel enemyPanel, playerPanel;
@@ -68,7 +69,20 @@ namespace TatoGames.CardGame
                 uiFont = Font.CreateDynamicFontFromOSFont(
                     new[] { "Malgun Gothic", "맑은 고딕", "Arial" }, 22);
             BuildUI();
-            if (!RunState.Active) RunState.StartRun(playerMaxHp);
+
+            // §7 시간축 = 런 수 — 나이는 <b>새 런을 시작할 때만</b> 먹는다.
+            // 중단했던 런을 이어서 하는 건 같은 런이므로 세지 않는다.
+            //
+            // 나가기로 나이를 회피할 구멍은 '덱 잠금'이 막는다 — 런이 진행 중이면 덱을 못 바꾸므로
+            // 중간에 나갔다 오는 것으로 얻을 게 없다. 새 런은 죽거나 클리어해야만 시작된다.
+            if (!RunState.Active)
+            {
+                RunState.StartRun(playerMaxHp);
+                int rotted = PlayerData.AgeAll();
+                if (rotted > 0)
+                    startNotice = $"카드 {rotted}장이 썩었습니다 — " +
+                                  $"감자창고에서 장당 {PlayerData.RottenSellPrice}토인에 팔 수 있어요";
+            }
             EnterNode();
         }
 
@@ -156,9 +170,10 @@ namespace TatoGames.CardGame
 
             // 덱은 전적으로 보유 인스턴스 구성에 따른다(시작덱도 뺄 수 있음).
             // 대장간에서 강화한 인스턴스는 런타임 복제본으로 들어간다(§10.10).
+            // 감자 상태(생/싹)와 대장간 강화를 함께 올린다 (§8.1 · §10.10)
             foreach (var inst in PlayerData.DeckInstances())
                 if (lib.TryGetValue(inst.cardId, out var card))
-                    drawPile.Add(inst.IsUpgraded ? CardUpgrade.Build(card, inst.upgrade) : card);
+                    drawPile.Add(CardUpgrade.Build(card, inst.upgrade, inst.State));
 
             // 안전장치: 저장이 비었거나 해석 실패 시 시작덱으로 폴백
             if (drawPile.Count == 0 && starterDeck != null)
@@ -185,6 +200,7 @@ namespace TatoGames.CardGame
         public void OnEndTurn()
         {
             if (over) return;
+            startNotice = "";                   // 첫 턴이 지나면 런 시작 알림을 내린다
             player.OnTurnEnd();                 // 취약·약화 감소
             foreach (var c in hand) discard.Add(c);
             hand.Clear();
@@ -218,7 +234,7 @@ namespace TatoGames.CardGame
                     }
                     break;
                 case EnemyActionKind.Block:
-                    enemy.block += ScaleAtk(act.amount);
+                    enemy.GainBlock(ScaleAtk(act.amount), temporary: false);   // 적 블록도 누적
                     break;
                 case EnemyActionKind.Debuff:
                     player.TryApplyDebuff(act.status, act.amount);
@@ -226,6 +242,14 @@ namespace TatoGames.CardGame
                 case EnemyActionKind.Buff:
                     enemy.Add(act.status, act.amount);
                     break;
+            }
+
+            // 되받아치기 — 이번 적 턴에 받은 피해의 절반을 되돌려준다 (블록 무시)
+            int reflected = player.ConsumeReflect();
+            if (reflected > 0)
+            {
+                enemy.TakeLoss(reflected);
+                if (enemy.IsDead) { Win(); return; }
             }
 
             enemy.OnTurnEnd();
@@ -250,13 +274,13 @@ namespace TatoGames.CardGame
         void TryTransform(int blockBefore)
         {
             if (transformed || enemyData == null || !enemyData.transformOnBlockBreak) return;
-            if (blockBefore <= 0 || enemy.block > 0) return;   // 서 있던 방어를 0으로 깬 순간만
+            if (blockBefore <= 0 || enemy.TotalBlock > 0) return;   // 서 있던 방어를 0으로 깬 순간만
             transformed = true;
             enemyIndex = 0;
             enemy.name = string.IsNullOrEmpty(enemyData.phase2Name) ? enemy.name : enemyData.phase2Name;
             enemy.maxHp = ScaleHp(Mathf.Max(1, enemyData.phase2Hp));
             enemy.hp = enemy.maxHp;   // 껍질 속 본체 (감자벌레: 10)
-            enemy.block = 0; enemy.ward = 0;
+            enemy.block = 0; enemy.tempBlock = 0; enemy.ward = 0;
         }
 
         // ══════════════════════════════════════════════ 카드 플레이 ════════════
@@ -266,7 +290,7 @@ namespace TatoGames.CardGame
             if (energy < card.cost) return;
             energy -= card.cost;
 
-            int blockBefore = enemy.block;
+            int blockBefore = enemy.TotalBlock;
             foreach (var e in card.effects)
                 ResolveEffect(e, self: player, opponent: enemy);
 
@@ -292,7 +316,11 @@ namespace TatoGames.CardGame
                     }
                     break;
                 case EffectType.Block:
-                    self.block += e.value + self.Get(StatusType.Dexterity);
+                    self.GainBlock(e.value, temporary: false);    // 누적 블록
+                    break;
+                case EffectType.TemporaryBlock:
+                    // 철벽처럼 한 번에 크게 주는 블록 — 누적되지 않고 다음 턴 시작에 사라진다
+                    self.GainBlock(e.value, temporary: true);
                     break;
                 case EffectType.EffectDefense:
                     self.ward += e.value;
@@ -304,10 +332,49 @@ namespace TatoGames.CardGame
                 case EffectType.DrawPerRemainingEnergy:
                     DrawCards(energy * Mathf.Max(1, e.value));   // 근사: 즉시 처리(정식은 턴 종료 시)
                     break;
-                default:
-                    // Retain/Reflect/NoBlock/AmplifyPoison/ApplyStatusForTurns 등은
-                    // 시작덱 밖 카드 전용 — 전체 로스터 전투 확장 시 구현.
+                case EffectType.ReflectHalfDamage:
+                    // 되받아치기 — 다음 적 턴에 받은 피해(막아낸 몫 포함)의 절반을 되돌려준다
+                    self.ArmReflect();
                     break;
+                case EffectType.DisableBlockThisTurn:
+                    // 돌진의 부작용 — 이번 턴에는 더 이상 블록을 얻을 수 없다
+                    self.blockDisabled = true;
+                    break;
+                case EffectType.AmplifyPoisonPerTurn:
+                    // 뿌리내림 — 이 적이 중독으로 받는 피해 +value (전투가 끝날 때까지 지속)
+                    target.poisonAmp += e.value;
+                    break;
+                case EffectType.ApplyStatusForTurns:
+                    // 곰팡이 정원 — duration턴 동안 매 턴 status +value
+                    target.AddPeriodic(e.status, e.value, e.duration);
+                    break;
+
+                // ── 메인 게임(전투 출처) 카드 ──
+                case EffectType.Heal:
+                    self.Heal(e.value);
+                    break;
+                case EffectType.Draw:
+                    DrawCards(e.value);
+                    break;
+                case EffectType.GainEnergy:
+                    energy += e.value;
+                    break;
+                case EffectType.DamageFromBlock:
+                {
+                    // 흙 던지기 — 쌓아둔 방어를 그대로 두고 그 비율만큼 때린다
+                    int fromBlock = self.TotalBlock * e.value / 100;
+                    if (fromBlock > 0)
+                        opponent.TakeAttack(opponent.ModifyIncoming(self.ModifyOutgoing(fromBlock)));
+                    break;
+                }
+                case EffectType.DamageConsumingBlock:
+                {
+                    // 흙사태 — 방어를 헐어 그만큼 때린다. 방어 빌드의 피니셔
+                    int spent = self.SpendBlock(e.value);
+                    if (spent > 0)
+                        opponent.TakeAttack(opponent.ModifyIncoming(self.ModifyOutgoing(spent)));
+                    break;
+                }
             }
         }
 
@@ -406,7 +473,7 @@ namespace TatoGames.CardGame
         void PickReward(CardData card, int toin)
         {
             PlayerData.AddToin(toin);
-            PlayerData.AddCard(card.id);   // 런처 컬렉션으로 이어짐
+            PlayerData.AddCard(card.id, card.rarity);   // 런처 컬렉션으로 이어짐 (희귀도로 수명 결정)
 
             rewardPanel.SetActive(false);
             message.text = $"획득: {card.displayName}   (+{toin} 토인)";
@@ -457,10 +524,8 @@ namespace TatoGames.CardGame
         void ExitToLauncher()
         {
             // 보상(토인·카드)은 PlayerData(PlayerPrefs)에 저장돼 있어 런처에서 이어진다.
-            if (Application.CanStreamedLevelBeLoaded("Launcher"))
-                SceneManager.LoadScene("Launcher");
-            else
-                Debug.LogWarning("[TatoGames] 'Launcher' 씬이 Build Settings에 없음 — 런처 빌더 메뉴 먼저 실행");
+            // 전환은 런처와 같은 경로를 써서 창 크기(1280×900)까지 되돌린다.
+            TatoGames.Launcher.LauncherTransition.ReturnToLauncher();
         }
 
         static void Shuffle(List<CardData> list)
@@ -742,7 +807,7 @@ namespace TatoGames.CardGame
             {
                 var data = FindCard(inst.cardId);
                 if (data == null) continue;
-                var shown = inst.IsUpgraded ? CardUpgrade.Build(data, inst.upgrade) : data;
+                var shown = CardUpgrade.Build(data, inst.upgrade, inst.State);
                 int id = inst.instanceId;
                 var view = CardView.Create(forgeGrid, uiFont, new Vector2(102, 142));
                 view.name = $"Forge_{id}";
@@ -833,7 +898,7 @@ namespace TatoGames.CardGame
 
             energyText.text = $"{energy}/{maxEnergy}";
             pileText.text = $"덱 {drawPile.Count}    버림 {discard.Count}";
-            if (!over) message.text = "";
+            if (!over) message.text = startNotice;
             RebuildHand();
         }
 

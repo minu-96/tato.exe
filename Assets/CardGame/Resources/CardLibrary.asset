@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60836f9ff7a60465b8b4d079ca8b4323, type: 3}
+  m_Name: CardLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::TatoGames.CardGame.CardLibrary
+  cards:
+  - {fileID: 11400000, guid: f4cfd5ece47ca46d9b0304358a10950a, type: 2}
+  - {fileID: 11400000, guid: aa51d0083ab084f61997fc82ec855b45, type: 2}
+  - {fileID: 11400000, guid: 41ea215c33b454aea8f3e9f0c8ab973b, type: 2}
+  - {fileID: 11400000, guid: 3616137c12a4b445ba99acf6e148c6e0, type: 2}
+  - {fileID: 11400000, guid: 1ea0626e4fad14b90a558e8fcea0a247, type: 2}
+  - {fileID: 11400000, guid: f4040ad9a9c224e92a7c5ca62b3bb9b2, type: 2}
+  - {fileID: 11400000, guid: 9b6a9d8e2eb7b498e83d4546a34fc610, type: 2}
+  - {fileID: 11400000, guid: c358d2ccbcdbf403f9f259e8ae13da30, type: 2}
+  - {fileID: 11400000, guid: 90139f58eb1894443ab972435d12b912, type: 2}
+  - {fileID: 11400000, guid: 3f898513086874b78b23278266f38ffb, type: 2}
+  - {fileID: 11400000, guid: 830a85ced16b24c6883be9cfbf617ceb, type: 2}
+  - {fileID: 11400000, guid: c15a6ae51cb8e4d21935b4f11ce8ef83, type: 2}
+  - {fileID: 11400000, guid: 935443f727f63417b80e82982083e05f, type: 2}
+  - {fileID: 11400000, guid: 61e6e300d42f34e2d9638b5633eb5e43, type: 2}
+  - {fileID: 11400000, guid: 778448b59dd4549e681cc56fd4647453, type: 2}
+  - {fileID: 11400000, guid: c47da90dde70344cd8e1212c22ac8222, type: 2}
+  - {fileID: 11400000, guid: 03e44b70c4937469db733495ba790399, type: 2}
+  - {fileID: 11400000, guid: b61ccd5e7f13f43a8b72ad4df2d049d2, type: 2}
+  - {fileID: 11400000, guid: a6c4c65b39c2049d9b45359f493856e8, type: 2}
+  - {fileID: 11400000, guid: dad99cc41bbfe45bb90932bc16739a91, type: 2}
+  - {fileID: 11400000, guid: 5860445b486b64215a0477dd955f3d07, type: 2}
+  - {fileID: 11400000, guid: 7125e65d3ab634efaabe047cf1666fe7, type: 2}
+  - {fileID: 11400000, guid: 7b63f74910487470b8237ba6a63cdb64, type: 2}
+  - {fileID: 11400000, guid: 8146f25f4343d4522b745ad4d0af258d, type: 2}
+  - {fileID: 11400000, guid: 6b37c4a8452be474ca0fce11509df53b, type: 2}
+  - {fileID: 11400000, guid: bd697df99a78e4d61bea310976881766, type: 2}
+  - {fileID: 11400000, guid: c1337d2f4492742c7b48bd104a7ec45e, type: 2}
+  - {fileID: 11400000, guid: f8d3025c255fb4affbe38b154fc67295, type: 2}
+  - {fileID: 11400000, guid: 24af863ecafab4ac19c5171cfc5a7600, type: 2}
+  rules:
+  - source: 1
+    recordLabel: "\uC810\uC218"
+    tiers:
+    - minRecord: 5
+      cards: 1
+      rareChance: 0
+    - minRecord: 15
+      cards: 2
+      rareChance: 20
+    - minRecord: 30
+      cards: 3
+      rareChance: 35
+  - source: 2
+    recordLabel: "\uC810\uC218"
+    tiers:
+    - minRecord: 10
+      cards: 1
+      rareChance: 0
+    - minRecord: 30
+      cards: 2
+      rareChance: 20
+    - minRecord: 60
+      cards: 3
+      rareChance: 35
+  - source: 3
+    recordLabel: "\uB77C\uC6B4\uB4DC"
+    tiers:
+    - minRecord: 2
+      cards: 1
+      rareChance: 0
+    - minRecord: 4
+      cards: 2
+      rareChance: 25
+    - minRecord: 6
+      cards: 3
+      rareChance: 40

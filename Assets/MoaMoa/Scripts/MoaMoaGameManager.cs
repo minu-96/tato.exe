@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TatoGames.Launcher;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -126,6 +127,10 @@ public class MoaMoaGameManager : MonoBehaviour
         currentState = GameState.GameOver;
         selectionManager.ClearSelection();
         timeManager.StopTimer();
+
+        // 점수에 따라 '모아모아' 출처 카드를 수급한다 (§8). 위 GameOver 가드 덕분에 1판 1회만 실행된다.
+        TatoGames.CardGame.TatoReward.Grant(TatoGames.CardGame.AcquireSource.MoaMoa, currentScore);
+
         uiManager.ShowGameOver(currentScore);
     }
 
@@ -134,13 +139,13 @@ public class MoaMoaGameManager : MonoBehaviour
         SceneManager.LoadScene(scene);
     }
 
+    /// <summary>
+    /// 나가기 = 런처로 복귀 (창 크기도 런처 기준으로 되돌아간다).
+    /// 런처가 빌드에 없으면 LauncherTransition이 알아서 앱 종료로 대체한다.
+    /// </summary>
     public void QuitGame()
     {
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
+        LauncherTransition.ReturnToLauncher();
     }
 
     // 현재 화면 유지하면서 보드/점수/타이머만 리셋

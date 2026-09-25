@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aa4ec3f5cd36c43db823ac995634106d, type: 3}
-  m_Name: atk_potato_cannon
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TatoGames.CardGame.CardData
   id: atk_potato_cannon
   displayName: "\uAC10\uC790 \uD3EC\uD0C4"
@@ -30,7 +30,7 @@ MonoBehaviour:
     duration: 0
   sproutEffects:
   - type: 0
-    value: 16
+    value: 15
     hits: 1
     target: 0
     status: 0

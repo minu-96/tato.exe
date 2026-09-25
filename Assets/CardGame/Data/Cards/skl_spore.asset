@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aa4ec3f5cd36c43db823ac995634106d, type: 3}
-  m_Name: skl_spore
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TatoGames.CardGame.CardData
   id: skl_spore
   displayName: "\uB3C5\uD3EC\uC790"
@@ -30,7 +30,7 @@ MonoBehaviour:
     duration: 0
   sproutEffects:
   - type: 3
-    value: 5
+    value: 4
     hits: 1
     target: 0
     status: 3

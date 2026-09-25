@@ -105,7 +105,7 @@ namespace TatoGames.CardGame
 
             SetBadge(blockBadge, blockText, theme != null ? theme.blockIcon : null,
                      theme != null ? theme.blockColor : new Color(0.35f, 0.62f, 0.85f),
-                     c.block, "방어");
+                     c.TotalBlock, "방어");
             SetBadge(wardBadge, wardText, theme != null ? theme.wardIcon : null,
                      theme != null ? theme.wardColor : new Color(0.65f, 0.45f, 0.85f),
                      c.ward, "효과");

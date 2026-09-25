@@ -124,6 +124,13 @@ public class FarmerMovement : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Potato"))
         {
+            // 생존한 라운드에 따라 '밭의 생존자' 출처 카드를 수급한다 (§8).
+            // 라운드는 InGame0~6 씬으로 관리되므로 씬 이름 끝 숫자 + 1이 생존 라운드다.
+            // 씬을 넘기기 전에 불러야 활성 씬이 InGameN 이다.
+            TatoGames.CardGame.TatoReward.Grant(
+                TatoGames.CardGame.AcquireSource.FieldSurvivor,
+                TatoGames.CardGame.TatoReward.SceneNumber() + 1);
+
             if(currentStage >= 3)
             {
                 Coin_Value.instance.SaveCoin();
