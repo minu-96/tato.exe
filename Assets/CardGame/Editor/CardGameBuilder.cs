@@ -44,7 +44,9 @@ public static class CardGameBuilder
             if (card == null) { Debug.LogError($"[TatoGames] 시작덱 카드 없음: {id}"); return; }
             deck.Add(card); deck.Add(card);
         }
-        var rewardPool = LoadAllCards().Where(c => c.source != AcquireSource.Starter).ToArray();
+        // 전투 보상은 '전투 출처' 카드만 준다 (§8 획득처).
+        // 미니게임 카드는 그 미니게임을 플레이해야 나온다 — 그래야 런처의 미니게임이 존재 이유를 갖는다.
+        var rewardPool = LoadAllCards().Where(c => c.source == AcquireSource.Combat).ToArray();
 
         // 3) 스테이지1 적 6종 (몬스터 AI 이미지 시트 기준)
         var clod = MakeEnemy("enemy_clod", "흙덩이", EnemyTier.Normal, 15, 0, 0, new[]

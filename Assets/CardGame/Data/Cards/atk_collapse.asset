@@ -12,38 +12,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa4ec3f5cd36c43db823ac995634106d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TatoGames.CardGame.CardData
-  id: skl_boost
-  displayName: "\uBD81\uB3CB\uC6B0\uAE30"
-  description: "\uC5D0\uB108\uC9C0 +1 + \uCE74\uB4DC 1\uC7A5 \uBF51\uAE30"
-  type: 2
-  rarity: 0
-  cost: 1
+  id: atk_collapse
+  displayName: "\uD759\uB354\uBBF8 \uBD95\uAD34"
+  description: "10 \uD53C\uD574 + \uBC29\uC5B4\uB97C \uBAA8\uB450 \uC18C\uBAA8\uD574 \uADF8\uB9CC\uD07C \uD53C\uD574"
+  type: 0
+  rarity: 1
+  cost: 2
   source: 4
   keyword: 1
   artwork: {fileID: 0}
   effects:
-  - type: 12
-    value: 1
+  - type: 0
+    value: 10
     hits: 1
-    target: 1
+    target: 0
     status: 0
     duration: 0
-  - type: 11
-    value: 1
+  - type: 14
+    value: 100
     hits: 1
-    target: 1
+    target: 0
     status: 0
     duration: 0
   sproutEffects:
-  - type: 12
-    value: 1
+  - type: 0
+    value: 14
     hits: 1
-    target: 1
+    target: 0
     status: 0
     duration: 0
-  - type: 11
-    value: 2
+  - type: 14
+    value: 100
     hits: 1
-    target: 1
+    target: 0
     status: 0
     duration: 0

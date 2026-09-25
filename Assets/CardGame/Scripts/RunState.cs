@@ -27,12 +27,20 @@ namespace TatoGames.CardGame
         public const int RestHeal = 29;
         public const int StageCount = 3;
 
-        public static List<List<RunNode>> Columns = new();
-        public static int Col;      // 현재 열
-        public static int Row;      // 현재 열에서의 노드 인덱스
-        public static int Stage;    // 0-based
-        public static int PlayerHp;
-        public static bool Active;
+        // ── 런 진행 상태 ──
+        // 전부 PlayerPrefs에 저장된다. 앱을 껐다 켜도 하던 런을 이어서 한다.
+        // (예전에는 메모리 전용이라 재시작하면 런이 증발했고, 그게 손실 회피 구멍이었다)
+        static List<List<RunNode>> columns = new();
+        static int col, row, stage, playerHp;
+        static bool active;
+        static bool loaded;
+
+        public static List<List<RunNode>> Columns { get { EnsureLoaded(); return columns; } set { columns = value; } }
+        public static int Col { get { EnsureLoaded(); return col; } set { col = value; Persist(); } }
+        public static int Row { get { EnsureLoaded(); return row; } set { row = value; Persist(); } }
+        public static int Stage { get { EnsureLoaded(); return stage; } set { stage = value; Persist(); } }
+        public static int PlayerHp { get { EnsureLoaded(); return playerHp; } set { playerHp = value; Persist(); } }
+        public static bool Active { get { EnsureLoaded(); return active; } set { active = value; Persist(); } }
 
         public static RunNode Current =>
             (Active && Col >= 0 && Col < Columns.Count && Row < Columns[Col].Count)
@@ -51,16 +59,16 @@ namespace TatoGames.CardGame
         // 설계 기준은 "능력 게이팅": 1스테이지는 강화 없이, 2스테이지는 대장간 강화 절반,
         // 3스테이지는 강화를 전부 해야 뚫린다. 표준 플레이(강화 50% · 싹 20%)에서 완주 31%.
         //
-        // 실측(시드 3묶음 × 4000런, 전투 출처 10종 포함 29장 로스터) — 각 스테이지 통과율:
-        //   강화 0%  · 싹 20% →  S1 88.7% / S2 28.6% / 완주  5.5%   (2스테이지에서 막힘)
-        //   강화 50% · 싹 20% →  S1 99.2% / S2 72.0% / 완주 35.5%   ← 기준점
-        //   강화 100%· 싹 20% →  S1 99.8% / S2 87.5% / 완주 59.5%
+        // 실측(시드 3묶음 × 4000런, 전투 출처 20종 포함 39장 로스터) — 각 스테이지 통과율:
+        //   강화 0%  · 싹 20% →  S1 91.9% / S2 32.2% / 완주  9.3%   (2스테이지에서 막힘)
+        //   강화 50% · 싹 20% →  S1 99.4% / S2 60.0% / 완주 30.8%   ← 기준점
+        //   강화 100%· 싹 20% →  S1 99.8% / S2 70.9% / 완주 43.5%
         //
         // 체력 배율을 공격력 배율보다 빠르게 올린다(공격 = 1 + (체력−1)×0.6).
         // 적이 단단해져 전투는 길어지되 한 방에 죽지는 않아서, 막는 플레이로 만회할 여지가 남는다.
         // 난이도는 배율보다 최대체력(36)·휴식(29)에 훨씬 민감하다 — 배율만 만지면 곡선이 안 잡힌다.
-        public static float HpScale => Stage switch { 1 => 1.17f, 2 => 1.50f, _ => 1f };
-        public static float AtkScale => Stage switch { 1 => 1.10f, 2 => 1.30f, _ => 1f };
+        public static float HpScale => Stage switch { 1 => 1.17f, 2 => 1.42f, _ => 1f };
+        public static float AtkScale => Stage switch { 1 => 1.10f, 2 => 1.25f, _ => 1f };
 
         public static string StageName => Stage switch
         {
@@ -70,21 +78,118 @@ namespace TatoGames.CardGame
             _ => $"{Stage + 1}단계",
         };
 
+        const string SaveKey = "tato_run";
+
+        /// <summary>
+        /// 런 상태 직렬화. 구분자는 서로 겹치지 않게 고른다
+        /// (# 최상위 · ; 열 · , 노드 · : 노드 필드 · - 연결선).
+        /// </summary>
+        static void Persist()
+        {
+            if (!active)
+            {
+                PlayerPrefs.DeleteKey(SaveKey);
+                PlayerPrefs.Save();
+                return;
+            }
+
+            var map = new System.Text.StringBuilder();
+            for (int c = 0; c < columns.Count; c++)
+            {
+                if (c > 0) map.Append(';');
+                for (int r = 0; r < columns[c].Count; r++)
+                {
+                    if (r > 0) map.Append(',');
+                    var n = columns[c][r];
+                    map.Append((int)n.type).Append(':').Append(n.enemyId ?? "").Append(':')
+                       .Append(string.Join("-", n.next));
+                }
+            }
+            PlayerPrefs.SetString(SaveKey, $"{stage}#{col}#{row}#{playerHp}#{map}");
+            PlayerPrefs.Save();
+        }
+
+        static void EnsureLoaded()
+        {
+            if (loaded) return;
+            loaded = true;   // 실패해도 다시 시도하지 않는다(무한 재귀 방지)
+
+            string raw = PlayerPrefs.GetString(SaveKey, "");
+            if (string.IsNullOrEmpty(raw)) return;
+
+            var f = raw.Split('#');
+            if (f.Length < 5) return;
+            if (!int.TryParse(f[0], out stage) || !int.TryParse(f[1], out col) ||
+                !int.TryParse(f[2], out row) || !int.TryParse(f[3], out playerHp))
+            { stage = col = row = playerHp = 0; return; }
+
+            columns = new List<List<RunNode>>();
+            foreach (var colStr in f[4].Split(';'))
+            {
+                if (string.IsNullOrEmpty(colStr)) continue;
+                var list = new List<RunNode>();
+                foreach (var nodeStr in colStr.Split(','))
+                {
+                    var nf = nodeStr.Split(':');
+                    if (nf.Length < 3) continue;
+                    var node = new RunNode
+                    {
+                        type = (NodeType)(int.TryParse(nf[0], out int t) ? t : 0),
+                        enemyId = nf[1],
+                    };
+                    foreach (var nx in nf[2].Split('-'))
+                        if (int.TryParse(nx, out int v)) node.next.Add(v);
+                    list.Add(node);
+                }
+                columns.Add(list);
+            }
+            active = columns.Count > 0;
+        }
+
+        /// <summary>테스트·초기화용 — 저장된 런을 버린다.</summary>
+        public static void ClearSave()
+        {
+            PlayerPrefs.DeleteKey(SaveKey);
+            PlayerPrefs.Save();
+            columns = new List<List<RunNode>>();
+            col = row = stage = playerHp = 0;
+            active = false;
+            loaded = true;
+        }
+
         public static void StartRun(int startHp)
         {
-            Stage = 0;
-            Columns = BuildMap();
-            Col = 0; Row = 0;
-            PlayerHp = startHp;
-            Active = true;
+            EnsureLoaded();
+            stage = 0;
+            columns = BuildMap();
+            col = 0; row = 0;
+            playerHp = startHp;
+            active = true;
+            RecordStage();
+            Persist();
         }
 
         /// <summary>보스를 깬 뒤 다음 스테이지로 — 맵을 새로 만들고 처음 열로.</summary>
+        /// <summary>지금까지 도달한 최고 스테이지(1-based). 앱을 껐다 켜도 남는다 — HUD 표시용.</summary>
+        public static int BestStageReached
+        {
+            get => Mathf.Clamp(PlayerPrefs.GetInt("tato_best_stage", 1), 1, StageCount);
+            private set => PlayerPrefs.SetInt("tato_best_stage", value);
+        }
+
+        static void RecordStage()
+        {
+            if (Stage + 1 > BestStageReached) { BestStageReached = Stage + 1; PlayerPrefs.Save(); }
+        }
+
         public static void NextStage()
         {
-            Stage++;
-            Columns = BuildMap();
-            Col = 0; Row = 0;
+            EnsureLoaded();
+            stage++;
+            RecordStage();
+            columns = BuildMap();
+            col = 0; row = 0;
+            Persist();
         }
 
         /// <summary>다음 열의 row번째 노드로 이동(연결된 노드만 허용).</summary>
@@ -92,16 +197,19 @@ namespace TatoGames.CardGame
         {
             if (!HasNextColumn) return false;
             if (!Reachable.Contains(row)) return false;
-            Col++;
-            Row = Mathf.Clamp(row, 0, Columns[Col].Count - 1);
+            col++;
+            RunState.row = Mathf.Clamp(row, 0, columns[col].Count - 1);
+            Persist();
             return true;
         }
 
         public static void End()
         {
-            Active = false;
-            Columns = new List<List<RunNode>>();
-            Col = 0; Row = 0; Stage = 0;
+            EnsureLoaded();
+            active = false;
+            columns = new List<List<RunNode>>();
+            col = 0; row = 0; stage = 0;
+            Persist();   // active=false 라 저장을 지운다
         }
 
         // ── 맵 생성 (§11.3 · 적 설계 §4.3) ──

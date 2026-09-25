@@ -298,7 +298,9 @@ namespace TatoGames.CardGame
                 ResolveEffect(e, self: player, opponent: enemy);
 
             hand.Remove(card);
-            discard.Add(card);
+            // 소멸(§10.3) — 이번 전투에서 다시 안 나온다. 버림 더미로 가지 않으므로
+            // 덱을 다 돌아도 재사용할 수 없다. 강한 1회성 효과의 대가.
+            if (card.keyword != CardKeyword.Exhaust) discard.Add(card);
 
             TryTransform(blockBefore);       // 방어 깨지면 변신(사망 판정보다 먼저)
             if (enemy.IsDead) { Win(); return; }
@@ -453,7 +455,8 @@ namespace TatoGames.CardGame
         void ShowReward()
         {
             int toin = RewardToin();
-            var cards = PickRewardCards(3);
+            bool boss = enemyData != null && enemyData.tier == EnemyTier.Boss;
+            var cards = PickRewardCards(boss ? BossRewardCount : NormalRewardCount, boss);
 
             for (int i = rewardRow.childCount - 1; i >= 0; i--)
                 Destroy(rewardRow.GetChild(i).gameObject);
@@ -466,7 +469,9 @@ namespace TatoGames.CardGame
                 return;
             }
 
-            rewardTitle.text = $"전투 보상\n+{toin} 토인 · 카드 1장 선택";
+            rewardTitle.text = boss
+                ? $"보스 보상\n+{toin} 토인 · 초월/전설 카드 {cards.Count}장 중 1장 선택"
+                : $"전투 보상\n+{toin} 토인 · 카드 {cards.Count}장 중 1장 선택";
             foreach (var card in cards)
             {
                 var local = card;
@@ -498,16 +503,59 @@ namespace TatoGames.CardGame
             };
         }
 
-        // 기본덱 제외 후보에서 희귀도 가중(일반60/희귀40)으로 중복 없이 count장
-        List<CardData> PickRewardCards(int count)
+        /// <summary>
+        /// 보상 희귀도 가중 (§12.1). [밸런싱 대상]
+        ///
+        /// <b>초월·전설은 보스에서만 나온다.</b> 일반·엘리트는 일반/희귀만 준다.
+        /// 보스 보상은 3장이 아니라 2장 중 1택이라, 등급이 높은 대신 선택지가 좁다.
+        /// </summary>
+        public static readonly (Rarity rarity, int weight)[] NormalRewardWeights =
         {
+            (Rarity.Common, 60),
+            (Rarity.Rare,   40),
+        };
+
+        public static readonly (Rarity rarity, int weight)[] BossRewardWeights =
+        {
+            (Rarity.Transcendent, 75),
+            (Rarity.Legendary,    25),
+        };
+
+        public const int NormalRewardCount = 3;
+        public const int BossRewardCount = 2;
+
+        /// <summary>가중치 표에서 희귀도 한 단계를 뽑는다.</summary>
+        static Rarity RollRarity((Rarity rarity, int weight)[] table)
+        {
+            int total = 0;
+            foreach (var w in table) total += w.weight;
+            int roll = Random.Range(0, total);
+            foreach (var w in table)
+            {
+                if (roll < w.weight) return w.rarity;
+                roll -= w.weight;
+            }
+            return table[0].rarity;
+        }
+
+        /// <summary>보상 후보에서 희귀도 가중으로 중복 없이 count장.</summary>
+        List<CardData> PickRewardCards(int count, bool boss)
+        {
+            var table = boss ? BossRewardWeights : NormalRewardWeights;
             var chosen = new List<CardData>();
             if (rewardPool == null) return chosen;
-            var pool = rewardPool.Where(c => c != null).ToList();
+
+            // 보스는 초월·전설만, 일반·엘리트는 일반·희귀만 후보로 둔다
+            var allowed = new HashSet<Rarity>(table.Select(w => w.rarity));
+            var pool = rewardPool.Where(c => c != null && allowed.Contains(c.rarity)).ToList();
+            // 해당 등급 카드가 아예 없으면(초기 로스터 등) 전체에서 고른다
+            if (pool.Count == 0) pool = rewardPool.Where(c => c != null).ToList();
+
             while (chosen.Count < count && chosen.Count < pool.Count)
             {
-                Rarity want = Random.value < 0.6f ? Rarity.Common : Rarity.Rare;
+                var want = RollRarity(table);
                 var tierPool = pool.Where(c => c.rarity == want && !chosen.Contains(c)).ToList();
+                // 그 등급에 남은 카드가 없으면 아무거나 (초월·전설은 장수가 적어 자주 비어 있다)
                 if (tierPool.Count == 0) tierPool = pool.Where(c => !chosen.Contains(c)).ToList();
                 if (tierPool.Count == 0) break;
                 chosen.Add(tierPool[Random.Range(0, tierPool.Count)]);

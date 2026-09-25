@@ -15,7 +15,12 @@ namespace TatoGames.Launcher
             Toin,             // 토인 보유량
             DeckCount,        // 런 덱 장수
             CollectionCount,  // 감자창고 보유 장수
+            BestStage,        // 최고 도달 스테이지
+            Nickname,         // 플레이어 이름
         }
+
+        /// <summary>닉네임 — 아직 입력 시스템이 없어 고정값. 나중에 설정에서 바꾸게 한다.</summary>
+        public const string DefaultNickname = "멀쩡한 감자농부";
 
         public Stat stat = Stat.Toin;
         public Text label;
@@ -35,6 +40,8 @@ namespace TatoGames.Launcher
             {
                 Stat.DeckCount => PlayerData.DeckSize().ToString(),
                 Stat.CollectionCount => PlayerData.Instances().Count.ToString(),
+                Stat.BestStage => $"{RunState.BestStageReached} / {RunState.StageCount}",
+                Stat.Nickname => DefaultNickname,
                 _ => PlayerData.Toin.ToString(),
             };
         }

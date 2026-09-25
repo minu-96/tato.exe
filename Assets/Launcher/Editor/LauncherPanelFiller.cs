@@ -45,7 +45,7 @@ public static class LauncherPanelFiller
 
         BuildMinigame(content.Find("Panel_Minigame"));
         BuildSettings(content.Find("Panel_Setting"));
-        BuildPatchNote(content.Find("Panel_Patch"));
+        BuildPatchNote(content.Find("Panel_Patchnote"));
         BuildStorage(content.Find("Panel_Storage"));
         BuildShop(content.Find("Panel_Shop"));
         BuildAchieve(content.Find("Panel_Achieve"));
@@ -73,11 +73,9 @@ public static class LauncherPanelFiller
     };
 
     /// <summary>
-    /// 미니게임 탭 = 게임 타일 3개 + 구매 타일 1개.
-    /// 원래는 씬에 손으로 만들어 두었는데, Build Launcher Shell이 패널을 다시 만들면
-    /// 통째로 날아갔다. 여기서 코드로 재생성해 그 사고를 막는다.
-    /// 오브젝트 이름·경로는 WireLaunchButtons가 찾는 것과 같아야 한다
-    /// (Panel_Minigame/Game_xxx/Btn_GameStart).
+    /// 미니게임 탭 — 타일은 <see cref="MinigameTabView"/>가 런타임에 그린다.
+    /// 보유한 게임만 보여야 하고 설치/삭제로 모습이 바뀌므로 고정 배치가 불가능하다.
+    /// 여기서는 아트와 배치 값만 넘겨준다.
     /// </summary>
     static void BuildMinigame(Transform panel)
     {
@@ -85,35 +83,50 @@ public static class LauncherPanelFiller
         EnsureTitle(panel, S("Minigame/name"));
         ClearContent(panel);
 
-        var start  = (idle: S("Minigame/Tile/Button/Start/Idle"),
-                      hover: S("Minigame/Tile/Button/Start/Hover"),
-                      press: S("Minigame/Tile/Button/Start/Pressed"));
+        var font = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
+        var view = panel.gameObject.GetComponent<MinigameTabView>()
+                   ?? panel.gameObject.AddComponent<MinigameTabView>();
 
-        var mgFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
-        foreach (var (obj, tile, x, gameId) in MinigameTiles)
-        {
-            var img = Img(panel, obj, S(tile), x, TileY);
-            img.rectTransform.sizeDelta = new Vector2(234, 294);
-            // 실제 대상 씬·해상도는 WireLaunchButtons가 채운다
-            var b = Btn(img.transform, "Btn_GameStart", start.idle, start.hover, start.press, 0f, BtnY, 171, 61);
+        view.labelFont = font;
+        view.purchaseTile = S("Minigame/Tile/Purchase");
+        view.startIdle = S("Minigame/Tile/Button/Start/Idle");
+        view.startHover = S("Minigame/Tile/Button/Start/Hover");
+        view.startPressed = S("Minigame/Tile/Button/Start/Pressed");
+        view.purchaseIdle = S("Minigame/Tile/Button/Purchase/Idle");
+        view.purchaseHover = S("Minigame/Tile/Button/Purchase/Hover");
+        view.purchasePressed = S("Minigame/Tile/Button/Purchase/Pressed");
 
-            // 설치 여부에 따라 잠기도록 (§4 저장공간)
-            var st = img.gameObject.AddComponent<MinigameTileState>();
-            st.gameId = gameId;
-            st.launchButton = b;
-            st.tileImage = img;
-            st.caption = InfoText(img.transform, mgFont);
-            st.caption.fontSize = 18;
-            st.caption.color = new Color(1f, 0.6f, 0.5f);
-        }
+        // 타일 전용 컨테이너 — 패널 전체를 덮는 빈 Rect.
+        // 타일은 절대 좌표로 놓이므로 레이아웃 그룹 없이 스트레치만 시킨다.
+        var tileRoot = NewRect("Tiles", panel);
+        SetStretch(tileRoot, 0, 0, 0, 0);
+        view.tileRoot = tileRoot;
 
-        // 구매 타일 — 아직 살 수 있는 게임이 없어 버튼만 두고 비워둔다
-        var buy = Img(panel, "Purchase", S("Minigame/Tile/Purchase"), 344f, TileY);
-        buy.rectTransform.sizeDelta = new Vector2(234, 294);
-        Btn(buy.transform, "Btn_Purchase",
-            S("Minigame/Tile/Button/Purchase/Idle"),
-            S("Minigame/Tile/Button/Purchase/Hover"),
-            S("Minigame/Tile/Button/Purchase/Pressed"), 0f, BtnY, 171, 61);
+        view.tileArts.Clear();
+        foreach (var g in StorageData.MiniGames)
+            view.tileArts.Add(new MinigameTabView.TileArt { gameId = g.id, sprite = S(g.tileSprite) });
+
+        // 저장공간 현황 — 설치·삭제가 여기서 일어나므로 이 탭에만 둔다
+        view.storageLabel = Label(panel, "Label_Storage", "", font, -300f, -170f);
+        view.storageLabel.fontSize = 21;
+
+        var barBg = Img(panel, "StorageBar", null, -110f, -206f);
+        barBg.rectTransform.sizeDelta = new Vector2(640, 16);
+        barBg.color = new Color(1f, 1f, 1f, 0.12f);
+        barBg.raycastTarget = false;
+        view.storageBarBg = barBg;
+
+        var barFill = Img(barBg.transform, "Fill", null, 0f, 0f);
+        barFill.rectTransform.anchorMin = Vector2.zero;
+        barFill.rectTransform.anchorMax = new Vector2(1f, 1f);
+        barFill.rectTransform.offsetMin = barFill.rectTransform.offsetMax = Vector2.zero;
+        barFill.color = new Color(0.35f, 0.62f, 0.85f);
+        barFill.raycastTarget = false;
+        view.storageBarFill = barFill;
+
+        view.noticeLabel = Label(panel, "Label_Notice", "", font, -300f, -246f);
+        view.noticeLabel.fontSize = 19;
+        EditorUtility.SetDirty(view);
     }
 
     /// <summary>패널에 Title이 없으면 만든다(ClearContent가 보존하는 이름).</summary>
@@ -264,7 +277,7 @@ public static class LauncherPanelFiller
     /// <summary>패치노트 탭 — 세로 스크롤에 버전별 변경 사항.</summary>
     static void BuildPatchNote(Transform panel)
     {
-        if (panel == null) { Debug.LogWarning("[TatoGames] Panel_Patch 없음"); return; }
+        if (panel == null) { Debug.LogWarning("[TatoGames] Panel_Patchnote 없음"); return; }
         EnsureTitle(panel, S("patchnote/name"));
         ClearContent(panel);
 
@@ -400,10 +413,17 @@ public static class LauncherPanelFiller
 
     // ══════════════════════════════════════════════════════ 상점 ══════════════
     // 가로 스크롤: 대표타일(TATO.EXE) + 게임타일 2행 그리드 / 우하단 알림(고정)
+    /// <summary>
+    /// 상점 — 원래 구조 그대로: 대표 타일(tato.exe) + 미니게임 2행 그리드.
+    /// 대표 타일은 판매 불가·위치 고정이라 여기서 만들고, 미니게임 타일만
+    /// <see cref="ShopView"/>가 런타임에 그린다(보유 여부로 순서·표시가 달라지므로).
+    /// </summary>
     static void BuildShop(Transform panel)
     {
         if (panel == null) { Debug.LogWarning("[TatoGames] Panel_Shop 없음"); return; }
         ClearContent(panel);
+
+        var font = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
 
         var content = MakeScroll(panel, "Scroll_Shop", horizontal: true, l: 24, b: 28, r: 24, t: 176);
         var hlg = content.gameObject.AddComponent<HorizontalLayoutGroup>();
@@ -414,45 +434,41 @@ public static class LauncherPanelFiller
         var cfit = content.gameObject.AddComponent<ContentSizeFitter>();
         cfit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-        // 대표 타일 — 본편 tato.exe (OWNED 버튼 자리만 비어 있는 완성 아트)
+        // ── 대표 타일 — 본편 tato.exe. 항상 맨 앞, 판매 불가 ──
         var featured = ImgInLayout(content, "Featured_TATOEXE", S("Shop/Tile/TATOEXE"));
-        Btn(featured.transform, "Btn_Owned", S("Shop/Tile/Button/OWNED_Idle"), null, null, 0f, -188f);
+        var ownedBtn = Btn(featured.transform, "Btn_Owned", S("Shop/Tile/Button/OWNED_Idle"), null, null, 0f, -188f);
+        ownedBtn.interactable = false;
+        var core = StorageData.Find("tato");
+        var coreInfo = InfoText(featured.transform, font);
+        coreInfo.text = core != null ? $"{core.displayName}\n{core.sizeMb}MB · 판매 불가" : "";
+        coreInfo.color = new Color(0.85f, 0.88f, 0.95f);
 
-        // 게임 타일 — 저장공간 카탈로그(StorageData.Catalog)에서 생성
-        var shopFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
-        var shop = panel.gameObject.GetComponent<ShopView>() ?? panel.gameObject.AddComponent<ShopView>();
-        shop.tiles.Clear();
-
+        // ── 미니게임 2행 그리드 (내용은 ShopView가 채운다) ──
         var gridGO = NewRect("Tiles", content);
         var gg = gridGO.gameObject.AddComponent<GridLayoutGroup>();
         gg.cellSize = new Vector2(234, 294);
         gg.spacing = new Vector2(16, 12);
-        gg.startAxis = GridLayoutGroup.Axis.Vertical;
+        gg.startAxis = GridLayoutGroup.Axis.Vertical;   // 위→아래 먼저 채우고 다음 열
         gg.constraint = GridLayoutGroup.Constraint.FixedRowCount;
         gg.constraintCount = 2;
         var gfit = gridGO.gameObject.AddComponent<ContentSizeFitter>();
         gfit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
         gfit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        // 타일은 런타임에 채워지므로 지금은 비어 있다. 크기를 0으로 두면 가로 레이아웃이
+        // 대표 타일 위에 겹쳐 놓으므로, 들어갈 개수만큼 미리 자리를 잡아둔다.
+        int cols = Mathf.CeilToInt(StorageData.MiniGames.Count() / 2f);
+        gridGO.sizeDelta = new Vector2(cols * 234 + (cols - 1) * 16, 2 * 294 + 12);
 
-        foreach (var g in StorageData.Catalog)
-        {
-            if (g.core) continue;   // 본편은 위의 대표 타일이 담당
-            var tile = ImgInLayout(gridGO, "Shop_" + g.id, S(g.tileSprite));
-            var buy = Btn(tile.transform, "Btn_Buy",
-                          S("Shop/Tile/Button/Idle"), S("Shop/Tile/Button/Hover"), S("Shop/Tile/Button/Pressed"),
-                          0f, -76.5f, 171f, 61f);
-            shop.tiles.Add(new ShopView.Tile
-            {
-                gameId = g.id,
-                button = buy,
-                caption = CenterText(buy.transform, "구매", shopFont, 20),
-                info = InfoText(tile.transform, shopFont),
-            });
-        }
-
-        // 상단: 저장공간 / 하단: 안내 한 줄
-        shop.storageLabel = Label(panel, "Label_Storage", "", shopFont, -300f, -150f);
-        shop.noticeLabel  = Label(panel, "Label_Notice",  "", shopFont, -300f, -320f);
+        var shop = panel.gameObject.GetComponent<ShopView>() ?? panel.gameObject.AddComponent<ShopView>();
+        shop.tileRoot = gridGO;
+        shop.labelFont = font;
+        shop.buyIdle = S("Shop/Tile/Button/Idle");
+        shop.buyHover = S("Shop/Tile/Button/Hover");
+        shop.buyPressed = S("Shop/Tile/Button/Pressed");
+        shop.tileArts.Clear();
+        foreach (var g in StorageData.MiniGames)
+            shop.tileArts.Add(new ShopView.TileArt { gameId = g.id, sprite = S(g.tileSprite) });
+        shop.noticeLabel = Label(panel, "Label_Notice", "", font, -300f, -320f);
         shop.noticeLabel.fontSize = 19;
         EditorUtility.SetDirty(shop);
 
@@ -462,8 +478,6 @@ public static class LauncherPanelFiller
         Img(panel, "Notification", S("Shop/Notification"), 300f, -300f);
     }
 
-    // ══════════════════════════════════════════════════════ 업적 ══════════════
-    // 세로 스크롤: 카드 그리드, 각 카드에 슬리브(획득) 오버레이
     static void BuildAchieve(Transform panel)
     {
         if (panel == null) { Debug.LogWarning("[TatoGames] Panel_Achieve 없음"); return; }
@@ -579,6 +593,8 @@ public static class LauncherPanelFiller
         BindStat(canvas, "Chip_TOIN", HudStat.Stat.Toin);
         BindStat(canvas, "Chip_Basket", HudStat.Stat.DeckCount);
         BindStat(canvas, "Chip_Storage", HudStat.Stat.CollectionCount);
+        BindStat(canvas, "Chip_Stage", HudStat.Stat.BestStage);
+        BindStat(canvas, "Chip_Profile", HudStat.Stat.Nickname);
     }
 
     static void BindStat(Transform canvas, string chipName, HudStat.Stat stat)

@@ -36,15 +36,26 @@ namespace TatoGames.CardGame
             _ => e.type.ToString(),
         };
 
-        /// <summary>카드 설명 — description이 있으면 그걸, 없으면 효과를 조합.</summary>
+        /// <summary>키워드 표기 (§10.3).</summary>
+        public static string Keyword(CardKeyword k) => k switch
+        {
+            CardKeyword.Exhaust => "소멸",
+            CardKeyword.Retain => "보존",
+            CardKeyword.Innate => "무상",
+            _ => "",
+        };
+
+        /// <summary>카드 설명 — description이 있으면 그걸, 없으면 효과를 조합. 키워드는 뒤에 붙인다.</summary>
         public static string Describe(CardData c)
         {
             if (c == null) return "";
-            if (!string.IsNullOrEmpty(c.description)) return c.description;
-            if (c.effects == null || c.effects.Count == 0) return "";
+            string kw = Keyword(c.keyword);
+            string tail = string.IsNullOrEmpty(kw) ? "" : "\n〈" + kw + "〉";
+            if (!string.IsNullOrEmpty(c.description)) return c.description + tail;
+            if (c.effects == null || c.effects.Count == 0) return tail.TrimStart();
             var lines = new string[c.effects.Count];
             for (int i = 0; i < c.effects.Count; i++) lines[i] = Effect(c.effects[i]);
-            return string.Join("\n", lines);
+            return string.Join("\n", lines) + tail;
         }
     }
 }

@@ -5,8 +5,8 @@ using UnityEngine;
 using TatoGames.CardGame;
 
 /// <summary>
-/// 기획서 §8.3 MVP 카드 로스터 29종(시작덱 4 + 미니게임 15 + 전투 10)을 ScriptableObject 에셋으로 한 번에 생성.
-/// 메뉴: TatoGames ▸ Generate MVP Cards (29).
+/// 기획서 §8.3 MVP 카드 로스터 39종(시작덱 4 + 미니게임 15 + 전투 20)을 ScriptableObject 에셋으로 한 번에 생성.
+/// 메뉴: TatoGames ▸ Generate MVP Cards (39).
 /// 이미 있는 카드는 GUID를 보존한 채 내용만 갱신(CopySerialized)한다.
 /// 모든 수치는 밸런싱 대상 초안 — 생성 후 인스펙터에서 자유롭게 조정.
 /// </summary>
@@ -18,7 +18,7 @@ public static class CardLibraryGenerator
     const string ResDir = "Assets/CardGame/Resources";
     const string LibPath = ResDir + "/CardLibrary.asset";
 
-    [MenuItem("TatoGames/Generate MVP Cards (29)")]
+    [MenuItem("TatoGames/Generate MVP Cards (39)")]
     public static void Generate()
     {
         if (!AssetDatabase.IsValidFolder(RootDir))
@@ -121,11 +121,13 @@ public static class CardLibraryGenerator
         return c;
     }
 
-    // ── MVP 로스터 29종 (§8.3) ───────────────────────────────────────────
+    // ── MVP 로스터 39종 (§8.3) ───────────────────────────────────────────
     static List<CardData> BuildRoster()
     {
         const CardType ATK = CardType.Attack, DEF = CardType.Defense, SKL = CardType.Skill, ROOT = CardType.Root;
-        const Rarity COM = Rarity.Common, RARE = Rarity.Rare;
+        const Rarity COM = Rarity.Common, RARE = Rarity.Rare,
+                     TRANS = Rarity.Transcendent, LEGEND = Rarity.Legendary;
+        const CardKeyword EX = CardKeyword.Exhaust;
         const AcquireSource ST = AcquireSource.Starter, NEU = AcquireSource.Neulteona,
                             MOA = AcquireSource.MoaMoa, FIELD = AcquireSource.FieldSurvivor,
                             CBT = AcquireSource.Combat;
@@ -195,8 +197,10 @@ public static class CardLibraryGenerator
                  "2 피해 + 방어의 50%만큼 추가 피해", L(D(2), BlkDmg(50)), L(D(4), BlkDmg(50))),
             Make("skl_tend", "손질", SKL, COM, 1, CBT,
                  "카드 2장 뽑기", L(Draw(2)), L(Draw(3))),
+            // [수정] 소멸이 없으면 무한 콤보가 된다 — 코스트 1에 에너지 +1이라 실질 무료인데,
+            // 버림 더미로 갔다가 덱이 한 바퀴 돌면 다시 뽑혀 한 턴에 무한 반복된다.
             Make("skl_boost", "북돋우기", SKL, COM, 1, CBT,
-                 "에너지 +1 + 카드 1장 뽑기", L(Energy(1), Draw(1)), L(Energy(1), Draw(2))),
+                 "에너지 +1 + 카드 1장 뽑기", L(Energy(1), Draw(1)), L(Energy(1), Draw(2)), EX),
             Make("atk_tamp", "되박기", ATK, COM, 1, CBT,
                  "3 피해 + 3 블록", L(D(3), B(3)), L(D(5), B(5))),
             Make("root_settle", "자리잡기", ROOT, COM, 1, CBT,
@@ -216,6 +220,46 @@ public static class CardLibraryGenerator
                  L(St(StatusType.Strength, 3, TargetType.Self), St(StatusType.Dexterity, 3, TargetType.Self))),
             Make("atk_dig", "굴착", ATK, RARE, 1, CBT,
                  "4 피해 + 카드 1장 뽑기", L(D(4), Draw(1)), L(D(6), Draw(1))),
+
+            // ── 메인 게임 확장 10종 — 소멸(§10.3) 키워드와 상위 희귀도를 쓴다 ──
+            // 소멸 = 이번 전투에서 다시 안 나온다. 그 대가로 평소보다 센 1회성 효과를 준다.
+            // 초월·전설은 수명이 길어(7~10 / 10~13런) 오래 데리고 다니는 축이다.
+
+            // 일반 3
+            Make("atk_stomp", "발 구르기", ATK, COM, 1, CBT,
+                 "4 피해 + 효과방어 1", L(D(4), ED(1)), L(D(6), ED(1))),
+            Make("def_furrow", "고랑 파기", DEF, COM, 1, CBT,
+                 "4 블록 + 카드 1장 뽑기", L(B(4), Draw(1)), L(B(6), Draw(1))),
+            Make("skl_breather", "한 숨 돌리기", SKL, COM, 1, CBT,
+                 "에너지 +2", L(Energy(2)), L(Energy(3)), EX),
+
+            // 희귀 3
+            Make("root_deep_tuber", "뿌리 깊은 감자", ROOT, RARE, 1, CBT,
+                 "민첩 +3", L(St(StatusType.Dexterity, 3, TargetType.Self)),
+                 L(St(StatusType.Dexterity, 5, TargetType.Self)), EX),
+            Make("atk_collapse", "흙더미 붕괴", ATK, RARE, 2, CBT,
+                 "10 피해 + 방어를 모두 소모해 그만큼 피해",
+                 L(D(10), BlkBurst(100)), L(D(14), BlkBurst(100)), EX),
+            Make("skl_seed_sow", "씨감자 뿌리기", SKL, RARE, 1, CBT,
+                 "카드 4장 뽑기 + 에너지 +1", L(Draw(4), Energy(1)), L(Draw(5), Energy(1)), EX),
+
+            // 초월 3
+            Make("root_pulse", "대지의 맥박", ROOT, TRANS, 2, CBT,
+                 "힘 +3 + 민첩 +3",
+                 L(St(StatusType.Strength, 3, TargetType.Self), St(StatusType.Dexterity, 3, TargetType.Self)),
+                 L(St(StatusType.Strength, 4, TargetType.Self), St(StatusType.Dexterity, 4, TargetType.Self)), EX),
+            Make("atk_split", "분열", ATK, TRANS, 2, CBT,
+                 "6 피해 ×3", L(D(6, hits: 3)), L(D(8, hits: 3)), EX),
+            Make("root_taproot", "깊은 뿌리내림", ROOT, TRANS, 1, CBT,
+                 "매 턴 적이 중독으로 얻는 피해 +3 (지속)", L(AmpPoison(3)), L(AmpPoison(4)), EX),
+
+            // 전설 1
+            Make("skl_potato_king", "감자의 왕", SKL, LEGEND, 2, CBT,
+                 "힘 +4 + 민첩 +4 + 카드 2장 뽑기",
+                 L(St(StatusType.Strength, 4, TargetType.Self),
+                   St(StatusType.Dexterity, 4, TargetType.Self), Draw(2)),
+                 L(St(StatusType.Strength, 5, TargetType.Self),
+                   St(StatusType.Dexterity, 5, TargetType.Self), Draw(3)), EX),
         };
     }
 }

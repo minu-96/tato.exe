@@ -290,7 +290,11 @@ namespace TatoGames.Launcher
 
             // 다 쓴 카드(다음 런에 썩음)는 덱 토글 대신 판매 버튼을 단다
             if (inst.IsSpent) BuildSellButton(cell.transform, inst);
-            else BuildDeckToggle(cell.transform, inst);
+            else
+            {
+                BuildDeckToggle(cell.transform, inst);
+                if (!inst.bound) BuildSellButton(cell.transform, inst, compact: true);
+            }
 
             if (inst.bound) BuildBoundTag(cell.transform);
             else BuildStateTag(cell.transform, inst);
@@ -330,27 +334,42 @@ namespace TatoGames.Launcher
             }
         }
 
-        /// <summary>다 쓴 카드 판매 — 희귀도 무관 고정가.</summary>
-        void BuildSellButton(Transform cell, CardInstance inst)
+        /// <summary>
+        /// 카드 판매. 썩은 카드는 고정 3토인, 멀쩡한 카드는 희귀도별 가격.
+        /// compact = 덱 토글 옆에 작게 붙는 형태(멀쩡한 카드용).
+        /// </summary>
+        void BuildSellButton(Transform cell, CardInstance inst, bool compact = false)
         {
             var goSell = new GameObject("Sell", typeof(RectTransform), typeof(Image));
             goSell.transform.SetParent(cell, false);
             var trt = goSell.GetComponent<RectTransform>();
             trt.anchorMin = trt.anchorMax = trt.pivot = new Vector2(1, 1);
-            trt.sizeDelta = new Vector2(88, 30); trt.anchoredPosition = new Vector2(-6, -6);
+            trt.sizeDelta = compact ? new Vector2(74, 26) : new Vector2(88, 30);
+            trt.anchoredPosition = compact ? new Vector2(-6, -40) : new Vector2(-6, -6);
             var img = goSell.GetComponent<Image>();
-            img.color = new Color(0.45f, 0.32f, 0.12f, 0.95f);
 
-            var t = MakeTagText(goSell.transform, 17);
-            t.text = $"판매 +{PlayerData.RottenSellPrice}";
-            t.color = OkColor;
+            int value = PlayerData.SellValue(inst);
+            // 런에 쓰고 있는 카드는 팔 수 없다 — 미리 잠가서 눌러보고 거절당하지 않게
+            bool locked = PlayerData.RunInProgress && PlayerData.IsInDeck(inst.instanceId);
+            img.color = locked ? new Color(0.24f, 0.24f, 0.28f, 0.9f)
+                               : new Color(0.45f, 0.32f, 0.12f, 0.95f);
+
+            var t = MakeTagText(goSell.transform, compact ? 15 : 17);
+            t.text = locked ? "사용 중" : $"판매 +{value}";
+            t.color = locked ? new Color(0.6f, 0.62f, 0.68f) : OkColor;
+
+            if (locked) { img.raycastTarget = false; return; }
 
             var btn = goSell.AddComponent<Button>();
             btn.targetGraphic = img;
             int id = inst.instanceId;
             btn.onClick.AddListener(() =>
             {
-                if (PlayerData.TrySellRotten(id, out string reason)) Rebuild();
+                if (PlayerData.TrySellCard(id, out int refund, out string reason))
+                {
+                    Rebuild();
+                    UpdateDeckLabel($"카드를 팔았습니다 (+{refund} 토인)");
+                }
                 else UpdateDeckLabel(reason);
             });
         }

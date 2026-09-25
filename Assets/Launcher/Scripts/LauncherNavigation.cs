@@ -28,6 +28,15 @@ namespace TatoGames.Launcher
             Show(startIndex);
         }
 
+        /// <summary>이름으로 탭 전환 (인덱스는 순서가 바뀌면 깨지므로 이름으로 찾는다).</summary>
+        public bool ShowByName(string panelName)
+        {
+            for (int i = 0; i < panels.Count; i++)
+                if (panels[i] != null && panels[i].name == panelName) { Show(i); return true; }
+            Debug.LogWarning($"[TatoGames] 탭을 찾지 못함: {panelName}");
+            return false;
+        }
+
         public void Show(int index)
         {
             for (int i = 0; i < panels.Count; i++)

@@ -78,6 +78,24 @@ namespace TatoGames.CardGame
         /// <summary>썩은 카드 판매가 — 희귀도와 무관하게 동일(§13.2 손실 채널 정리용).</summary>
         public const int RottenSellPrice = 3;
 
+        /// <summary>멀쩡한 카드 판매가 — 희귀도가 높을수록 비싸다. [밸런싱 대상]</summary>
+        public static int SellPriceOf(Rarity r) => r switch
+        {
+            Rarity.Rare => 10,
+            Rarity.Transcendent => 22,
+            Rarity.Legendary => 45,
+            _ => 5,
+        };
+
+        /// <summary>이 카드를 지금 팔면 얼마인가. 썩었으면 고정가.</summary>
+        public static int SellValue(CardInstance c)
+        {
+            if (c == null || c.bound) return 0;
+            if (c.IsSpent) return RottenSellPrice;
+            var d = CardLibrary.Load()?.Find(c.cardId);
+            return d != null ? SellPriceOf(d.rarity) : RottenSellPrice;
+        }
+
         /// <summary>구버전 저장(수명 정보 없음)에서 올라온 카드의 기본 수명.</summary>
         const int LegacyRotAt = 4;
 
@@ -228,24 +246,38 @@ namespace TatoGames.CardGame
             return newlyRotten;
         }
 
-        /// <summary>썩은 카드 판매 — 희귀도 무관 고정가. 귀속은 판매 불가(§8.2).</summary>
-        public static bool TrySellRotten(int instanceId, out string reason)
+        /// <summary>
+        /// 카드 판매 (§13.2). 썩은 카드는 고정 3토인, 멀쩡한 카드는 희귀도별 가격.
+        /// 귀속(시작덱)은 팔 수 없고(§8.2), <b>런 중에는 덱에 든 카드를 팔 수 없다</b>
+        /// — 진행 중인 덱을 도중에 헐어 쓰는 것을 막는다.
+        /// </summary>
+        public static bool TrySellCard(int instanceId, out int refund, out string reason)
         {
-            reason = null;
+            refund = 0; reason = null;
             var list = Instances();
             var inst = list.FirstOrDefault(c => c.instanceId == instanceId);
             if (inst == null) { reason = "카드를 찾을 수 없어요"; return false; }
             if (inst.bound) { reason = "귀속 카드는 팔 수 없어요"; return false; }
-            // 이미 썩었거나, 다음 런에 썩어서 두 번 다시 낼 수 없는 카드
-            if (!inst.IsSpent) { reason = "아직 쓸 수 있는 카드예요"; return false; }
 
+            bool inDeck = DeckIds().Contains(instanceId);
+            if (RunInProgress && inDeck)
+            { reason = "런에 쓰고 있는 카드는 팔 수 없어요"; return false; }
+            if (!inst.IsSpent && inDeck && DeckSize() <= MinDeck)
+            { reason = $"덱은 최소 {MinDeck}장이 필요해요"; return false; }
+
+            refund = SellValue(inst);
             list.Remove(inst);
             SaveInstances(list);
             SaveDeck(DeckIds().Where(id => id != instanceId).ToList());
             PlayerPrefs.Save();
-            AddToin(RottenSellPrice);   // 저장 + 변경 알림
+            TopUpDeck();
+            AddToin(refund);            // 저장 + 변경 알림
             return true;
         }
+
+        /// <summary>썩은 카드 판매 — 예전 호출부 호환용.</summary>
+        public static bool TrySellRotten(int instanceId, out string reason) =>
+            TrySellCard(instanceId, out _, out reason);
 
         /// <summary>창고에 쌓인 썩은 카드를 한 번에 정리. 반환 = 받은 토인.</summary>
         public static int SellAllRotten()
