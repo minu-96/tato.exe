@@ -49,7 +49,11 @@ namespace TatoGames.Launcher
             DontDestroyOnLoad(gameObject);
         }
 
-        /// <summary>씬 인스턴스가 없어도 호출되면 임시 인스턴스를 만든다(폰트 없이).</summary>
+        /// <summary>
+        /// 씬 인스턴스가 없어도 호출되면 임시 인스턴스를 만든다(폰트 없이).
+        /// width·height·fullscreen 은 남겨두었지만 <b>더 이상 해상도를 바꾸지 않는다</b> —
+        /// 화면 크기는 DisplaySettings가 앱 전역으로 관리한다.
+        /// </summary>
         public static void Request(string sceneName, int width, int height, bool fullscreen, string exeLabel)
         {
             Ensure().Begin(sceneName, width, height, fullscreen, exeLabel, sweepPersistent: false);
@@ -129,9 +133,10 @@ namespace TatoGames.Launcher
             // ①' 화면이 가려진 뒤 미니게임이 남긴 상주 오브젝트를 멈춘다 (복귀할 때만)
             var stale = sweep ? SuspendPersistentObjects() : null;
 
-            // ② 완전히 가린 뒤 해상도 변경
-            if (w > 0 && h > 0)
-                Screen.SetResolution(w, h, fullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed);
+            // ② 완전히 가린 뒤, 가려는 씬이 쓰는 해상도로 맞춘다.
+            // 게임마다 아트 비율이 달라 대상별로 따로 기억한다(DisplaySettings).
+            // 화면이 가려진 동안 바꾸므로 창이 튀는 게 안 보인다.
+            DisplaySettings.ApplyFor(DisplayBootstrap.TargetOf(scene));
 
             // ③ 2~3프레임 대기(리사이즈 완료 확인)
             yield return null; yield return null; yield return null;

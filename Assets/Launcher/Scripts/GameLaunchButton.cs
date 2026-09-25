@@ -14,7 +14,7 @@ namespace TatoGames.Launcher
         [Tooltip("Build Settings에 등록된 씬 이름")]
         public string sceneName;
 
-        [Tooltip("이 게임이 가정하는 창 해상도")]
+        [Tooltip("이 게임이 가정하는 창 해상도 — 참고용. 실제 화면 크기는 설정 탭(DisplaySettings)이 전역 관리한다")]
         public int width = 1280;
         public int height = 720;
         public bool fullscreen = false;

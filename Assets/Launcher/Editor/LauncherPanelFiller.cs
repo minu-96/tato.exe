@@ -26,7 +26,7 @@ public static class LauncherPanelFiller
     const string Base = "Assets/Resorces/Launcher/Main/";
     const string ScenePath = "Assets/Launcher/Scenes/Launcher.unity";
 
-    [MenuItem("TatoGames/Fill Tab Panels (Minigame·Storage·Shop·Achieve)")]
+    [MenuItem("TatoGames/Fill Tab Panels (Minigame·Storage·Shop·Achieve·Setting)")]
     public static void Fill()
     {
         if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
@@ -44,6 +44,7 @@ public static class LauncherPanelFiller
         }
 
         BuildMinigame(content.Find("Panel_Minigame"));
+        BuildSettings(content.Find("Panel_Setting"));
         BuildStorage(content.Find("Panel_Storage"));
         BuildShop(content.Find("Panel_Shop"));
         BuildAchieve(content.Find("Panel_Achieve"));
@@ -112,6 +113,88 @@ public static class LauncherPanelFiller
         img.rectTransform.anchorMin = img.rectTransform.anchorMax = new Vector2(0.5f, 1f);
         img.rectTransform.pivot = new Vector2(0.5f, 1f);
         img.rectTransform.anchoredPosition = Vector2.zero;
+    }
+
+    /// <summary>
+    /// 설정 탭 — 런처/메인 게임 해상도 드롭다운 + 메인 게임 전체화면 토글.
+    /// 미니게임 해상도는 여기 없다(각 타이틀 화면의 ◀▶ 위젯에서만 바꾼다).
+    /// 설정 탭 전용 아트가 없어서 감자창고 필터의 알약 버튼 스프라이트를 재사용한다.
+    /// </summary>
+    static void BuildSettings(Transform panel)
+    {
+        if (panel == null) { Debug.LogWarning("[TatoGames] Panel_Setting 없음"); return; }
+        EnsureTitle(panel, S("Settings/name"));
+        ClearContent(panel);
+
+        var font = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
+        var idle = S("TATOstorage/Filter/All_Idle");
+        var press = S("TATOstorage/Filter/All_Pressed");
+
+        var view = panel.gameObject.GetComponent<DisplaySettingsView>()
+                   ?? panel.gameObject.AddComponent<DisplaySettingsView>();
+
+        Label(panel, "Label_Launcher", "런처 해상도", font, -280f, 130f);
+        view.launcherDropdown = MakeDropdown(panel, "Dropdown_Launcher", font, idle, 60f, 130f);
+
+        Label(panel, "Label_MainGame", "메인 게임 해상도", font, -280f, 50f);
+        view.mainGameDropdown = MakeDropdown(panel, "Dropdown_MainGame", font, idle, 60f, 50f);
+
+        Label(panel, "Label_Fullscreen", "메인 게임 화면", font, -280f, -30f);
+        var toggle = Btn(panel, "Btn_Fullscreen", idle, null, press, 60f, -30f, 200, 48);
+        view.fullscreenToggle = toggle;
+        view.fullscreenToggleLabel = CenterText(toggle.transform, "전체화면", font, 20);
+
+        Label(panel, "Label_Hint",
+              "미니게임 해상도는 각 게임 타이틀 화면에서 조절합니다", font, -280f, -110f).fontSize = 18;
+
+        EditorUtility.SetDirty(view);
+    }
+
+    /// <summary>Unity 기본 드롭다운을 코드로 생성(템플릿까지 자동). 스프라이트만 우리 것으로.</summary>
+    static Dropdown MakeDropdown(Transform parent, string name, Font font, Sprite bg, float x, float y)
+    {
+        var res = new DefaultControls.Resources { standard = bg };
+        var go = DefaultControls.CreateDropdown(res);
+        go.name = name;
+        go.transform.SetParent(parent, false);
+
+        var rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.sizeDelta = new Vector2(220, 48);
+        rt.anchoredPosition = new Vector2(x, y);
+
+        foreach (var t in go.GetComponentsInChildren<Text>(true))
+        {
+            t.font = font;
+            t.fontSize = 20;
+            t.color = new Color(0.1f, 0.1f, 0.12f);
+        }
+        return go.GetComponent<Dropdown>();
+    }
+
+    static Text CenterText(Transform parent, string caption, Font font, int size)
+    {
+        var rt = NewRect("Text", parent);
+        rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
+        rt.offsetMin = rt.offsetMax = Vector2.zero;
+        var t = rt.gameObject.AddComponent<Text>();
+        t.text = caption; t.font = font; t.fontSize = size; t.color = Color.white;
+        t.alignment = TextAnchor.MiddleCenter; t.raycastTarget = false;
+        t.horizontalOverflow = HorizontalWrapMode.Overflow;
+        return t;
+    }
+
+    static Text Label(Transform parent, string name, string text, Font font, float x, float y)
+    {
+        var rt = NewRect(name, parent);
+        rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.sizeDelta = new Vector2(360, 44);
+        rt.anchoredPosition = new Vector2(x, y);
+        var t = rt.gameObject.AddComponent<Text>();
+        t.text = text; t.font = font; t.fontSize = 22; t.color = Color.white;
+        t.alignment = TextAnchor.MiddleLeft; t.raycastTarget = false;
+        t.horizontalOverflow = HorizontalWrapMode.Overflow;
+        return t;
     }
 
     static void BuildStorage(Transform panel)
