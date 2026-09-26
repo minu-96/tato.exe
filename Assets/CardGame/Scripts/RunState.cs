@@ -33,6 +33,8 @@ namespace TatoGames.CardGame
         static List<List<RunNode>> columns = new();
         static int col, row, stage, playerHp;
         static bool active;
+        static bool nodeCleared;   // 현재 노드를 끝냈고 다음 노드를 고를 차례
+        static bool stageIntro;    // 새 스테이지 맵을 막 받았고 첫 노드를 고를 차례
         static bool loaded;
 
         public static List<List<RunNode>> Columns { get { EnsureLoaded(); return columns; } set { columns = value; } }
@@ -41,6 +43,15 @@ namespace TatoGames.CardGame
         public static int Stage { get { EnsureLoaded(); return stage; } set { stage = value; Persist(); } }
         public static int PlayerHp { get { EnsureLoaded(); return playerHp; } set { playerHp = value; Persist(); } }
         public static bool Active { get { EnsureLoaded(); return active; } set { active = value; Persist(); } }
+
+        /// <summary>
+        /// 현재 노드를 이미 끝냈는가(전투 승리·휴식·대장간 나가기). 다시 들어오면 그 노드를 반복하지 않고 맵부터 연다.
+        /// 예전엔 저장이 "현재 노드"만 가리켜서, 이긴 뒤 나갔다 오면 같은 전투를 또 해 보상을 무한히 받았다.
+        /// </summary>
+        public static bool NodeCleared { get { EnsureLoaded(); return nodeCleared; } set { nodeCleared = value; Persist(); } }
+
+        /// <summary>새 스테이지에 막 들어와 첫 노드를 고를 차례인가 (보스 격파 직후).</summary>
+        public static bool StageIntro { get { EnsureLoaded(); return stageIntro; } set { stageIntro = value; Persist(); } }
 
         public static RunNode Current =>
             (Active && Col >= 0 && Col < Columns.Count && Row < Columns[Col].Count)
@@ -67,6 +78,9 @@ namespace TatoGames.CardGame
         // 체력 배율을 공격력 배율보다 빠르게 올린다(공격 = 1 + (체력−1)×0.6).
         // 적이 단단해져 전투는 길어지되 한 방에 죽지는 않아서, 막는 플레이로 만회할 여지가 남는다.
         // 난이도는 배율보다 최대체력(36)·휴식(29)에 훨씬 민감하다 — 배율만 만지면 곡선이 안 잡힌다.
+        //
+        // ⚠️ 위 실측은 "모든 스테이지에 적 6종이 섞여 나오던" 시절 값이다. 스테이지별 적 구성으로
+        //    바뀐 뒤(2026-09-26) 재측정하지 않았다 — 특히 2·3스테이지는 적이 1종씩이라 곡선이 달라진다.
         public static float HpScale => Stage switch { 1 => 1.17f, 2 => 1.42f, _ => 1f };
         public static float AtkScale => Stage switch { 1 => 1.10f, 2 => 1.25f, _ => 1f };
 
@@ -105,7 +119,8 @@ namespace TatoGames.CardGame
                        .Append(string.Join("-", n.next));
                 }
             }
-            PlayerPrefs.SetString(SaveKey, $"{stage}#{col}#{row}#{playerHp}#{map}");
+            PlayerPrefs.SetString(SaveKey,
+                $"{stage}#{col}#{row}#{playerHp}#{map}#{(nodeCleared ? 1 : 0)}#{(stageIntro ? 1 : 0)}");
             PlayerPrefs.Save();
         }
 
@@ -144,6 +159,9 @@ namespace TatoGames.CardGame
                 columns.Add(list);
             }
             active = columns.Count > 0;
+            // 6·7번째 칸은 나중에 추가됨 — 없으면(구버전 저장) 둘 다 false
+            nodeCleared = f.Length > 5 && f[5] == "1";
+            stageIntro = f.Length > 6 && f[6] == "1";
         }
 
         /// <summary>테스트·초기화용 — 저장된 런을 버린다.</summary>
@@ -154,27 +172,33 @@ namespace TatoGames.CardGame
             columns = new List<List<RunNode>>();
             col = row = stage = playerHp = 0;
             active = false;
+            nodeCleared = stageIntro = false;
             loaded = true;
+            BattleSave.ClearAll();
         }
 
-        public static void StartRun(int startHp)
+        /// <param name="enemies">맵에 배치할 적 후보 전체. 스테이지마다 <see cref="EnemyData.stages"/>로 거른다.</param>
+        public static void StartRun(int startHp, IList<EnemyData> enemies)
         {
             EnsureLoaded();
             stage = 0;
-            columns = BuildMap();
+            columns = BuildMap(stage, enemies);
             col = 0; row = 0;
             playerHp = startHp;
             active = true;
+            nodeCleared = stageIntro = false;
+            BattleSave.ClearAll();   // 지난 런의 전투·보상 저장이 남아 있으면 버린다
             RecordStage();
             Persist();
         }
 
-        /// <summary>보스를 깬 뒤 다음 스테이지로 — 맵을 새로 만들고 처음 열로.</summary>
         /// <summary>지금까지 도달한 최고 스테이지(1-based). 앱을 껐다 켜도 남는다 — HUD 표시용.</summary>
+        public const string BestStageKey = "tato_best_stage";
+
         public static int BestStageReached
         {
-            get => Mathf.Clamp(PlayerPrefs.GetInt("tato_best_stage", 1), 1, StageCount);
-            private set => PlayerPrefs.SetInt("tato_best_stage", value);
+            get => Mathf.Clamp(PlayerPrefs.GetInt(BestStageKey, 1), 1, StageCount);
+            private set => PlayerPrefs.SetInt(BestStageKey, value);
         }
 
         static void RecordStage()
@@ -182,13 +206,16 @@ namespace TatoGames.CardGame
             if (Stage + 1 > BestStageReached) { BestStageReached = Stage + 1; PlayerPrefs.Save(); }
         }
 
-        public static void NextStage()
+        /// <summary>보스를 깬 뒤 다음 스테이지로 — 그 스테이지 적으로 맵을 새로 만들고 처음 열로.</summary>
+        public static void NextStage(IList<EnemyData> enemies)
         {
             EnsureLoaded();
             stage++;
             RecordStage();
-            columns = BuildMap();
+            columns = BuildMap(stage, enemies);
             col = 0; row = 0;
+            nodeCleared = false;
+            stageIntro = true;
             Persist();
         }
 
@@ -199,6 +226,7 @@ namespace TatoGames.CardGame
             if (!Reachable.Contains(row)) return false;
             col++;
             RunState.row = Mathf.Clamp(row, 0, columns[col].Count - 1);
+            nodeCleared = false;
             Persist();
             return true;
         }
@@ -209,31 +237,36 @@ namespace TatoGames.CardGame
             active = false;
             columns = new List<List<RunNode>>();
             col = 0; row = 0; stage = 0;
+            nodeCleared = stageIntro = false;
+            BattleSave.ClearAll();
             Persist();   // active=false 라 저장을 지운다
         }
 
         // ── 맵 생성 (§11.3 · 적 설계 §4.3) ──
-        const string Clod = "enemy_clod";
-        const string Mole = "enemy_shell_mole";
-        const string Spore = "enemy_spore_tato";
-        const string Field = "enemy_field_mole";
-        const string Grub = "enemy_potato_grub";
-        const string BossId = "enemy_scarecrow";
+        //
+        // 스테이지마다 나오는 적이 다르다. 어떤 적이 어느 스테이지에 나오는지는 적 데이터
+        // (EnemyData.stages)에 있다 — 새 몬스터는 에셋을 만들고 스테이지만 체크하면 맵에 섞인다.
+        // 현재 구성: 1스테이지 흙덩이·밭두더지·감자벌레 / 2스테이지 껍질 두더지 / 3스테이지 포자 감자.
+        // 보스는 스테이지마다 따로 두는 게 목표인데, 2·3스테이지 보스가 아직 없어서 허수아비가 셋 다 맡는다.
 
-        /// 열별 노드 개수 — 1·2열 고정(교육 순서), 7·9는 휴식, 10은 보스
+        /// 1스테이지 첫 두 열은 교육 순서로 고정 — 기본 주고받기(흙덩이) → 공격 방어(밭두더지).
+        /// 그 스테이지에 없는 적이면 무시하고 무작위로 채운다.
+        static readonly string[] Stage1Intro = { "enemy_clod", "enemy_field_mole" };
+
+        /// 열별 노드 개수 — 1·2열 한 칸, 7 대장간, 9 휴식, 10 보스
         static readonly int[] Widths = { 1, 1, 2, 2, 2, 2, 1, 2, 1, 1 };
 
-        static List<List<RunNode>> BuildMap()
+        static List<List<RunNode>> BuildMap(int stageIndex, IList<EnemyData> enemies)
         {
-            string[] basics = { Clod, Mole, Spore };
-            string[] mids = { Field, Grub, Mole, Spore };
+            var normals = EnemyIdsFor(stageIndex, enemies, boss: false);
+            var bosses = EnemyIdsFor(stageIndex, enemies, boss: true);
 
             var cols = new List<List<RunNode>>();
             for (int c = 0; c < Widths.Length; c++)
             {
                 var col = new List<RunNode>();
                 for (int r = 0; r < Widths[c]; r++)
-                    col.Add(MakeNode(c, basics, mids));
+                    col.Add(MakeNode(c, stageIndex, normals, bosses));
                 cols.Add(col);
             }
 
@@ -241,15 +274,29 @@ namespace TatoGames.CardGame
             return cols;
         }
 
-        static RunNode MakeNode(int col, string[] basics, string[] mids) => col switch
+        /// <summary>그 스테이지에 나오는 적(또는 보스) id. 배정된 적이 없으면 맵이 비지 않게 전체에서 고른다.</summary>
+        static List<string> EnemyIdsFor(int stageIndex, IList<EnemyData> enemies, bool boss)
         {
-            0 => Battle(Clod),                       // 고정 — 기본 주고받기
-            1 => Battle(Mole),                       // 고정 — 공격 방어 소개
+            bool Kind(EnemyData e) => e != null && !string.IsNullOrEmpty(e.id) && (e.tier == EnemyTier.Boss) == boss;
+            if (enemies == null) return new List<string>();
+
+            var ids = enemies.Where(e => Kind(e) && e.AppearsIn(stageIndex)).Select(e => e.id).ToList();
+            if (ids.Count == 0)
+            {
+                Debug.LogWarning($"[TatoGames] {stageIndex + 1}스테이지에 배정된 {(boss ? "보스" : "적")}가 없음 — " +
+                                 "전체에서 고름 (EnemyData.stages 확인)");
+                ids = enemies.Where(Kind).Select(e => e.id).ToList();
+            }
+            return ids;
+        }
+
+        static RunNode MakeNode(int col, int stageIndex, List<string> normals, List<string> bosses) => col switch
+        {
+            0 or 1 when stageIndex == 0 && normals.Contains(Stage1Intro[col]) => Battle(Stage1Intro[col]),
             6 => new RunNode { type = NodeType.Forge },   // §11.3 7번 = 대장간
             8 => new RunNode { type = NodeType.Rest },
-            9 => new RunNode { type = NodeType.Boss, enemyId = BossId },
-            2 or 3 => Battle(Pick(basics)),
-            _ => Battle(Pick(mids)),
+            9 => new RunNode { type = NodeType.Boss, enemyId = Pick(bosses) },
+            _ => Battle(Pick(normals)),
         };
 
         /// <summary>
@@ -283,7 +330,7 @@ namespace TatoGames.CardGame
         }
 
         static RunNode Battle(string id) => new() { type = NodeType.Battle, enemyId = id };
-        static string Pick(string[] pool) => pool[Random.Range(0, pool.Length)];
+        static string Pick(List<string> pool) => pool.Count == 0 ? null : pool[Random.Range(0, pool.Count)];
 
         public static string Label(RunNode n) => n == null ? "?" : n.type switch
         {

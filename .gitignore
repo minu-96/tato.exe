@@ -77,6 +77,9 @@ mono_crash.*
 *.unitypackage.meta
 *.app
 
+# macOS Finder 메타데이터
+.DS_Store
+
 # Crashlytics generated file
 crashlytics-build.properties
 

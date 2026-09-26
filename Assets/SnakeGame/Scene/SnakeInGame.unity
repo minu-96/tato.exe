@@ -1376,7 +1376,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   applePrefab: {fileID: 5200666055452470536, guid: 98b6acd2364aa4fb09723a9bcce8fafd, type: 3}
   mapMin: {x: -5, y: -3}
-  mapMax: {x: 5, y: -3}
+  mapMax: {x: 5, y: 2}
   scoreText: {fileID: 1723479460}
   scoreText1: {fileID: 1637928927}
   gameOverPanel: {fileID: 1968707064}

@@ -7,6 +7,10 @@ namespace TatoGames.CardGame
 
     public enum EnemyActionKind { Attack, Block, Debuff, Buff }   // 공격 / 방어 / 디버프 / 버프
 
+    /// <summary>적이 나오는 스테이지. 여러 개를 켤 수 있다(인스펙터에서 체크).</summary>
+    [System.Flags]
+    public enum StageMask { None = 0, Stage1 = 1 << 0, Stage2 = 1 << 1, Stage3 = 1 << 2 }
+
     /// <summary>적 행동 한 스텝. 인텐트로 예고된다(적 설계 §2.4).</summary>
     [System.Serializable]
     public class EnemyAction
@@ -28,6 +32,13 @@ namespace TatoGames.CardGame
         public string enemyName;
         public EnemyTier tier = EnemyTier.Normal;
 
+        [Tooltip("이 적이 나오는 스테이지. 맵이 스테이지마다 여기가 켜진 적만 골라 배치한다.\n" +
+                 "보스는 그 스테이지의 10번 노드에 나온다. 한 스테이지에 보스가 여럿이면 무작위")]
+        public StageMask stages = StageMask.Stage1;
+
+        /// <summary>stage는 0부터(0 = 1스테이지).</summary>
+        public bool AppearsIn(int stage) => stage >= 0 && stage < 31 && (stages & (StageMask)(1 << stage)) != 0;
+
         [Tooltip("적 아트 (몬스터 시트에서 캐릭터만 크롭한 스프라이트를 연결)")]
         public Sprite artwork;
 
@@ -45,5 +56,7 @@ namespace TatoGames.CardGame
         public string phase2Name;
         [Tooltip("변신 후 새 체력 (감자벌레: 10)")] public int phase2Hp;
         public List<EnemyAction> phase2Pattern = new();
+        [Tooltip("변신 후 그림 (비우면 artwork 그대로)")]
+        public Sprite phase2Artwork;
     }
 }

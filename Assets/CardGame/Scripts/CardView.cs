@@ -49,6 +49,11 @@ namespace TatoGames.CardGame
             UiKit.Place(view.descText.rectTransform, new Vector2(0.5f, 0),
                         new Vector2(0, 10), new Vector2(w - 18, h * 0.32f));
 
+            // 이름·설명은 카드 폭 안에서 줄바꿈하고, 넘치면 글자를 줄인다
+            // (기본 Label은 한 줄로 넘쳐서 긴 효과가 카드 밖으로 삐져나갔다)
+            FitInside(view.nameText, 11);
+            FitInside(view.descText, 9);
+
             // 코스트 배지 (좌상단)
             view.costBadge = UiKit.Img("CostBadge", rt);
             UiKit.Place(view.costBadge.rectTransform, new Vector2(0, 1),
@@ -57,6 +62,15 @@ namespace TatoGames.CardGame
             UiKit.Stretch(view.costText.rectTransform);
 
             return view;
+        }
+
+        static void FitInside(Text t, int minSize)
+        {
+            t.horizontalOverflow = HorizontalWrapMode.Wrap;
+            t.verticalOverflow = VerticalWrapMode.Truncate;
+            t.resizeTextForBestFit = true;
+            t.resizeTextMinSize = minSize;
+            t.resizeTextMaxSize = t.fontSize;
         }
 
         public void Bind(CardData card, BattleTheme theme, bool playable, UnityAction onClick)

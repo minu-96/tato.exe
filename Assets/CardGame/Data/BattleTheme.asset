@@ -12,8 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab3c801ddd6f1ef41a902a9f5e850c50, type: 3}
   m_Name: BattleTheme
   m_EditorClassIdentifier: Assembly-CSharp::TatoGames.CardGame.BattleTheme
-  background: {fileID: 0}
+  stageBackgrounds:
+  - {fileID: -418106206098598681, guid: f62d6c9f8432f40aba79d2417d2e9b64, type: 3}
+  - {fileID: -1007680577685229406, guid: 9aa83134c806843068fe48869351d135, type: 3}
+  - {fileID: 3775697863335605481, guid: 63bfbc8a6a74b4b6fb5e00736443ca1d, type: 3}
+  background: {fileID: -418106206098598681, guid: f62d6c9f8432f40aba79d2417d2e9b64, type: 3}
   backgroundTint: {r: 1, g: 1, b: 1, a: 1}
+  playerPortrait: {fileID: -8000167652336761950, guid: dafebd31882be4cad888e2b40dfb7a32, type: 3}
+  nodeBattle: {fileID: 0}
+  nodeRest: {fileID: 0}
+  nodeForge: {fileID: 0}
+  nodeBoss: {fileID: 0}
   cardFrame: {fileID: 0}
   cardFrameAttack: {fileID: 0}
   cardFrameDefense: {fileID: 0}

@@ -402,6 +402,8 @@ public static class LauncherPanelFiller
         cv.searchField = search;
         cv.sortDropdown = sortDd;
         cv.cardArt = S("Achievement/card");
+        // 창고 카드도 전투 화면과 같은 카드 아트를 쓴다
+        cv.theme = AssetDatabase.LoadAssetAtPath<TatoGames.CardGame.BattleTheme>("Assets/CardGame/Data/BattleTheme.asset");
         cv.filters = cvFilters;   // 등급 필터 작동 연결
         cv.deckCountLabel = deckTxt;
     }

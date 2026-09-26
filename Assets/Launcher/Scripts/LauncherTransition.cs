@@ -34,12 +34,13 @@ namespace TatoGames.Launcher
 
         const float FadeTime = 0.3f;
         const float MinShowTime = 0.7f;   // 최소 표시 시간 — 번쩍임 방지
+        const float TipShowTime = 1.8f;   // 팁이 있으면 읽을 시간만큼 더 보여준다
         const int BarSlots = 16;
 
         CanvasGroup group;
         Text label;
         Text bar;
-        Text notice;   // 미니게임에서 얻은 카드 알림 (복귀 연출에 한 줄)
+        Text notice;   // 미니게임 실행 시 팁 한 줄 (보상 조건 힌트)
         bool busy;
 
         void Awake()
@@ -101,14 +102,23 @@ namespace TatoGames.Launcher
             return Instance;
         }
 
-        /// <summary>ESC = 언제든 런처로. 미니게임에 나가기 버튼이 없는 화면에서도 빠져나올 수 있게(데모용 비상구).</summary>
+        /// <summary>
+        /// ESC = 런처로. 미니게임에 나가기 버튼이 없는 화면에서도 빠져나올 수 있게(데모용 비상구).
+        /// 단, ESC를 자기 용도로 쓰는 씬은 건드리지 않는다 — 예전엔 일시정지하려고 ESC를 누르면
+        /// 일시정지와 동시에 런처로 튕겨서 그 판(과 보상)이 날아갔다. 그 씬들은 일시정지 메뉴 → 타이틀 → 나가기로 나온다.
+        /// </summary>
         void Update()
         {
             if (busy) return;
             if (!Input.GetKeyDown(KeyCode.Escape)) return;
-            if (SceneManager.GetActiveScene().name == LauncherScene) return;
+            string scene = SceneManager.GetActiveScene().name;
+            if (scene == LauncherScene || SceneHandlesEscape(scene)) return;
             ReturnToLauncher();
         }
+
+        /// <summary>ESC를 직접 쓰는 씬 — 늘어나라 인게임(일시정지), 밭의 생존자 라운드(일시정지)·메뉴(타이틀로).</summary>
+        static bool SceneHandlesEscape(string scene) =>
+            scene == "SnakeInGame" || scene.StartsWith("InGame") || scene == "GameMenu1";
 
         public void Begin(string sceneName, int width, int height, bool fullscreen, string exeLabel,
                           bool sweepPersistent = false)
@@ -124,8 +134,12 @@ namespace TatoGames.Launcher
             group.blocksRaycasts = true;
             label.text = $"Launching {exe} ...";
             bar.text = Bar(0f);
-            // 미니게임에서 카드를 얻었으면 복귀 로딩 화면에 한 번 알려준다 (별도 UI 없이)
-            notice.text = sweep ? TatoGames.CardGame.TatoReward.TakePendingNotice() : "";
+            // 미니게임을 켤 때는 그 게임의 팁(보상 조건 힌트)을 띄운다.
+            // 돌아올 때의 보상 요약은 런처에 뜨는 팝업(RewardSummaryPopup)이 맡는다 — 로딩 화면은 금방 지나가서 못 읽었다
+            var entry = sweep ? null : StorageData.FindByScene(scene);
+            string tip = entry != null && !string.IsNullOrEmpty(entry.tip) ? entry.tip : "";
+            notice.text = tip.Length > 0 ? "TIP  " + tip : "";
+            float minShow = tip.Length > 0 ? TipShowTime : MinShowTime;
 
             // ① 페이드 인
             yield return Fade(0f, 1f, FadeTime);
@@ -157,8 +171,8 @@ namespace TatoGames.Launcher
             {
                 float loadP = Mathf.Clamp01(op.progress / 0.9f);
                 float elapsed = Time.unscaledTime - start;
-                bar.text = Bar(Mathf.Min(loadP, elapsed / MinShowTime));
-                if (op.progress >= 0.9f && elapsed >= MinShowTime) break;
+                bar.text = Bar(Mathf.Min(loadP, elapsed / minShow));
+                if (op.progress >= 0.9f && elapsed >= minShow) break;
                 yield return null;
             }
             bar.text = Bar(1f);
@@ -269,8 +283,8 @@ namespace TatoGames.Launcher
             brt.anchoredPosition = new Vector2(0, -40);
             bar.color = new Color(1f, 0.78f, 0.2f, 1f);   // 감자색 노랑
 
-            // 획득 알림 (평소엔 빈 줄)
-            notice = MakeText("Notice", canvasGO.transform, font, 26, TextAnchor.MiddleCenter);
+            // 팁 (미니게임 실행 때만, 평소엔 빈 줄)
+            notice = MakeText("Notice", canvasGO.transform, font, 22, TextAnchor.MiddleCenter);   // 팁 한 줄
             var nrt = notice.rectTransform;
             nrt.anchorMin = nrt.anchorMax = nrt.pivot = new Vector2(0.5f, 0.5f);
             nrt.sizeDelta = new Vector2(1100, 50);

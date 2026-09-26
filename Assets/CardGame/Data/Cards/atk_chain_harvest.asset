@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TatoGames.CardGame.CardData
   id: atk_chain_harvest
   displayName: "\uC5F0\uC1C4 \uC218\uD655"
-  description: "4 \uD53C\uD574 + \uD134 \uC885\uB8CC \uC2DC \uB0A8\uC740 \uC5D0\uB108\uC9C0 \xD71\uC7A5 \uBF51\uAE30"
+  description: "4 \uD53C\uD574 + \uB0A8\uC740 \uC5D0\uB108\uC9C0\uB9CC\uD07C \uC989\uC2DC \uCE74\uB4DC \uBF51\uAE30"
   type: 0
   rarity: 1
   cost: 1

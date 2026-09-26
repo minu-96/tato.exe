@@ -27,9 +27,14 @@ public class FarmerMovement : MonoBehaviour
 
     private int currentStage;
 
+    // 감자가 이미 잡혔는가 — 농부가 여럿이거나 씬이 넘어가기 전에 트리거가 한 번 더 와도
+    // 보상·씬 전환이 한 번만 일어나게. 모든 농부가 같이 보도록 static, 라운드 씬이 뜰 때 초기화.
+    private static bool potatoCaught;
+
 
     private void Start()
     {
+        potatoCaught = false;
         RoundStateManager.Instance.LoadState(out int PoisonStage);
         currentStage = PoisonStage;
 
@@ -124,12 +129,16 @@ public class FarmerMovement : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Potato"))
         {
+            if (potatoCaught) return;
+            potatoCaught = true;
+
             // 생존한 라운드에 따라 '밭의 생존자' 출처 카드를 수급한다 (§8).
-            // 라운드는 InGame0~6 씬으로 관리되므로 씬 이름 끝 숫자 + 1이 생존 라운드다.
+            // 라운드는 InGame0~6 씬으로 관리되므로, InGameN에서 잡혔다면 끝까지 버틴 라운드는 N개다
+            // (예전엔 N+1이라 잡힌 라운드까지 생존으로 쳤다 — 7라운드에서 잡혀도 완주와 같은 보상).
             // 씬을 넘기기 전에 불러야 활성 씬이 InGameN 이다.
             TatoGames.CardGame.TatoReward.Grant(
                 TatoGames.CardGame.AcquireSource.FieldSurvivor,
-                TatoGames.CardGame.TatoReward.SceneNumber() + 1);
+                TatoGames.CardGame.TatoReward.SceneNumber());
 
             if(currentStage >= 3)
             {

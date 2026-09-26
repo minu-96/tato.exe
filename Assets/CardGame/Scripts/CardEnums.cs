@@ -3,7 +3,7 @@ namespace TatoGames.CardGame
     /// <summary>카드 타입 4종 (기획서 §10.1)</summary>
     public enum CardType { Attack, Defense, Skill, Root } // 공격 / 방어 / 스킬 / 뿌리
 
-    /// <summary>희귀도 (기획서 §4). MVP는 Common·Rare 2티어만 사용.</summary>
+    /// <summary>희귀도 (기획서 §4). 초월·전설은 전투 출처 카드에만 있고 보스 보상으로만 나온다.</summary>
     public enum Rarity { Common, Rare, Transcendent, Legendary } // 일반 / 희귀 / 초월 / 전설
 
     /// <summary>카드 획득처 (§8.2). Starter(시작덱)는 귀속(bound).</summary>
@@ -24,8 +24,8 @@ namespace TatoGames.CardGame
     public enum CardState { Fresh, Sprouted, Rotten } // 생 / 싹 / 썩음
 
     /// <summary>
-    /// 효과 종류 — MVP 19종 카드를 데이터로 표현하기 위한 집합.
-    /// (실제 실행 로직은 B-3 전투 코어에서 처리)
+    /// 효과 종류 — 카드 39종을 데이터로 표현하기 위한 집합.
+    /// (실제 실행 로직은 BattleController.ResolveEffect)
     /// </summary>
     public enum EffectType
     {

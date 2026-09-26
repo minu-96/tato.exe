@@ -18,6 +18,11 @@ namespace TatoGames.Launcher
         public bool core;                 // tato.exe 본편 — 항상 보유·설치, 손댈 수 없음
         public bool bundled;              // 기본 제공 — 처음부터 보유, 판매 불가
         public string tileSprite;         // 타일 아트 (Resorces 상대경로)
+        /// <summary>
+        /// 실행할 때 로딩 화면에 띄우는 팁. 보상 조건은 정확한 점수 대신 대략적으로만 알려준다
+        /// (구간 수치는 CardLibrary 보상 규칙 — 숫자를 외워 계산하는 게임이 되지 않도록).
+        /// </summary>
+        public string tip;
 
         /// <summary>되팔 때 돌려받는 토인 — 구매가의 30%.</summary>
         public int SellPrice => Mathf.FloorToInt(price * StorageData.SellRate);
@@ -56,18 +61,21 @@ namespace TatoGames.Launcher
                 id = "snake", displayName = "늘어나라 pooo-tato", sceneName = "SnakeTitle",
                 exeLabel = "늘어나라_pooo-tato.exe", price = 0, sizeMb = 85, bundled = true,
                 cardSource = AcquireSource.Neulteona, tileSprite = "Minigame/Tile/poootato",
+                tip = "사과를 많이 먹을수록 공격 카드를 더 많이 받고, 희귀 카드도 잘 나와요",
             },
             new GameEntry
             {
                 id = "moamoa", displayName = "모아모아 10tato", sceneName = "MoaMoaTitle",
                 exeLabel = "모아모아_10tato.exe", price = 0, sizeMb = 100, bundled = true,
                 cardSource = AcquireSource.MoaMoa, tileSprite = "Minigame/Tile/moamoa",
+                tip = "시간 안에 감자를 많이 모을수록 방어 카드를 더 많이 받고, 희귀 카드도 잘 나와요",
             },
             new GameEntry
             {
                 id = "field", displayName = "밭의 생존자", sceneName = "GameStart0",
                 exeLabel = "밭의_생존자.exe", price = 30, sizeMb = 115,
                 cardSource = AcquireSource.FieldSurvivor, tileSprite = "Minigame/Tile/thepotato",
+                tip = "오래 살아남을수록 중독·뿌리 카드를 더 많이 받아요. 끝까지 버티면 가장 좋아요",
             },
         };
 
@@ -158,6 +166,10 @@ namespace TatoGames.Launcher
             if (g == null) { reason = "없는 프로그램이에요"; return false; }
             if (!g.CanSell) { reason = "기본 제공 프로그램은 팔 수 없어요"; return false; }
             if (!IsOwned(id)) { reason = "보유하고 있지 않아요"; return false; }
+            // 판매하면 그 게임 카드가 사라진다 — 진행 중인 런의 덱에 있으면 런 도중에 덱이 바뀌므로 막는다
+            // (덱 잠금과 같은 이유. 빠진 자리를 창고 카드가 자동으로 채우는 문제도 있었다)
+            if (PlayerData.RunInProgress && PlayerData.DeckCountBySource(g.cardSource) > 0)
+            { reason = "진행 중인 런의 덱에 이 게임 카드가 있어요 — 런이 끝난 뒤에 팔 수 있어요"; return false; }
 
             var owned = Owned(); owned.Remove(id); Save(OwnedKey, owned);
             var inst = InstalledSet(); inst.Remove(id); Save(InstalledKey, inst);
@@ -202,6 +214,15 @@ namespace TatoGames.Launcher
         }
 
         /// <summary>판매하면 사라질 카드 수 (경고 문구용).</summary>
+        /// <summary>테스트용 — 보유·설치 상태를 처음(기본 제공만)으로 되돌린다.</summary>
+        public static void ResetOwnership()
+        {
+            PlayerPrefs.DeleteKey(OwnedKey);
+            PlayerPrefs.DeleteKey(InstalledKey);
+            PlayerPrefs.Save();
+            Raise();
+        }
+
         public static int CardsAtRisk(string id)
         {
             var g = Find(id);

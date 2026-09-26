@@ -85,6 +85,10 @@ namespace TatoGames.CardGame
             hlg.childForceExpandWidth = hlg.childForceExpandHeight = false;
             p.statusRow = rowGO;
 
+            // 패널 높이를 내용(상태이상 줄 아래끝)에 딱 맞춘다 — 아래쪽 기준으로 배치할 때
+            // 빈 여백 없이 손패 바로 위에 붙도록
+            root.sizeDelta = new Vector2(w, -y + 30f);
+
             return p;
         }
 
@@ -141,16 +145,38 @@ namespace TatoGames.CardGame
                                              : $"{CardText.Kor(kv.Key)}{kv.Value}";
                 t.color = cell.sprite != null ? Color.white : new Color(0.1f, 0.1f, 0.12f);
             }
+
+            // 상태이상 칸 말고도 걸려 있는 지속 효과 — 안 보이면 걸었는지 알 수 없다
+            if (c.poisonAmp > 0)
+                TextChip("St_PoisonAmp", $"뿌리+{c.poisonAmp}", new Color(0.36f, 0.55f, 0.28f));   // 뿌리내림: 중독 피해 +N
+            foreach (var p in c.periodic)
+                TextChip($"St_Periodic_{p.status}", $"{CardText.Kor(p.status)}+{p.value}·{p.turnsLeft}턴",
+                         BattleTheme.StatusColor(p.status) * 0.8f);                           // 곰팡이 정원 등
         }
 
-        /// <summary>적 인텐트 표시 (적 설계 §2.4 — 공격은 피해량, 다타면 n×m).</summary>
-        public void SetIntent(EnemyAction a, BattleTheme theme, float atkScale = 1f)
+        void TextChip(string name, string text, Color color)
+        {
+            var cell = UiKit.Img(name, statusRow);
+            cell.rectTransform.sizeDelta = new Vector2(78, 26);
+            color.a = 1f;
+            cell.color = color;
+            var t = UiKit.Label("V", cell.rectTransform, font, 14);
+            UiKit.Stretch(t.rectTransform);
+            t.text = text;
+            t.color = new Color(0.08f, 0.08f, 0.1f);
+        }
+
+        /// <summary>
+        /// 적 인텐트 표시 (적 설계 §2.4 — 공격은 피해량, 다타면 n×m).
+        /// shownAmount = 실제로 들어올 수치 (장별 배율·힘·약화·취약을 호출부가 반영해서 넘긴다).
+        /// </summary>
+        public void SetIntent(EnemyAction a, BattleTheme theme, int shownAmount)
         {
             if (intentText == null) return;
             if (a == null) { intentText.text = ""; if (intentIcon) intentIcon.gameObject.SetActive(false); return; }
 
             string name = string.IsNullOrEmpty(a.label) ? a.kind.ToString() : a.label;
-            int amt = Mathf.Max(0, Mathf.RoundToInt(a.amount * atkScale));   // 장별 스케일 반영
+            int amt = Mathf.Max(0, shownAmount);
             intentText.text = a.kind switch
             {
                 EnemyActionKind.Attack => a.hits > 1 ? $"{name}  {amt}×{a.hits}" : $"{name}  {amt}",

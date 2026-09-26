@@ -133,9 +133,30 @@ namespace TatoGames.Launcher
                                      FullScreenMode.FullScreenWindow);
                 return;
             }
-            var s = SizeOf(t);
+            var s = FitToScreen(t, SizeOf(t));
             Screen.SetResolution(s.x, s.y, FullScreenMode.Windowed);
 #endif
+        }
+
+        /// <summary>창 테두리·메뉴바·작업표시줄 몫으로 남겨두는 높이.</summary>
+        const int ScreenMarginY = 80;
+
+        /// <summary>
+        /// 창 모드인데 모니터보다 크면(예: 1080p 모니터에 1920×1080 창) 창이 화면 밖으로 잘린다.
+        /// 그 대상의 목록에서 화면에 들어가는 가장 큰 크기로 낮춘다. 저장된 선택은 그대로 둔다
+        /// (큰 모니터로 옮기면 다시 원래 크기로 뜬다). 들어가는 게 없으면 가장 작은 크기.
+        /// </summary>
+        public static Vector2Int FitToScreen(DisplayTarget t, Vector2Int wanted)
+        {
+            int maxW = Display.main.systemWidth, maxH = Display.main.systemHeight - ScreenMarginY;
+            if (maxW <= 0 || maxH <= 0) return wanted;
+            if (wanted.x <= maxW && wanted.y <= maxH) return wanted;
+
+            var sizes = P(t).sizes;
+            Vector2Int best = sizes[0];
+            foreach (var s in sizes)
+                if (s.x <= maxW && s.y <= maxH && s.x * s.y > best.x * best.y) best = s;
+            return best;
         }
     }
 }

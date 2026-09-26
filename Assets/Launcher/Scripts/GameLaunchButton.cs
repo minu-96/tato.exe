@@ -4,9 +4,8 @@ using UnityEngine.UI;
 namespace TatoGames.Launcher
 {
     /// <summary>
-    /// 게임 실행 버튼. 대상 씬·가정 해상도·로딩 라벨을 들고, 클릭 시 LauncherTransition에
-    /// 넘긴다. 미니게임마다 창 해상도가 다르므로(늘어나라 1280×720 / 모아모아·밭의생존자
-    /// 1920×1080 추정) 값은 인스펙터에서 게임별로 확정한다.
+    /// 게임 실행 버튼. 대상 씬·로딩 라벨을 들고, 클릭 시 LauncherTransition에 넘긴다.
+    /// 창 해상도는 DisplaySettings가 게임별로 정한다 — width·height·fullscreen 필드는 참고용으로만 남아 있다.
     /// </summary>
     [RequireComponent(typeof(Button))]
     public class GameLaunchButton : MonoBehaviour

@@ -20,6 +20,24 @@ namespace TatoGames.CardGame
             (stageBackgrounds != null && stage >= 0 && stage < stageBackgrounds.Length
              && stageBackgrounds[stage] != null) ? stageBackgrounds[stage] : background;
 
+        [Header("플레이어")]
+        [Tooltip("플레이어(감자) 초상화 — 전투 화면 왼쪽")]
+        public Sprite playerPortrait;
+
+        [Header("맵 노드 아이콘 (비우면 글자만)")]
+        public Sprite nodeBattle;
+        public Sprite nodeRest;
+        public Sprite nodeForge;
+        public Sprite nodeBoss;
+
+        public Sprite NodeIconFor(NodeType t) => t switch
+        {
+            NodeType.Rest => nodeRest,
+            NodeType.Forge => nodeForge,
+            NodeType.Boss => nodeBoss,
+            _ => nodeBattle,
+        };
+
         [Header("카드 프레임 (타입별 · 없으면 cardFrame 사용)")]
         public Sprite cardFrame;
         public Sprite cardFrameAttack;

@@ -15,7 +15,8 @@ MonoBehaviour:
   id: enemy_spore_tato
   enemyName: "\uD3EC\uC790 \uAC10\uC790"
   tier: 0
-  artwork: {fileID: 0}
+  stages: 4
+  artwork: {fileID: -8986854534390898858, guid: 5fe0ca4c269f6464d88c86c61d634842, type: 3}
   hp: 15
   blockStart: 0
   wardStart: 2
@@ -41,3 +42,4 @@ MonoBehaviour:
   phase2Name: 
   phase2Hp: 0
   phase2Pattern: []
+  phase2Artwork: {fileID: 0}

@@ -16,9 +16,9 @@ namespace TatoGames.CardGame
         [Header("데이터 (SO)")]
         public CardData[] starterDeck;   // 시작덱 8장 (에디터에서 할당)
         public EnemyData enemyData;
-        [Tooltip("맵 노드가 id로 적을 찾을 풀 (스테이지1 전 적)")]
+        [Tooltip("맵에 나올 수 있는 적 전부. 스테이지 배정은 각 적의 stages에서 정한다")]
         public EnemyData[] enemyPool;
-        [Tooltip("전투 보상 후보 풀 (시작덱 제외 카드). §12.1")]
+        [Tooltip("전투 보상 후보 풀 — 전투 출처 카드만. §12.1 (카드 원본 조회는 CardLibrary가 한다)")]
         public CardData[] rewardPool;
 
         [Header("플레이어 기본 수치 (§9)")]
@@ -34,9 +34,10 @@ namespace TatoGames.CardGame
 
         // ── 런타임 상태 ──
         Combatant player, enemy;
-        readonly List<CardData> drawPile = new();
-        readonly List<CardData> hand = new();
-        readonly List<CardData> discard = new();
+        // 카드 더미는 "어느 보유 카드에서 왔는지"까지 들고 있어야 전투를 저장·복원할 수 있다
+        readonly List<BattleCard> drawPile = new();
+        readonly List<BattleCard> hand = new();
+        readonly List<BattleCard> discard = new();
         int enemyIndex;
         int energy;
         bool over;
@@ -63,6 +64,18 @@ namespace TatoGames.CardGame
         RectTransform forgeGrid, forgeActionRow;
         int forgeSelected = -1;
 
+        // ── 배치 기준 (1280×720) ──
+        const float HandY = 16f;                                   // 손패 아래끝
+        static readonly Vector2 HandCardSize = new(150, 210);
+        static readonly Vector2 RewardCardSize = new(180, 250);
+        static readonly Vector2 ForgeCardSize = new(102, 142);
+        const float PanelBottomY = HandY + 210f + 10f;             // 적·플레이어 패널은 손패 윗변 바로 위
+
+        // 마우스를 올린 카드가 얼마나 커지나 — 작은 카드일수록 크게 키워 글자가 읽히게
+        const float HandHoverScale = 1.2f;
+        const float RewardHoverScale = 1.1f;
+        const float ForgeHoverScale = 1.4f;
+
         void Start()
         {
             if (uiFont == null)
@@ -77,7 +90,7 @@ namespace TatoGames.CardGame
             // 중간에 나갔다 오는 것으로 얻을 게 없다. 새 런은 죽거나 클리어해야만 시작된다.
             if (!RunState.Active)
             {
-                RunState.StartRun(playerMaxHp);
+                RunState.StartRun(playerMaxHp, enemyPool);
                 TatoGames.Launcher.Achievements.Bump(TatoGames.Launcher.Achievements.RunsStarted);
                 int rotted = PlayerData.AgeAll();
                 if (rotted > 0)
@@ -90,24 +103,59 @@ namespace TatoGames.CardGame
         }
 
         // ══════════════════════════════════════════════ 런 진행 (§11.3) ════════
-        /// <summary>현재 노드로 진입 — 전투/보스면 전투 시작, 휴식이면 회복, 끝이면 클리어.</summary>
+        /// <summary>
+        /// 현재 노드로 진입 — 전투/보스면 전투, 휴식이면 회복, 대장간이면 대장간, 끝이면 클리어.
+        /// 런처에 나갔다 돌아와도 여기로 들어온다. 그래서 "이미 끝낸 노드"와 "하던 전투"를 구분해야
+        /// 같은 전투·휴식을 반복하거나 전투를 처음부터 다시 하는 구멍이 생기지 않는다.
+        /// </summary>
         void EnterNode()
         {
             var node = RunState.Current;
             if (node == null) { ShowRunClear(); return; }
 
+            // 새 스테이지 첫 노드를 고를 차례
+            if (RunState.StageIntro) { stageIntro = true; ShowIdleField(); ShowMap(null); return; }
+
+            // 이미 끝낸 노드 — 받다 만 보상이 있으면 그걸 다시 띄우고, 아니면 맵부터
+            if (RunState.NodeCleared)
+            {
+                if (BattleSave.TryLoadReward(out var pending)) { ResumeReward(node, pending); return; }
+                if (node.type == NodeType.Boss) { ShowIdleField(); AfterNodeCleared(); return; }   // 보스 다음은 맵이 아니라 다음 스테이지
+                ShowIdleField(); ShowMap(null); return;
+            }
+
             if (node.type == NodeType.Rest)
             {
                 RunState.PlayerHp = Mathf.Min(playerMaxHp, RunState.PlayerHp + RunState.RestHeal);
+                RunState.NodeCleared = true;   // 다시 들어와도 또 회복하지 않는다
+                ShowIdleField();
                 ShowMap($"휴식 — 체력 +{RunState.RestHeal}  (현재 {RunState.PlayerHp}/{playerMaxHp})");
                 return;
             }
 
-            if (node.type == NodeType.Forge) { ShowForge(); return; }
+            if (node.type == NodeType.Forge) { ShowIdleField(); ShowForge(); return; }
 
             var found = FindEnemy(node.enemyId);
             if (found != null) enemyData = found;
-            StartBattle();
+
+            // 하던 전투가 저장돼 있으면 그 자리에서 이어서
+            if (BattleSave.TryLoadBattle(out var saved) && saved.enemyId == node.enemyId) ResumeBattle(saved);
+            else StartBattle();
+        }
+
+        /// <summary>
+        /// 전투 밖(맵·대장간·휴식)일 때 뒤에 깔리는 화면 — 플레이어 체력만 보이고 적은 숨긴다.
+        /// 전투를 거치지 않고 맵부터 열면 패널이 빈 흰 사각형으로 남기 때문에 필요하다.
+        /// </summary>
+        void ShowIdleField()
+        {
+            over = true;
+            drawPile.Clear(); hand.Clear(); discard.Clear();
+            player = new Combatant { name = "플레이어", hp = Mathf.Clamp(RunState.PlayerHp, 0, playerMaxHp), maxHp = playerMaxHp };
+            enemy = null;
+            if (enemyPanel != null) enemyPanel.gameObject.SetActive(false);
+            if (endTurnBtn != null) endTurnBtn.interactable = false;
+            Refresh();
         }
 
         /// <summary>현재 스테이지 배경으로 교체 (보스 클리어 후 전환).</summary>
@@ -131,15 +179,23 @@ namespace TatoGames.CardGame
         }
 
         // ══════════════════════════════════════════════ 전투 진행 ══════════════
+        /// <summary>전투 화면으로 전환 — 맵·대장간·종료 버튼을 내리고 적 패널을 올린다.</summary>
+        void ShowBattleField()
+        {
+            if (mapPanel != null) mapPanel.SetActive(false);
+            if (forgePanel != null) forgePanel.SetActive(false);
+            if (rewardPanel != null) rewardPanel.SetActive(false);
+            if (restartBtn != null) restartBtn.SetActive(false);
+            if (exitBtn != null) exitBtn.SetActive(false);
+            if (endTurnBtn != null) endTurnBtn.interactable = true;
+            if (enemyPanel != null) enemyPanel.gameObject.SetActive(true);
+        }
+
         void StartBattle()
         {
             over = false;
             transformed = false;
-            if (mapPanel != null) mapPanel.SetActive(false);
-            if (forgePanel != null) forgePanel.SetActive(false);
-            if (restartBtn != null) restartBtn.SetActive(false);
-            if (exitBtn != null) exitBtn.SetActive(false);
-            if (endTurnBtn != null) endTurnBtn.interactable = true;
+            ShowBattleField();
 
             int hp = RunState.Active ? Mathf.Clamp(RunState.PlayerHp, 1, playerMaxHp) : playerMaxHp;
             player = new Combatant { name = "플레이어", hp = hp, maxHp = playerMaxHp };
@@ -162,32 +218,90 @@ namespace TatoGames.CardGame
         }
 
         /// <summary>
-        /// 런 덱 = 시작덱(귀속, 항상 포함) + 감자창고에서 덱에 넣어둔 획득 카드 (§10.7 2-존).
-        /// id → CardData는 starterDeck + rewardPool이 전 카드를 커버하므로 별도 로더가 필요 없다.
+        /// 저장된 전투를 그 자리에서 이어간다 — 체력·방어·상태이상·적 행동 순서·덱 순서·손패 전부.
+        /// 나갔다 오는 것으로 얻을 게 없다(예전엔 전투 시작 체력으로 새로 시작해 공짜 재도전이 됐다).
+        /// </summary>
+        void ResumeBattle(BattleSave.BattleState s)
+        {
+            over = false;
+            ShowBattleField();
+
+            player = BattleSave.Restore(s.player);
+            enemy = BattleSave.Restore(s.enemy);
+            transformed = s.transformed;
+            enemyIndex = s.enemyIndex;
+            energy = s.energy;
+            startNotice = s.notice ?? "";
+
+            drawPile.Clear(); hand.Clear(); discard.Clear();
+            var owned = PlayerData.Instances().ToDictionary(c => c.instanceId);
+            RestorePile(s.draw, drawPile, owned);
+            RestorePile(s.hand, hand, owned);
+            RestorePile(s.discard, discard, owned);
+
+            Refresh();
+        }
+
+        void RestorePile(List<BattleSave.CardRef> refs, List<BattleCard> pile, Dictionary<int, CardInstance> owned)
+        {
+            if (refs == null) return;
+            foreach (var r in refs)
+            {
+                var data = FindCard(r.cardId);
+                if (data == null) continue;
+                owned.TryGetValue(r.instanceId, out var inst);
+                pile.Add(new BattleCard
+                {
+                    data = inst != null ? CardUpgrade.Build(data, inst.upgrade, inst.State) : data,
+                    instanceId = r.instanceId,
+                    cardId = r.cardId,
+                });
+            }
+        }
+
+        /// <summary>지금 전투 상태를 저장한다. 플레이어가 입력을 기다리는 모든 순간(카드 사용 후·턴 시작)에 불린다.</summary>
+        void SaveBattle()
+        {
+            if (!RunState.Active || player == null || enemy == null) return;
+            BattleSave.SaveBattle(new BattleSave.BattleState
+            {
+                enemyId = RunState.Current?.enemyId,
+                enemyIndex = enemyIndex,
+                energy = energy,
+                transformed = transformed,
+                notice = startNotice,
+                player = BattleSave.Capture(player),
+                enemy = BattleSave.Capture(enemy),
+                draw = BattleSave.Refs(drawPile),
+                hand = BattleSave.Refs(hand),
+                discard = BattleSave.Refs(discard),
+            });
+        }
+
+        /// <summary>
+        /// 런 덱 = 감자창고에서 덱에 넣어둔 보유 카드 (§10.7 2-존. 시작덱도 뺄 수 있다).
+        /// 카드 원본은 CardLibrary(전 카드 39종)에서 찾는다 — 예전엔 starterDeck + rewardPool에서만 찾아서,
+        /// 보상 풀을 전투 출처로 좁힌 뒤 <b>미니게임 카드가 전투 덱에서 조용히 빠졌다.</b>
         /// </summary>
         void BuildRunDeck()
         {
-            var lib = new Dictionary<string, CardData>();
-            Register(starterDeck);
-            Register(rewardPool);
-
-            // 덱은 전적으로 보유 인스턴스 구성에 따른다(시작덱도 뺄 수 있음).
-            // 대장간에서 강화한 인스턴스는 런타임 복제본으로 들어간다(§10.10).
-            // 감자 상태(생/싹)와 대장간 강화를 함께 올린다 (§8.1 · §10.10)
+            // 대장간 강화와 감자 상태(생/싹)를 함께 얹은 런타임 복제본이 들어간다 (§8.1 · §10.10)
             foreach (var inst in PlayerData.DeckInstances())
-                if (lib.TryGetValue(inst.cardId, out var card))
-                    drawPile.Add(CardUpgrade.Build(card, inst.upgrade, inst.State));
+            {
+                var card = FindCard(inst.cardId);
+                if (card == null) { Debug.LogWarning($"[TatoGames] 카드 원본 없음: {inst.cardId} — 덱에서 제외"); continue; }
+                drawPile.Add(new BattleCard
+                {
+                    data = CardUpgrade.Build(card, inst.upgrade, inst.State),
+                    instanceId = inst.instanceId,
+                    cardId = inst.cardId,
+                });
+            }
 
             // 안전장치: 저장이 비었거나 해석 실패 시 시작덱으로 폴백
             if (drawPile.Count == 0 && starterDeck != null)
-                foreach (var c in starterDeck) if (c != null) drawPile.Add(c);
-
-            void Register(CardData[] arr)
-            {
-                if (arr == null) return;
-                foreach (var c in arr)
-                    if (c != null && !string.IsNullOrEmpty(c.id) && !lib.ContainsKey(c.id)) lib[c.id] = c;
-            }
+                foreach (var c in starterDeck)
+                    if (c != null) drawPile.Add(new BattleCard { data = c, instanceId = -1, cardId = c.id });
         }
 
         void StartPlayerTurn()
@@ -215,7 +329,8 @@ namespace TatoGames.CardGame
         }
 
         List<EnemyAction> ActivePattern() =>
-            transformed ? enemyData.phase2Pattern : enemyData.pattern;
+            enemyData == null ? new List<EnemyAction>()
+                              : transformed ? enemyData.phase2Pattern : enemyData.pattern;
 
         void EnemyTurn()
         {
@@ -287,8 +402,9 @@ namespace TatoGames.CardGame
         }
 
         // ══════════════════════════════════════════════ 카드 플레이 ════════════
-        void PlayCard(CardData card)
+        void PlayCard(BattleCard played)
         {
+            var card = played?.data;
             if (over || card == null) return;
             if (energy < card.cost) return;
             energy -= card.cost;
@@ -297,10 +413,10 @@ namespace TatoGames.CardGame
             foreach (var e in card.effects)
                 ResolveEffect(e, self: player, opponent: enemy);
 
-            hand.Remove(card);
+            hand.Remove(played);
             // 소멸(§10.3) — 이번 전투에서 다시 안 나온다. 버림 더미로 가지 않으므로
             // 덱을 다 돌아도 재사용할 수 없다. 강한 1회성 효과의 대가.
-            if (card.keyword != CardKeyword.Exhaust) discard.Add(card);
+            if (card.keyword != CardKeyword.Exhaust) discard.Add(played);
 
             TryTransform(blockBefore);       // 방어 깨지면 변신(사망 판정보다 먼저)
             if (enemy.IsDead) { Win(); return; }
@@ -407,12 +523,17 @@ namespace TatoGames.CardGame
             TatoGames.Launcher.Achievements.Bump(TatoGames.Launcher.Achievements.BattlesWon);
             if (RunState.IsBossNode)
                 TatoGames.Launcher.Achievements.Bump(TatoGames.Launcher.Achievements.BossesKilled);
-            if (RunState.Active) RunState.PlayerHp = player.hp;   // 체력은 노드를 넘어 유지
+            if (RunState.Active)
+            {
+                RunState.PlayerHp = player.hp;   // 체력은 노드를 넘어 유지
+                RunState.NodeCleared = true;     // 나갔다 와도 이 전투를 다시 하지 않는다
+            }
+            BattleSave.ClearBattle();
             Refresh();
             message.text = "승리!";
             if (endTurnBtn != null) endTurnBtn.interactable = false;
             RebuildHand();
-            ShowReward();
+            OfferReward();
         }
 
         void Lose()
@@ -423,23 +544,24 @@ namespace TatoGames.CardGame
             message.text = lost > 0
                 ? $"패배…  인게임 덱의 카드 {lost}장이 소멸했습니다 (귀속 제외)"
                 : "패배…  런이 여기서 끝났습니다";
-            RunState.End();          // §13.7 중간 저장 없음
+            RunState.End();          // 런 종료 — 런·전투·보상 저장을 전부 지운다
             EndControls();
         }
 
         /// <summary>노드 클리어 후: 보스였으면 런 종료, 아니면 맵으로.</summary>
-        void AfterNodeCleared()
+        void AfterNodeCleared(string note = null)
         {
             if (RunState.IsBossNode)
             {
                 if (!RunState.HasNextStage) { ShowRunClear(); return; }
-                RunState.NextStage();     // 새 스테이지 맵 생성
+                RunState.NextStage(enemyPool);   // 새 스테이지 맵 생성 (그 스테이지 적으로)
                 UpdateBackground();       // 배경 전환 (감자밭 → 뿌리층 → 깊은 토양)
                 stageIntro = true;
-                ShowMap($"보스 격파!   {RunState.StageName} 진입");
+                string head = $"보스 격파!   {RunState.StageName} 진입";
+                ShowMap(note == null ? head : $"{head}\n{note}");
                 return;
             }
-            ShowMap(null);
+            ShowMap(note);
         }
 
         void ShowRunClear()
@@ -452,14 +574,15 @@ namespace TatoGames.CardGame
         }
 
         // ══════════════════════════════════════════════════ 보상 (§12.1) ══════
-        void ShowReward()
+        /// <summary>
+        /// 보상을 굴리고 저장한 뒤 보여준다. 저장해 두기 때문에 보상 화면에서 나갔다 와도
+        /// 같은 토인·같은 후보가 다시 뜬다 — 다시 굴려서 더 좋은 카드를 노리는 것도 막힌다.
+        /// </summary>
+        void OfferReward()
         {
             int toin = RewardToin();
             bool boss = enemyData != null && enemyData.tier == EnemyTier.Boss;
             var cards = PickRewardCards(boss ? BossRewardCount : NormalRewardCount, boss);
-
-            for (int i = rewardRow.childCount - 1; i >= 0; i--)
-                Destroy(rewardRow.GetChild(i).gameObject);
 
             if (cards.Count == 0)   // 후보 없으면 토인만 지급
             {
@@ -469,27 +592,63 @@ namespace TatoGames.CardGame
                 return;
             }
 
+            if (RunState.Active)
+                BattleSave.SaveReward(new BattleSave.RewardState
+                {
+                    toin = toin, boss = boss, cardIds = cards.Select(c => c.id).ToList(),
+                });
+            ShowReward(toin, boss, cards);
+        }
+
+        /// <summary>받다 만 보상을 다시 띄운다 (보상 화면에서 나갔다 돌아온 경우).</summary>
+        void ResumeReward(RunNode node, BattleSave.RewardState r)
+        {
+            var found = FindEnemy(node.enemyId);
+            if (found != null) enemyData = found;
+            ShowIdleField();
+
+            var cards = r.cardIds.Select(FindCard).Where(c => c != null).ToList();
+            if (cards.Count == 0)
+            {
+                BattleSave.ClearReward();
+                PlayerData.AddToin(r.toin);
+                AfterNodeCleared();
+                return;
+            }
+            ShowReward(r.toin, r.boss, cards);
+        }
+
+        void ShowReward(int toin, bool boss, List<CardData> cards)
+        {
+            for (int i = rewardRow.childCount - 1; i >= 0; i--)
+                Destroy(rewardRow.GetChild(i).gameObject);
+
             rewardTitle.text = boss
                 ? $"보스 보상\n+{toin} 토인 · 초월/전설 카드 {cards.Count}장 중 1장 선택"
                 : $"전투 보상\n+{toin} 토인 · 카드 {cards.Count}장 중 1장 선택";
             foreach (var card in cards)
             {
                 var local = card;
-                var view = CardView.Create(rewardRow, uiFont, new Vector2(180, 250));
+                var view = CardView.Create(rewardRow, uiFont, RewardCardSize);
                 view.name = "Reward_" + card.id;
                 view.Bind(card, theme, true, () => PickReward(local, toin));
+                AttachHover(view, card, true, RewardCardSize, RewardHoverScale);
             }
             rewardPanel.SetActive(true);
         }
 
         void PickReward(CardData card, int toin)
         {
+            BattleSave.ClearReward();   // 지급보다 먼저 지운다 — 도중에 꺼져도 두 번 받지 않게
             PlayerData.AddToin(toin);
-            PlayerData.AddCard(card.id, card.rarity);   // 런처 컬렉션으로 이어짐 (희귀도로 수명 결정)
+            // 덱에 자리가 있으면 덱으로, 가득 찼으면(최대 30장) 감자창고로 (희귀도로 수명 결정)
+            bool inDeck = PlayerData.AddCard(card.id, card.rarity);
 
             rewardPanel.SetActive(false);
             message.text = $"획득: {card.displayName}   (+{toin} 토인)";
-            AfterNodeCleared();
+            // 바로 맵이 덮으므로 덱이 찼다는 안내는 맵 상단 문구로 띄운다
+            AfterNodeCleared(inDeck ? null
+                : $"{card.displayName} — 덱이 가득 차서({PlayerData.MaxDeck}장) 감자창고로 보냈어요");
         }
 
         int RewardToin()
@@ -583,7 +742,7 @@ namespace TatoGames.CardGame
             TatoGames.Launcher.LauncherTransition.ReturnToLauncher();
         }
 
-        static void Shuffle(List<CardData> list)
+        static void Shuffle<T>(List<T> list)
         {
             for (int i = list.Count - 1; i > 0; i--)
             {
@@ -600,15 +759,16 @@ namespace TatoGames.CardGame
             UiKit.Stretch(backgroundImage.rectTransform);
             UpdateBackground();
 
-            // ── 적: 우측 상단 (슬더스 배치) ──
+            // ── 적(오른쪽) · 플레이어(왼쪽) — 손패 바로 위에 선다 ──
+            // 화면 아래 기준으로 붙인다. 위 기준이면 화면 비율(16:10 등)에 따라
+            // 손패(아래 기준)와 사이가 벌어진다.
             enemyPanel = CombatantPanel.Create(transform, uiFont, new Vector2(240, 240), withIntent: true);
-            UiKit.Place(enemyPanel.GetComponent<RectTransform>(), new Vector2(0.5f, 1),
-                        new Vector2(250, -40), enemyPanel.GetComponent<RectTransform>().sizeDelta);
+            UiKit.Place(enemyPanel.GetComponent<RectTransform>(), new Vector2(0.5f, 0),
+                        new Vector2(250, PanelBottomY), enemyPanel.GetComponent<RectTransform>().sizeDelta);
 
-            // ── 플레이어: 좌측 하단 ──
             playerPanel = CombatantPanel.Create(transform, uiFont, new Vector2(200, 200), withIntent: false);
-            UiKit.Place(playerPanel.GetComponent<RectTransform>(), new Vector2(0.5f, 1),
-                        new Vector2(-330, -70), playerPanel.GetComponent<RectTransform>().sizeDelta);
+            UiKit.Place(playerPanel.GetComponent<RectTransform>(), new Vector2(0.5f, 0),
+                        new Vector2(-330, PanelBottomY), playerPanel.GetComponent<RectTransform>().sizeDelta);
 
             // ── 에너지 오브 (좌하단) ──
             var orb = UiKit.Img("EnergyOrb", transform);
@@ -631,13 +791,16 @@ namespace TatoGames.CardGame
             handRow = UiKit.Rect("Hand", transform);
             handRow.anchorMin = handRow.anchorMax = new Vector2(0.5f, 0);
             handRow.pivot = new Vector2(0.5f, 0);
-            handRow.anchoredPosition = new Vector2(30, 16); handRow.sizeDelta = new Vector2(980, 240);
+            handRow.anchoredPosition = new Vector2(30, HandY); handRow.sizeDelta = new Vector2(980, 240);
             var hlg = handRow.gameObject.AddComponent<HorizontalLayoutGroup>();
             hlg.spacing = 8; hlg.childAlignment = TextAnchor.LowerCenter;
             hlg.childControlWidth = hlg.childControlHeight = false;
             hlg.childForceExpandWidth = hlg.childForceExpandHeight = false;
 
-            endTurnBtn = MakeButton("EndTurn", "턴 종료", new Vector2(1, 0), new Vector2(-24, 130), new Vector2(170, 60), OnEndTurn);
+            // 오른쪽, 손패 윗변 바로 위. 버튼 pivot이 가운데라 x = −(여백 24 + 폭 절반 85).
+            // (예전 (−24, 130)은 절반이 화면 밖이었고, 손패가 6장을 넘으면 카드와 겹쳤다)
+            endTurnBtn = MakeButton("EndTurn", "턴 종료", new Vector2(1, 0), new Vector2(-109, PanelBottomY + 30f),
+                                    new Vector2(170, 60), OnEndTurn);
             UiKit.ApplyButton(endTurnBtn, theme);
 
             restartBtn = MakeButton("Restart", "다시하기", new Vector2(0.5f, 0.5f), new Vector2(-110, -70), new Vector2(200, 56),
@@ -792,7 +955,19 @@ namespace TatoGames.CardGame
                     };
                     var t = MakeStretchText(cell.transform, 15);
                     t.text = $"{RunState.Label(n)}\n{sub}";
-                    if (!isPickable && !isCurrent && !isPast) t.color = new Color(1, 1, 1, 0.5f);
+                    bool dim = !isPickable && !isCurrent && !isPast;
+                    if (dim) t.color = new Color(1, 1, 1, 0.5f);
+
+                    // 노드 아이콘 (BattleTheme에 있으면) — 왼쪽에 두고 글자는 오른쪽으로 민다
+                    var icon = theme != null ? theme.NodeIconFor(n.type) : null;
+                    if (icon != null)
+                    {
+                        var ic = UiKit.Img("Icon", cell.transform);
+                        UiKit.Place(ic.rectTransform, new Vector2(0, 0.5f), new Vector2(4, 0), new Vector2(38, 38));
+                        ic.sprite = icon; ic.preserveAspect = true;
+                        ic.color = dim ? new Color(1, 1, 1, 0.5f) : Color.white;
+                        t.rectTransform.offsetMin = new Vector2(40, 0);
+                    }
 
                     if (!isPickable) continue;
                     int pick = r;
@@ -834,7 +1009,7 @@ namespace TatoGames.CardGame
         void OnChooseNode(int row)
         {
             mapPanel.SetActive(false);
-            if (stageIntro) stageIntro = false;    // 새 스테이지 0열로 그대로 진입
+            if (stageIntro) { stageIntro = false; RunState.StageIntro = false; }   // 새 스테이지 0열로 그대로 진입
             else RunState.MoveTo(row);
             EnterNode();
         }
@@ -864,9 +1039,10 @@ namespace TatoGames.CardGame
                 if (data == null) continue;
                 var shown = CardUpgrade.Build(data, inst.upgrade, inst.State);
                 int id = inst.instanceId;
-                var view = CardView.Create(forgeGrid, uiFont, new Vector2(102, 142));
+                var view = CardView.Create(forgeGrid, uiFont, ForgeCardSize);
                 view.name = $"Forge_{id}";
                 view.Bind(shown, theme, true, () => { forgeSelected = id; RebuildForgeActions(); });
+                AttachHover(view, shown, true, ForgeCardSize, ForgeHoverScale);
             }
 
             RebuildForgeActions();
@@ -918,14 +1094,20 @@ namespace TatoGames.CardGame
 
         void LeaveForge()
         {
+            RunState.NodeCleared = true;   // 나간 뒤 다시 들어오면 맵부터
             forgePanel.SetActive(false);
             ShowMap(null);
         }
 
-        /// <summary>id로 카드 원본 찾기 (시작덱 + 보상 풀이 전 카드를 커버).</summary>
+        /// <summary>
+        /// id로 카드 원본 찾기. CardLibrary(Resources, 전 카드)가 기준이고, 없으면 씬에 배선된 목록을 본다.
+        /// (보상 풀은 전투 출처만 들고 있어서 그것만으로는 미니게임 카드를 못 찾는다)
+        /// </summary>
         CardData FindCard(string id)
         {
             if (string.IsNullOrEmpty(id)) return null;
+            var fromLib = CardLibrary.Load()?.Find(id);
+            if (fromLib != null) return fromLib;
             if (starterDeck != null) foreach (var c in starterDeck) if (c != null && c.id == id) return c;
             if (rewardPool != null) foreach (var c in rewardPool) if (c != null && c.id == id) return c;
             return null;
@@ -947,15 +1129,38 @@ namespace TatoGames.CardGame
 
         void Refresh()
         {
-            enemyPanel.Bind(enemy, theme, enemyData != null ? enemyData.artwork : null);
-            enemyPanel.SetIntent(CurrentIntent(), theme, RunState.Active ? RunState.AtkScale : 1f);
-            playerPanel.Bind(player, theme, null);   // 플레이어 초상화는 캐릭터 아트 도착 시 연결
+            if (enemy != null)
+            {
+                enemyPanel.Bind(enemy, theme, EnemyArt());
+                var intent = CurrentIntent();
+                enemyPanel.SetIntent(intent, theme, intent != null ? IntentAmount(intent) : 0);
+            }
+            playerPanel.Bind(player, theme, theme != null ? theme.playerPortrait : null);
 
             energyText.text = $"{energy}/{maxEnergy}";
             pileText.text = $"덱 {drawPile.Count}    버림 {discard.Count}";
             if (!over) message.text = startNotice;
             RebuildHand();
+            if (!over) SaveBattle();   // 입력을 기다리는 순간마다 저장 — 언제 나가도 그 자리에서 이어진다
         }
+
+        /// <summary>적 그림 — 2페이즈로 변신했고 변신 그림이 있으면 그걸 쓴다.</summary>
+        Sprite EnemyArt()
+        {
+            if (enemyData == null) return null;
+            return transformed && enemyData.phase2Artwork != null ? enemyData.phase2Artwork : enemyData.artwork;
+        }
+
+        /// <summary>
+        /// 인텐트에 띄울 수치 — 실제로 들어올 값. 공격은 장별 배율 + 적의 힘·약화 + 플레이어의 취약까지 반영
+        /// (예전엔 배율만 반영해서 `약 올리기`를 써도 예고 수치가 그대로였다).
+        /// </summary>
+        int IntentAmount(EnemyAction a) => a.kind switch
+        {
+            EnemyActionKind.Attack => player.ModifyIncoming(enemy.ModifyOutgoing(ScaleAtk(a.amount))),
+            EnemyActionKind.Block => ScaleAtk(a.amount),
+            _ => a.amount,
+        };
 
         /// <summary>적이 다음 턴에 할 행동(인텐트).</summary>
         EnemyAction CurrentIntent()
@@ -970,14 +1175,66 @@ namespace TatoGames.CardGame
             for (int i = handRow.childCount - 1; i >= 0; i--)
                 Destroy(handRow.GetChild(i).gameObject);
 
-            foreach (var card in hand)
+            foreach (var bc in hand)
             {
-                var local = card;
+                var local = bc;
+                var card = bc.data;
                 bool playable = !over && energy >= card.cost;
-                var view = CardView.Create(handRow, uiFont, new Vector2(150, 210));
+                var view = CardView.Create(handRow, uiFont, HandCardSize);
+                ((RectTransform)view.transform).pivot = new Vector2(0.5f, 0f);   // 커질 때 화면 밖이 아니라 위로 자라게
                 view.name = "Card_" + card.id;
                 view.Bind(card, theme, playable, () => PlayCard(local));
+                AttachHover(view, card, playable, HandCardSize, HandHoverScale);
             }
+        }
+
+        // ── 카드 마우스오버 확대 ──
+        // 카드 자체를 키우면 옆 카드(나중 형제)가 그 위를 덮어 그린다. 그래서 같은 모양의
+        // 확대본을 맨 위에 겹쳐 그린다. 확대본은 클릭을 받지 않으므로 아래 원래 카드가 그대로 눌린다.
+        readonly Dictionary<Vector2, CardView> previews = new();   // 카드 크기별로 하나씩 재사용
+        CardView previewShown;
+        CardView previewOwner;
+
+        void AttachHover(CardView view, CardData card, bool playable, Vector2 size, float scale)
+        {
+            var relay = view.gameObject.AddComponent<CardHoverRelay>();
+            relay.onEnter = () => ShowPreview(view, card, playable, size, scale);
+            relay.onExit = () => HidePreview(view);
+        }
+
+        void ShowPreview(CardView source, CardData card, bool playable, Vector2 size, float scale)
+        {
+            if (source == null || card == null) return;
+            if (!previews.TryGetValue(size, out var pv) || pv == null)
+            {
+                pv = CardView.Create(transform, uiFont, size);
+                pv.name = "HoverPreview";
+                pv.frame.raycastTarget = false;   // 마우스는 계속 원래 카드 위에 있는 것으로 친다
+                previews[size] = pv;
+            }
+            if (previewShown != null && previewShown != pv) previewShown.gameObject.SetActive(false);
+
+            pv.Bind(card, theme, playable, null);
+            var src = (RectTransform)source.transform;
+            var rt = (RectTransform)pv.transform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = src.pivot;
+            rt.sizeDelta = size;
+            rt.position = src.position;              // 원래 카드와 정확히 같은 자리에서
+            rt.localScale = Vector3.one * scale;     // pivot 기준으로 커진다
+            rt.SetAsLastSibling();                   // 보상·대장간 패널보다도 위
+            pv.gameObject.SetActive(true);
+
+            previewShown = pv;
+            previewOwner = source;
+        }
+
+        void HidePreview(CardView source)
+        {
+            if (previewOwner != source) return;      // 이미 다른 카드로 옮겨갔으면 건드리지 않는다
+            if (previewShown != null) previewShown.gameObject.SetActive(false);
+            previewShown = null;
+            previewOwner = null;
         }
 
         // ── UI 헬퍼 ──

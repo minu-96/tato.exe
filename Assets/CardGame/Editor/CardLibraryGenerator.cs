@@ -154,7 +154,7 @@ public static class CardLibraryGenerator
             Make("atk_potato_cannon", "감자 포탄", ATK, RARE, 2, NEU,
                  "12 피해", L(D(12)), L(D(15))),
             Make("atk_chain_harvest", "연쇄 수확", ATK, RARE, 1, NEU,
-                 "4 피해 + 턴 종료 시 남은 에너지 ×1장 뽑기", L(D(4), DrawE(1)), L(D(6), DrawE(1))),
+                 "4 피해 + 남은 에너지만큼 즉시 카드 뽑기", L(D(4), DrawE(1)), L(D(6), DrawE(1))),
 
             // 모아모아 10tato — 방어(블록+효과방어)
             Make("def_pack", "다지기", DEF, COM, 1, MOA,

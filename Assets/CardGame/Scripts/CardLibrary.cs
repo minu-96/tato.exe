@@ -79,7 +79,7 @@ namespace TatoGames.CardGame
         public void FillDefaultRules()
         {
             if (rules.Count > 0) return;
-            // ⚠️ 전부 추정값이다. 늘어나라·모아모아는 "개수" 단위, 밭의 생존자는 라운드(1~7).
+            // ⚠️ 전부 추정값이다. 늘어나라·모아모아는 "개수" 단위, 밭의 생존자는 끝까지 버틴 라운드 수(0~7, 7 = 완주).
             //    실제로 몇 점이 나오는지 플레이해보고 인스펙터에서 조정할 것.
             rules.Add(new SourceRule
             {

@@ -9,7 +9,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// MVP 전투 씬 + 스테이지1 적 6종 SO를 조립한다. 메뉴: TatoGames ▸ Card Game ▸ Build MVP Battle.
+/// MVP 전투 씬 + 적 6종 SO를 조립한다. 메뉴: TatoGames ▸ Card Game ▸ Build MVP Battle.
 /// 카드는 CardLibraryGenerator(§8.3)에 맡기고, 여기서는 적 SO 생성 + 보상 풀 할당 +
 /// 씬 구성만 한다. 적 수치는 몬스터 AI 이미지 시트(감자밭 1단계) 기준. 여러 번 실행해도 안전.
 /// </summary>
@@ -31,7 +31,7 @@ public static class CardGameBuilder
     {
         if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
 
-        // 1) 카드 19종 보장
+        // 1) 카드 39종 보장
         if (!AssetDatabase.IsValidFolder(CardsDir) ||
             AssetDatabase.LoadAssetAtPath<CardData>($"{CardsDir}/{StarterIds[0]}.asset") == null)
             CardLibraryGenerator.Generate();
@@ -48,21 +48,22 @@ public static class CardGameBuilder
         // 미니게임 카드는 그 미니게임을 플레이해야 나온다 — 그래야 런처의 미니게임이 존재 이유를 갖는다.
         var rewardPool = LoadAllCards().Where(c => c.source == AcquireSource.Combat).ToArray();
 
-        // 3) 스테이지1 적 6종 (몬스터 AI 이미지 시트 기준)
-        var clod = MakeEnemy("enemy_clod", "흙덩이", EnemyTier.Normal, 15, 0, 0, new[]
+        // 3) 적 6종 (몬스터 AI 이미지 시트 기준) — 스테이지 배정: 1단계 흙덩이·밭두더지·감자벌레,
+        //    2단계 껍질 두더지, 3단계 포자 감자. 스테이지별 몬스터는 추후 추가
+        var clod = MakeEnemy("enemy_clod", "흙덩이", EnemyTier.Normal, StageMask.Stage1, 15, 0, 0, new[]
         { Atk("공격", 5), Atk("공격", 5), Atk("내리치기", 8) });
 
-        var shellMole = MakeEnemy("enemy_shell_mole", "껍질 두더지", EnemyTier.Normal, 15, 6, 0, new[]
+        var shellMole = MakeEnemy("enemy_shell_mole", "껍질 두더지", EnemyTier.Normal, StageMask.Stage2, 15, 6, 0, new[]
         { Blk("웅크리기", 5), Atk("공격", 5), Atk("공격", 5) });
 
-        var spore = MakeEnemy("enemy_spore_tato", "포자 감자", EnemyTier.Normal, 15, 0, 2, new[]
+        var spore = MakeEnemy("enemy_spore_tato", "포자 감자", EnemyTier.Normal, StageMask.Stage3, 15, 0, 2, new[]
         { Deb("포자", StatusType.Poison, 3), Atk("공격", 5), Deb("삭힌 바람", StatusType.Weak, 2) });
 
-        var fieldMole = MakeEnemy("enemy_field_mole", "밭두더지", EnemyTier.Normal, 18, 5, 0, new[]
+        var fieldMole = MakeEnemy("enemy_field_mole", "밭두더지", EnemyTier.Normal, StageMask.Stage1, 18, 5, 0, new[]
         { Blk("파고들기", 5), Atk("공격", 6), Atk("공격", 4) });
 
         // 감자벌레: 1페이즈(껍질집) → 공격방어 0 깨지면 2페이즈(본체) 변신
-        var grub = MakeEnemy("enemy_potato_grub", "감자벌레집", EnemyTier.Normal, 12, 6, 0, new[]
+        var grub = MakeEnemy("enemy_potato_grub", "감자벌레집", EnemyTier.Normal, StageMask.Stage1, 12, 6, 0, new[]
         { Blk("웅크리기", 4), Atk("공격", 4), Atk("공격", 4) });
         grub.transformOnBlockBreak = true;
         grub.phase2Name = "감자벌레";
@@ -71,7 +72,10 @@ public static class CardGameBuilder
         { Atk("갉아먹기", 5), Blk("파고들기", 3), Atk("갉아먹기", 5) };
         EditorUtility.SetDirty(grub);
 
-        var scarecrow = MakeEnemy("enemy_scarecrow", "밭의 수호자 허수아비", EnemyTier.Boss, 30, 0, 1, new[]
+        // 2·3스테이지 보스는 아직 없어서 허수아비가 예비로 세 스테이지를 다 맡는다.
+        // 새 보스를 만들면 여기서 허수아비의 Stage2·Stage3을 끄고 새 보스에 켠다.
+        var scarecrow = MakeEnemy("enemy_scarecrow", "밭의 수호자 허수아비", EnemyTier.Boss,
+            StageMask.Stage1 | StageMask.Stage2 | StageMask.Stage3, 30, 0, 1, new[]
         { Blk("경계", 5), Atk("내려치기", 6), Deb("씨앗 폭풍", StatusType.Weak, 2), Atk("공격", 8) });
 
         AssetDatabase.SaveAssets();
@@ -91,13 +95,14 @@ public static class CardGameBuilder
             .Where(c => c != null).ToList();
 
     // ── 적 SO (load-or-create) ──
-    static EnemyData MakeEnemy(string id, string name, EnemyTier tier, int hp, int block, int ward, EnemyAction[] pattern)
+    static EnemyData MakeEnemy(string id, string name, EnemyTier tier, StageMask stages,
+                               int hp, int block, int ward, EnemyAction[] pattern)
     {
         Directory.CreateDirectory(EnemiesDir);
         string path = $"{EnemiesDir}/{id}.asset";
         var e = AssetDatabase.LoadAssetAtPath<EnemyData>(path);
         if (e == null) { e = ScriptableObject.CreateInstance<EnemyData>(); AssetDatabase.CreateAsset(e, path); }
-        e.id = id; e.enemyName = name; e.tier = tier;
+        e.id = id; e.enemyName = name; e.tier = tier; e.stages = stages;
         e.hp = hp; e.blockStart = block; e.wardStart = ward; e.wardRefresh = false;
         e.pattern = pattern.ToList(); e.patternLoop = true;
         e.transformOnBlockBreak = false; e.phase2Name = ""; e.phase2Hp = 0; e.phase2Pattern = new List<EnemyAction>();

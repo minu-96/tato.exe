@@ -15,7 +15,8 @@ MonoBehaviour:
   id: enemy_field_mole
   enemyName: "\uBC2D\uB450\uB354\uC9C0"
   tier: 0
-  artwork: {fileID: 0}
+  stages: 1
+  artwork: {fileID: -3594356488750029338, guid: 4e42637845e3c47629b2c9da6e2cba33, type: 3}
   hp: 18
   blockStart: 5
   wardStart: 0
@@ -41,3 +42,4 @@ MonoBehaviour:
   phase2Name: 
   phase2Hp: 0
   phase2Pattern: []
+  phase2Artwork: {fileID: 0}

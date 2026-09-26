@@ -28,7 +28,7 @@ namespace TatoGames.CardGame
 
             var c = Object.Instantiate(source);   // 런타임 복제 — 에셋 보존
             c.name = source.name + "_rt";
-            c.description = "";                   // 효과에서 다시 조합되도록 비움
+            c.description = "";                   // 설명은 효과에서 조합된다(CardText.Describe) — 메모는 원본에만
             c.displayName = source.displayName;
 
             // ① 상태별 효과로 교체 (싹이면 sproutEffects)

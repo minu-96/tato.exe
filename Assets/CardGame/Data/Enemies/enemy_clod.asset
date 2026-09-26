@@ -15,7 +15,8 @@ MonoBehaviour:
   id: enemy_clod
   enemyName: "\uD759\uB369\uC774"
   tier: 0
-  artwork: {fileID: 0}
+  stages: 1
+  artwork: {fileID: 6642563125189712063, guid: f72609d79a8b640eeb165a2819433040, type: 3}
   hp: 15
   blockStart: 0
   wardStart: 0
@@ -41,3 +42,4 @@ MonoBehaviour:
   phase2Name: 
   phase2Hp: 0
   phase2Pattern: []
+  phase2Artwork: {fileID: 0}

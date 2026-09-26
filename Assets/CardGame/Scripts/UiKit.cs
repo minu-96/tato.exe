@@ -77,6 +77,32 @@ namespace TatoGames.CardGame
             }
         }
 
+        static Sprite circle;
+
+        /// <summary>
+        /// 흰 원 스프라이트 (알림 점 등). 기본 UI 원형 리소스는 에디터 전용이라 빌드에서 못 쓰므로 코드로 한 번 그려 둔다.
+        /// </summary>
+        public static Sprite Circle()
+        {
+            if (circle != null) return circle;
+            const int n = 64;
+            var tex = new Texture2D(n, n, TextureFormat.RGBA32, false) { filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
+            var px = new Color32[n * n];
+            float r = n / 2f;
+            for (int y = 0; y < n; y++)
+                for (int x = 0; x < n; x++)
+                {
+                    float d = Mathf.Sqrt((x + 0.5f - r) * (x + 0.5f - r) + (y + 0.5f - r) * (y + 0.5f - r));
+                    byte a = (byte)(Mathf.Clamp01(r - d) * 255);   // 가장자리 1px 부드럽게
+                    px[y * n + x] = new Color32(255, 255, 255, a);
+                }
+            tex.SetPixels32(px);
+            tex.Apply();
+            circle = Sprite.Create(tex, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), 100f);
+            circle.name = "UiKit_Circle";
+            return circle;
+        }
+
         public static void Place(RectTransform rt, Vector2 anchor, Vector2 pos, Vector2 size)
         {
             rt.anchorMin = rt.anchorMax = rt.pivot = anchor;

@@ -89,5 +89,15 @@ namespace TatoGames.Launcher
         }
 
         public static int UnlockedCount => All.Count(IsUnlocked);
+
+        /// <summary>테스트용 — 카운터와 달성 기록을 전부 지운다.</summary>
+        public static void ResetAll()
+        {
+            foreach (var key in new[] { RunsStarted, BattlesWon, BossesKilled, RunsCleared,
+                                        MinigamesPlayed, CardsRotted, CardsUpgraded })
+                PlayerPrefs.DeleteKey(key);
+            foreach (var a in All) PlayerPrefs.DeleteKey("ach_done_" + a.id);
+            PlayerPrefs.Save();
+        }
     }
 }

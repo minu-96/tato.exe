@@ -13,6 +13,7 @@ namespace TatoGames.CardGame
         [Header("식별")]
         public string id;                 // 예: atk_potato_punch
         public string displayName;        // 예: 감자 펀치
+        [Tooltip("기획 메모. 게임 화면의 설명은 효과(effects)에서 자동으로 만든다 — CardText.Describe")]
         [TextArea] public string description;
 
         [Header("분류")]

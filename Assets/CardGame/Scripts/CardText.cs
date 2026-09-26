@@ -20,7 +20,8 @@ namespace TatoGames.CardGame
             EffectType.Block => $"{e.value} 블록",
             EffectType.EffectDefense => $"효과방어 {e.value}",
             EffectType.ApplyStatus => $"{Kor(e.status)} {e.value}",
-            EffectType.DrawPerRemainingEnergy => $"남은 에너지×{e.value} 드로우",
+            EffectType.DrawPerRemainingEnergy => e.value == 1 ? "남은 에너지만큼 카드 뽑기"
+                                                              : $"남은 에너지×{e.value}장 카드 뽑기",
             EffectType.TemporaryBlock => $"{e.value} 블록 (이번 턴만)",
             EffectType.ReflectHalfDamage => "받은 피해 절반 반사",
             EffectType.DisableBlockThisTurn => "이번 턴 블록 불가",
@@ -45,13 +46,17 @@ namespace TatoGames.CardGame
             _ => "",
         };
 
-        /// <summary>카드 설명 — description이 있으면 그걸, 없으면 효과를 조합. 키워드는 뒤에 붙인다.</summary>
+        /// <summary>
+        /// 카드 설명 — <b>항상 실제 효과(effects)에서 조합한다.</b> 키워드는 뒤에 붙인다.
+        /// 손으로 쓴 description은 쓰지 않는다: 수치를 고치면 글이 낡고, 실제 동작과 다른 설명이
+        /// 나간 적이 있다(연쇄 수확 "턴 종료 시" ↔ 실제는 즉시). 카드목록.md도 같은 조합을 쓴다.
+        /// description 필드는 기획 메모용으로만 남는다.
+        /// </summary>
         public static string Describe(CardData c)
         {
             if (c == null) return "";
             string kw = Keyword(c.keyword);
             string tail = string.IsNullOrEmpty(kw) ? "" : "\n〈" + kw + "〉";
-            if (!string.IsNullOrEmpty(c.description)) return c.description + tail;
             if (c.effects == null || c.effects.Count == 0) return tail.TrimStart();
             var lines = new string[c.effects.Count];
             for (int i = 0; i < c.effects.Count; i++) lines[i] = Effect(c.effects[i]);

@@ -19,6 +19,7 @@ public class SnakeGameManager : MonoBehaviour
     public GameObject pausePanel;
     private int score = 0;
     private bool isPaused = false;
+    private bool isGameOver = false;   // 벽·몸통 충돌이 같은 프레임에 겹쳐도 한 판에 한 번만 끝낸다
     public bool IsIntroPlaying { get; private set; } = false;
 
     public void SetIntroPlaying(bool value) { IsIntroPlaying = value; }
@@ -85,8 +86,11 @@ public class SnakeGameManager : MonoBehaviour
 
     public void GameOver()
     {
+        if (isGameOver) return;
+        isGameOver = true;
+
         // 점수에 따라 '늘어나라' 출처 카드를 수급한다 (§8). 규칙은 CardLibrary에서 읽으므로
-        // 이 씬에 배선할 것이 없다. 판이 끝날 때 한 번만 부를 것.
+        // 이 씬에 배선할 것이 없다. 위 가드 덕분에 한 판에 한 번만 실행된다.
         TatoGames.CardGame.TatoReward.Grant(TatoGames.CardGame.AcquireSource.Neulteona, score);
 
         gameOverPanel.SetActive(true);

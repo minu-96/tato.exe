@@ -15,7 +15,7 @@ namespace TatoGames.CardGame
         public bool bound;      // 시작덱 귀속: 판매·썩음 면제 (덱에서 빼는 건 자유)
         public UpgradeKind upgrade = UpgradeKind.None;
 
-        /// <summary>지나온 런 수 (§7 시간축 = 런 수). 런이 끝날 때마다 보유 카드 전부 +1.</summary>
+        /// <summary>지나온 런 수 (§7 시간축 = 런 수). <b>새 런을 시작할 때마다</b> 보유 카드 전부 +1.</summary>
         public int age;
 
         /// <summary>이 나이가 되면 썩는다. 획득 시 희귀도별 범위에서 한 번 굴려 고정.</summary>
@@ -116,6 +116,7 @@ namespace TatoGames.CardGame
         const string InstancesKey = "tato_instances";
         const string DeckKey = "tato_deck";
         const string LegacyCollectionKey = "tato_collection";   // 구버전 마이그레이션용
+        const string NewCardsKey = "tato_new_cards";              // 아직 안 본 새 카드 (감자창고 빨간 점)
 
         /// 시작덱 4종 ×2 = 8장 (귀속)
         public static readonly string[] StarterIds =
@@ -194,10 +195,16 @@ namespace TatoGames.CardGame
             PlayerPrefs.SetString(InstancesKey, string.Join(";", recs));
         }
 
-        /// <summary>카드 1장 획득 → 새 인스턴스. 덱에 여유가 있으면 자동으로 덱에 넣는다.</summary>
-        public static void AddCard(string cardId, Rarity rarity = Rarity.Common)
+        /// <summary>
+        /// 카드 1장 획득 → 새 인스턴스.
+        /// toDeck이면 덱에 여유가 있을 때 덱에 넣고, 덱이 가득(최대치) 찼으면 감자창고에 둔다.
+        /// toDeck=false면 항상 감자창고로 간다 — 미니게임 보상이 이쪽이다. 런 도중에 미니게임을 하면
+        /// 그 카드가 진행 중인 덱에 섞여 들어가, 패배 시 의도치 않게 같이 소멸했기 때문이다.
+        /// 반환값 = 덱에 들어갔는가.
+        /// </summary>
+        public static bool AddCard(string cardId, Rarity rarity = Rarity.Common, bool toDeck = true)
         {
-            if (string.IsNullOrEmpty(cardId)) return;
+            if (string.IsNullOrEmpty(cardId)) return false;
             var list = Instances();
             int next = list.Count == 0 ? 1 : list.Max(c => c.instanceId) + 1;
             var inst = new CardInstance
@@ -207,17 +214,23 @@ namespace TatoGames.CardGame
             };
             list.Add(inst);
             SaveInstances(list);
+            MarkNew(inst.instanceId);   // 감자창고에서 빨간 점 — 마우스를 올리면 사라진다
 
-            var deck = DeckIds();
-            if (deck.Count < MaxDeck) { deck.Add(inst.instanceId); SaveDeck(deck); }
+            bool added = false;
+            if (toDeck)
+            {
+                var deck = DeckIds();
+                if (deck.Count < MaxDeck) { deck.Add(inst.instanceId); SaveDeck(deck); added = true; }
+            }
             PlayerPrefs.Save();
             RaiseChanged();
+            return added;
         }
 
         // ── 나이 / 썩음 (§7 · §8.1) ──
 
         /// <summary>
-        /// 런이 끝날 때 호출. 보유 카드 <b>전부</b>가 한 살 먹는다(덱에 넣었든 아니든 — 쟁여두기 방지).
+        /// 새 런을 시작할 때 호출. 보유 카드 <b>전부</b>가 한 살 먹는다(덱에 넣었든 아니든 — 쟁여두기 방지).
         /// 귀속 카드는 면제. 이번에 썩은 카드는 덱에서 자동으로 빠지고 창고에는 남는다.
         /// 반환값 = 이번에 새로 썩은 장수.
         /// </summary>
@@ -403,6 +416,19 @@ namespace TatoGames.CardGame
             });
         }
 
+        /// <summary>런 덱에 든 그 출처 카드 수 — 런 도중 게임 판매를 막는 판단용.</summary>
+        public static int DeckCountBySource(AcquireSource source)
+        {
+            var lib = CardLibrary.Load();
+            if (lib == null) return 0;
+            return DeckInstances().Count(c =>
+            {
+                if (c.bound) return false;
+                var d = lib.Find(c.cardId);
+                return d != null && d.source == source;
+            });
+        }
+
         /// <summary>창고에 쌓인 썩은 카드 수 (판매 안내용).</summary>
         public static int RottenCount() => Instances().Count(c => c.IsSpent);
 
@@ -498,11 +524,57 @@ namespace TatoGames.CardGame
         }
 
         /// <summary>테스트용 초기화.</summary>
+        // ── 새 카드 표시 (감자창고 빨간 점) ──
+        // 얻은 카드는 "아직 안 봄"으로 기록하고, 감자창고에서 그 카드에 마우스를 올리면 지운다.
+        // 보유 카드가 사라지면(판매·소멸) 목록에 남아도 아무 데도 안 그려지므로 따로 정리하지 않는다.
+
+        /// <summary>새 카드 표시가 바뀔 때 (사이드바 알림 등). 카드 목록 전체를 다시 그리지 않도록 Changed와 분리.</summary>
+        public static event System.Action NewCardsChanged;
+
+        public static HashSet<int> NewCardIds()
+        {
+            string raw = PlayerPrefs.GetString(NewCardsKey, "");
+            var set = new HashSet<int>();
+            foreach (var x in raw.Split(','))
+                if (int.TryParse(x, out int v)) set.Add(v);
+            return set;
+        }
+
+        public static bool IsNew(int instanceId) => NewCardIds().Contains(instanceId);
+
+        /// <summary>보유 중인 카드 가운데 아직 안 본 게 있나.</summary>
+        public static bool HasUnseenCards()
+        {
+            var fresh = NewCardIds();
+            return fresh.Count > 0 && Instances().Any(c => fresh.Contains(c.instanceId));
+        }
+
+        static void MarkNew(int instanceId)
+        {
+            var set = NewCardIds();
+            if (set.Add(instanceId)) SaveNew(set);
+        }
+
+        /// <summary>그 카드를 봤다 — 빨간 점을 지운다. 카드 목록을 다시 그리지 않는다(마우스 아래 칸이 깜빡이므로).</summary>
+        public static void MarkSeen(int instanceId)
+        {
+            var set = NewCardIds();
+            if (set.Remove(instanceId)) SaveNew(set);
+        }
+
+        static void SaveNew(HashSet<int> set)
+        {
+            PlayerPrefs.SetString(NewCardsKey, string.Join(",", set));
+            PlayerPrefs.Save();
+            NewCardsChanged?.Invoke();
+        }
+
         public static void Reset()
         {
             PlayerPrefs.DeleteKey(ToinKey);
             PlayerPrefs.DeleteKey(InstancesKey);
             PlayerPrefs.DeleteKey(DeckKey);
+            PlayerPrefs.DeleteKey(NewCardsKey);
             PlayerPrefs.DeleteKey(LegacyCollectionKey);
             PlayerPrefs.Save();
             RaiseChanged();

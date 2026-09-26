@@ -14,6 +14,12 @@ public class StartStage : MonoBehaviour
         // 씬이 로드될 때 `OnSceneLoaded` 실행
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
+
+    // 구독을 풀지 않으면 이 씬이 사라진 뒤에도(런처·전투 씬에서도) 매번 불린다
+    void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
     
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
