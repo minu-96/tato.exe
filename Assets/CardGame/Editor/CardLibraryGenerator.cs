@@ -61,6 +61,8 @@ public static class CardLibraryGenerator
             .ToList();
 
         lib.FillDefaultRules();          // 비어 있을 때만 채운다
+        if (lib.theme == null)           // 런처 등 전투 씬 밖에서 카드 아트를 찾는 곳
+            lib.theme = AssetDatabase.LoadAssetAtPath<BattleTheme>("Assets/CardGame/Data/BattleTheme.asset");
         EditorUtility.SetDirty(lib);
         AssetDatabase.SaveAssets();
         return lib.cards.Count;

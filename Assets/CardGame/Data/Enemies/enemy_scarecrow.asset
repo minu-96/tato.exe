@@ -16,7 +16,7 @@ MonoBehaviour:
   enemyName: "\uD5C8\uC218\uC544\uBE44"
   tier: 2
   stages: -1
-  artwork: {fileID: -8716538371886739783, guid: 8232db323505c4b048b8150d5842994e, type: 3}
+  artwork: {fileID: 21300000, guid: 8232db323505c4b048b8150d5842994e, type: 3}
   hp: 30
   blockStart: 0
   wardStart: 1
@@ -67,4 +67,4 @@ MonoBehaviour:
     amount: 5
     hits: 2
     status: 0
-  phase2Artwork: {fileID: -293145972897704780, guid: 0b25828bb3ce141908b481075e143800, type: 3}
+  phase2Artwork: {fileID: 21300000, guid: 0b25828bb3ce141908b481075e143800, type: 3}

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aa4ec3f5cd36c43db823ac995634106d, type: 3}
-  m_Name: 
+  m_Name: atk_combo
   m_EditorClassIdentifier: Assembly-CSharp::TatoGames.CardGame.CardData
   id: atk_combo
   displayName: "\uAC10\uC790 \uC5F0\uD0C0"
@@ -20,7 +20,7 @@ MonoBehaviour:
   cost: 1
   source: 1
   keyword: 0
-  artwork: {fileID: 5189691121816951081, guid: 09acb36a6bf3c43f892b3bf371761182, type: 3}
+  artwork: {fileID: 21300000, guid: 862e7bf63c1fd43bfb97201f5a52c8f4, type: 3}
   effects:
   - type: 0
     value: 3

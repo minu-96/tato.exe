@@ -367,7 +367,7 @@ namespace TatoGames.Launcher
                 vrt.anchorMin = vrt.anchorMax = vrt.pivot = new Vector2(0.5f, 1);
                 vrt.anchoredPosition = Vector2.zero;
                 // 클릭 기능은 없다. 다 쓴 카드(다음 런에 썩음)는 어둡게
-                view.Bind(ShownCard(inst, card), theme, !inst.IsSpent, null);
+                view.Bind(ShownCard(inst, card), CardLibrary.ThemeOr(theme), !inst.IsSpent, null);
             }
             else
             {

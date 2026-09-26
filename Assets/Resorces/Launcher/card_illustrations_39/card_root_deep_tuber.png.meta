@@ -1,0 +1,574 @@
+fileFormatVersion: 2
+guid: 88e576ddf335f49d9a3b1ab2f3396f99
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 2754873849566506979
+    second: card_root_deep_tuber_0
+  - first:
+      213: -6263649774504833297
+    second: card_root_deep_tuber_1
+  - first:
+      213: -2694336433454856678
+    second: card_root_deep_tuber_2
+  - first:
+      213: 8620760380249756379
+    second: card_root_deep_tuber_3
+  - first:
+      213: -9218341002007247514
+    second: card_root_deep_tuber_4
+  - first:
+      213: -2450347432373729148
+    second: card_root_deep_tuber_5
+  - first:
+      213: -4278982040327842682
+    second: card_root_deep_tuber_6
+  - first:
+      213: 3019532916123692786
+    second: card_root_deep_tuber_7
+  - first:
+      213: 4626531402036350756
+    second: card_root_deep_tuber_8
+  - first:
+      213: 5266821407590721985
+    second: card_root_deep_tuber_9
+  - first:
+      213: 4142457236399630478
+    second: card_root_deep_tuber_10
+  - first:
+      213: 989490578869661296
+    second: card_root_deep_tuber_11
+  - first:
+      213: 371713051877870990
+    second: card_root_deep_tuber_12
+  - first:
+      213: -5060338947830296735
+    second: card_root_deep_tuber_13
+  - first:
+      213: 3975690856669383333
+    second: card_root_deep_tuber_14
+  - first:
+      213: 1620745663618073207
+    second: card_root_deep_tuber_15
+  - first:
+      213: 639496987939934272
+    second: card_root_deep_tuber_16
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: card_root_deep_tuber_0
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 32
+        width: 444
+        height: 347
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3efac649b274b3620800000000000000
+      internalID: 2754873849566506979
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_deep_tuber_1
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 5
+        width: 20
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fee0f2167bb0319a0800000000000000
+      internalID: -6263649774504833297
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_deep_tuber_2
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 5
+        width: 32
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a16c78af94bcb9ad0800000000000000
+      internalID: -2694336433454856678
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_deep_tuber_3
+      rect:
+        serializedVersion: 2
+        x: 92
+        y: 5
+        width: 14
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd25c8e14e713a770800000000000000
+      internalID: 8620760380249756379
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_deep_tuber_4
+      rect:
+        serializedVersion: 2
+        x: 107
+        y: 5
+        width: 20
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66580f413bfd11080800000000000000
+      internalID: -9218341002007247514
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_deep_tuber_5
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 5
+        width: 18
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 488c2152efd9efdd0800000000000000
+      internalID: -2450347432373729148
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_deep_tuber_6
+      rect:
+        serializedVersion: 2
+        x: 140
+        y: 5
+        width: 67
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6849bfd51800e94c0800000000000000
+      internalID: -4278982040327842682
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_deep_tuber_7
+      rect:
+        serializedVersion: 2
+        x: 215
+        y: 5
+        width: 21
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2fee625603987e920800000000000000
+      internalID: 3019532916123692786
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_deep_tuber_8
+      rect:
+        serializedVersion: 2
+        x: 236
+        y: 5
+        width: 19
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42f01983ccdb43040800000000000000
+      internalID: 4626531402036350756
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_deep_tuber_9
+      rect:
+        serializedVersion: 2
+        x: 253
+        y: 5
+        width: 18
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c92ed65a22871940800000000000000
+      internalID: 5266821407590721985
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_deep_tuber_10
+      rect:
+        serializedVersion: 2
+        x: 271
+        y: 5
+        width: 23
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e88a8d8a8e6fc7930800000000000000
+      internalID: 4142457236399630478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_deep_tuber_11
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 5
+        width: 72
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 07e2f1e50706bbd00800000000000000
+      internalID: 989490578869661296
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_deep_tuber_12
+      rect:
+        serializedVersion: 2
+        x: 373
+        y: 9
+        width: 18
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8d8e8f1d07982500800000000000000
+      internalID: 371713051877870990
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_deep_tuber_13
+      rect:
+        serializedVersion: 2
+        x: 373
+        y: 5
+        width: 11
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16f408ba98016c9b0800000000000000
+      internalID: -5060338947830296735
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_deep_tuber_14
+      rect:
+        serializedVersion: 2
+        x: 392
+        y: 5
+        width: 20
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5aa0c8025cd7c2730800000000000000
+      internalID: 3975690856669383333
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_deep_tuber_15
+      rect:
+        serializedVersion: 2
+        x: 415
+        y: 5
+        width: 18
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 772c53f089b0e7610800000000000000
+      internalID: 1620745663618073207
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_deep_tuber_16
+      rect:
+        serializedVersion: 2
+        x: 432
+        y: 5
+        width: 20
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 04097115f13ffd800800000000000000
+      internalID: 639496987939934272
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      card_root_deep_tuber_0: 2754873849566506979
+      card_root_deep_tuber_1: -6263649774504833297
+      card_root_deep_tuber_10: 4142457236399630478
+      card_root_deep_tuber_11: 989490578869661296
+      card_root_deep_tuber_12: 371713051877870990
+      card_root_deep_tuber_13: -5060338947830296735
+      card_root_deep_tuber_14: 3975690856669383333
+      card_root_deep_tuber_15: 1620745663618073207
+      card_root_deep_tuber_16: 639496987939934272
+      card_root_deep_tuber_2: -2694336433454856678
+      card_root_deep_tuber_3: 8620760380249756379
+      card_root_deep_tuber_4: -9218341002007247514
+      card_root_deep_tuber_5: -2450347432373729148
+      card_root_deep_tuber_6: -4278982040327842682
+      card_root_deep_tuber_7: 3019532916123692786
+      card_root_deep_tuber_8: 4626531402036350756
+      card_root_deep_tuber_9: 5266821407590721985
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

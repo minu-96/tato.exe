@@ -1,0 +1,548 @@
+fileFormatVersion: 2
+guid: aaf7ccd7dd0874b5f96feb78f3244b7c
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -8017336178631141585
+    second: card_root_rooting_0
+  - first:
+      213: -4781706051658866808
+    second: card_root_rooting_1
+  - first:
+      213: -7339311811623091617
+    second: card_root_rooting_2
+  - first:
+      213: 2243866916237896546
+    second: card_root_rooting_3
+  - first:
+      213: -7940482563009029033
+    second: card_root_rooting_4
+  - first:
+      213: 8554220569422011297
+    second: card_root_rooting_5
+  - first:
+      213: -3418333506706508129
+    second: card_root_rooting_6
+  - first:
+      213: -4207722514144820895
+    second: card_root_rooting_7
+  - first:
+      213: -9153644800537933557
+    second: card_root_rooting_8
+  - first:
+      213: -8598985481725548451
+    second: card_root_rooting_9
+  - first:
+      213: 2480301148846597539
+    second: card_root_rooting_10
+  - first:
+      213: -6878783295310767641
+    second: card_root_rooting_11
+  - first:
+      213: 8328583855101739851
+    second: card_root_rooting_12
+  - first:
+      213: -7815445436033315031
+    second: card_root_rooting_13
+  - first:
+      213: 724784136654882389
+    second: card_root_rooting_14
+  - first:
+      213: 2126205176318937395
+    second: card_root_rooting_15
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: card_root_rooting_0
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 35
+        width: 451
+        height: 344
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f279dc32933bcb090800000000000000
+      internalID: -8017336178631141585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_rooting_1
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 5
+        width: 15
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 88f998a3ea7f3adb0800000000000000
+      internalID: -4781706051658866808
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_rooting_2
+      rect:
+        serializedVersion: 2
+        x: 89
+        y: 5
+        width: 16
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f52806ceac6852a90800000000000000
+      internalID: -7339311811623091617
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_rooting_3
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 5
+        width: 14
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26b6c916211d32f10800000000000000
+      internalID: 2243866916237896546
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_rooting_4
+      rect:
+        serializedVersion: 2
+        x: 121
+        y: 5
+        width: 14
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 75cd9aeed2dbdc190800000000000000
+      internalID: -7940482563009029033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_rooting_5
+      rect:
+        serializedVersion: 2
+        x: 136
+        y: 5
+        width: 20
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ab1db22942b6b670800000000000000
+      internalID: 8554220569422011297
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_rooting_6
+      rect:
+        serializedVersion: 2
+        x: 164
+        y: 5
+        width: 18
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9671f869c3af80d0800000000000000
+      internalID: -3418333506706508129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_rooting_7
+      rect:
+        serializedVersion: 2
+        x: 183
+        y: 5
+        width: 53
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1610cf6baaa2b95c0800000000000000
+      internalID: -4207722514144820895
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_rooting_8
+      rect:
+        serializedVersion: 2
+        x: 244
+        y: 5
+        width: 18
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b09c5df4d88b7f080800000000000000
+      internalID: -9153644800537933557
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_rooting_9
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 5
+        width: 27
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d58e10583444aa880800000000000000
+      internalID: -8598985481725548451
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_rooting_10
+      rect:
+        serializedVersion: 2
+        x: 289
+        y: 5
+        width: 34
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a5aef0f0cccb6220800000000000000
+      internalID: 2480301148846597539
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_rooting_11
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 5
+        width: 39
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e95c1cc907a980a0800000000000000
+      internalID: -6878783295310767641
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_rooting_12
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 5
+        width: 16
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b438465b3e2159370800000000000000
+      internalID: 8328583855101739851
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_rooting_13
+      rect:
+        serializedVersion: 2
+        x: 362
+        y: 5
+        width: 23
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92f49cfa8c5f98390800000000000000
+      internalID: -7815445436033315031
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_rooting_14
+      rect:
+        serializedVersion: 2
+        x: 383
+        y: 5
+        width: 18
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 556072c0553fe0a00800000000000000
+      internalID: 724784136654882389
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_root_rooting_15
+      rect:
+        serializedVersion: 2
+        x: 385
+        y: 5
+        width: 37
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 339461eb75cc18d10800000000000000
+      internalID: 2126205176318937395
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      card_root_rooting_0: -8017336178631141585
+      card_root_rooting_1: -4781706051658866808
+      card_root_rooting_10: 2480301148846597539
+      card_root_rooting_11: -6878783295310767641
+      card_root_rooting_12: 8328583855101739851
+      card_root_rooting_13: -7815445436033315031
+      card_root_rooting_14: 724784136654882389
+      card_root_rooting_15: 2126205176318937395
+      card_root_rooting_2: -7339311811623091617
+      card_root_rooting_3: 2243866916237896546
+      card_root_rooting_4: -7940482563009029033
+      card_root_rooting_5: 8554220569422011297
+      card_root_rooting_6: -3418333506706508129
+      card_root_rooting_7: -4207722514144820895
+      card_root_rooting_8: -9153644800537933557
+      card_root_rooting_9: -8598985481725548451
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

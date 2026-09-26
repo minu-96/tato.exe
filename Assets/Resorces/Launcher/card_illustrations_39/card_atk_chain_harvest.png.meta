@@ -1,0 +1,652 @@
+fileFormatVersion: 2
+guid: 400fb7f97e4d74d1e9cfe021d76b83e0
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 6194205757078878915
+    second: card_atk_chain_harvest_0
+  - first:
+      213: -3256025521979151886
+    second: card_atk_chain_harvest_1
+  - first:
+      213: 9138376321690834632
+    second: card_atk_chain_harvest_2
+  - first:
+      213: -3180687213884232803
+    second: card_atk_chain_harvest_3
+  - first:
+      213: -7148938418274730748
+    second: card_atk_chain_harvest_4
+  - first:
+      213: 2512581618846218063
+    second: card_atk_chain_harvest_5
+  - first:
+      213: 3876360690751251013
+    second: card_atk_chain_harvest_6
+  - first:
+      213: -8886757447608132498
+    second: card_atk_chain_harvest_7
+  - first:
+      213: -4206169704228078642
+    second: card_atk_chain_harvest_8
+  - first:
+      213: -8780438969036870919
+    second: card_atk_chain_harvest_9
+  - first:
+      213: -8771277411135373704
+    second: card_atk_chain_harvest_10
+  - first:
+      213: 2173360657929584227
+    second: card_atk_chain_harvest_11
+  - first:
+      213: -2069009961348833010
+    second: card_atk_chain_harvest_12
+  - first:
+      213: 5614038717603390774
+    second: card_atk_chain_harvest_13
+  - first:
+      213: -8155844060243028521
+    second: card_atk_chain_harvest_14
+  - first:
+      213: -1074405426064993335
+    second: card_atk_chain_harvest_15
+  - first:
+      213: -9162715470283394234
+    second: card_atk_chain_harvest_16
+  - first:
+      213: 1582748517522970933
+    second: card_atk_chain_harvest_17
+  - first:
+      213: 7385226125208589620
+    second: card_atk_chain_harvest_18
+  - first:
+      213: -6990172406451874620
+    second: card_atk_chain_harvest_19
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_0
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 42
+        width: 448
+        height: 337
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3cabd58515d36f550800000000000000
+      internalID: 6194205757078878915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_1
+      rect:
+        serializedVersion: 2
+        x: 142
+        y: 37
+        width: 21
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f9a3d6f90640d2d0800000000000000
+      internalID: -3256025521979151886
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_2
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 5
+        width: 37
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c6193ee8d802de70800000000000000
+      internalID: 9138376321690834632
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_3
+      rect:
+        serializedVersion: 2
+        x: 88
+        y: 5
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d9badcab4ddebd3d0800000000000000
+      internalID: -3180687213884232803
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_4
+      rect:
+        serializedVersion: 2
+        x: 102
+        y: 5
+        width: 21
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40d7791a26ed9cc90800000000000000
+      internalID: -7148938418274730748
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_5
+      rect:
+        serializedVersion: 2
+        x: 131
+        y: 5
+        width: 22
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f47318c8bab7ed220800000000000000
+      internalID: 2512581618846218063
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_6
+      rect:
+        serializedVersion: 2
+        x: 152
+        y: 5
+        width: 34
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5422489a2899bc530800000000000000
+      internalID: 3876360690751251013
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_7
+      rect:
+        serializedVersion: 2
+        x: 194
+        y: 5
+        width: 21
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6c924a7f25eba480800000000000000
+      internalID: -8886757447608132498
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_8
+      rect:
+        serializedVersion: 2
+        x: 215
+        y: 5
+        width: 16
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ecbb97270fea0a5c0800000000000000
+      internalID: -4206169704228078642
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_9
+      rect:
+        serializedVersion: 2
+        x: 234
+        y: 5
+        width: 16
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9fa6f86474d952680800000000000000
+      internalID: -8780438969036870919
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_10
+      rect:
+        serializedVersion: 2
+        x: 250
+        y: 5
+        width: 11
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87e3ed2baa9264680800000000000000
+      internalID: -8771277411135373704
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_11
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 5
+        width: 20
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36eb3b0e004592e10800000000000000
+      internalID: 2173360657929584227
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_12
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 6
+        width: 21
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e01ee09f6666943e0800000000000000
+      internalID: -2069009961348833010
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_13
+      rect:
+        serializedVersion: 2
+        x: 309
+        y: 5
+        width: 18
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6352a0e187219ed40800000000000000
+      internalID: 5614038717603390774
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_14
+      rect:
+        serializedVersion: 2
+        x: 326
+        y: 5
+        width: 27
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d51cb9e90f90de80800000000000000
+      internalID: -8155844060243028521
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_15
+      rect:
+        serializedVersion: 2
+        x: 356
+        y: 5
+        width: 19
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c3d4aa15f1f611f0800000000000000
+      internalID: -1074405426064993335
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_16
+      rect:
+        serializedVersion: 2
+        x: 375
+        y: 5
+        width: 35
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 64338cf63de77d080800000000000000
+      internalID: -9162715470283394234
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_17
+      rect:
+        serializedVersion: 2
+        x: 411
+        y: 5
+        width: 22
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5399bb3146d07f510800000000000000
+      internalID: 1582748517522970933
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_18
+      rect:
+        serializedVersion: 2
+        x: 432
+        y: 5
+        width: 18
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4351ef248089d7660800000000000000
+      internalID: 7385226125208589620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_chain_harvest_19
+      rect:
+        serializedVersion: 2
+        x: 450
+        y: 5
+        width: 23
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c4d2ba5b3bedfe90800000000000000
+      internalID: -6990172406451874620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      card_atk_chain_harvest_0: 6194205757078878915
+      card_atk_chain_harvest_1: -3256025521979151886
+      card_atk_chain_harvest_10: -8771277411135373704
+      card_atk_chain_harvest_11: 2173360657929584227
+      card_atk_chain_harvest_12: -2069009961348833010
+      card_atk_chain_harvest_13: 5614038717603390774
+      card_atk_chain_harvest_14: -8155844060243028521
+      card_atk_chain_harvest_15: -1074405426064993335
+      card_atk_chain_harvest_16: -9162715470283394234
+      card_atk_chain_harvest_17: 1582748517522970933
+      card_atk_chain_harvest_18: 7385226125208589620
+      card_atk_chain_harvest_19: -6990172406451874620
+      card_atk_chain_harvest_2: 9138376321690834632
+      card_atk_chain_harvest_3: -3180687213884232803
+      card_atk_chain_harvest_4: -7148938418274730748
+      card_atk_chain_harvest_5: 2512581618846218063
+      card_atk_chain_harvest_6: 3876360690751251013
+      card_atk_chain_harvest_7: -8886757447608132498
+      card_atk_chain_harvest_8: -4206169704228078642
+      card_atk_chain_harvest_9: -8780438969036870919
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -20,7 +20,7 @@ MonoBehaviour:
   cost: 1
   source: 4
   keyword: 0
-  artwork: {fileID: 0}
+  artwork: {fileID: 21300000, guid: de85bb5e22fe5488aaf82759e1216fa8, type: 3}
   effects:
   - type: 0
     value: 4

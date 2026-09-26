@@ -89,3 +89,4 @@ MonoBehaviour:
     - minRecord: 6
       cards: 3
       rareChance: 40
+  theme: {fileID: 11400000, guid: b9fbf97605dfb9a45ab975051fc2ced3, type: 2}

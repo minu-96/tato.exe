@@ -1,0 +1,600 @@
+fileFormatVersion: 2
+guid: 574d3d11623c640abae3fd3649ff31f5
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 6812630666990474509
+    second: card_def_gas_mask_0
+  - first:
+      213: -7724032945407575265
+    second: card_def_gas_mask_1
+  - first:
+      213: -5397002261873103699
+    second: card_def_gas_mask_2
+  - first:
+      213: -7570898128006994407
+    second: card_def_gas_mask_3
+  - first:
+      213: 6513366086256094526
+    second: card_def_gas_mask_4
+  - first:
+      213: -8874337754205356934
+    second: card_def_gas_mask_5
+  - first:
+      213: 8897440774007123791
+    second: card_def_gas_mask_6
+  - first:
+      213: 8761064802574778046
+    second: card_def_gas_mask_7
+  - first:
+      213: 1150466537757749122
+    second: card_def_gas_mask_8
+  - first:
+      213: 5064887462565003638
+    second: card_def_gas_mask_9
+  - first:
+      213: 4631149228026832239
+    second: card_def_gas_mask_10
+  - first:
+      213: 7672189428688507037
+    second: card_def_gas_mask_11
+  - first:
+      213: 2647629438142868234
+    second: card_def_gas_mask_12
+  - first:
+      213: 996834053046702361
+    second: card_def_gas_mask_13
+  - first:
+      213: 4814047095181574495
+    second: card_def_gas_mask_14
+  - first:
+      213: 2090851656487448678
+    second: card_def_gas_mask_15
+  - first:
+      213: 2698739757451536586
+    second: card_def_gas_mask_16
+  - first:
+      213: 5045602994029468320
+    second: card_def_gas_mask_17
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: card_def_gas_mask_0
+      rect:
+        serializedVersion: 2
+        x: 22
+        y: 35
+        width: 467
+        height: 340
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d0556eb2f735b8e50800000000000000
+      internalID: 6812630666990474509
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_1
+      rect:
+        serializedVersion: 2
+        x: 70
+        y: 5
+        width: 18
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f1b3197b5f8bec490800000000000000
+      internalID: -7724032945407575265
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_2
+      rect:
+        serializedVersion: 2
+        x: 87
+        y: 5
+        width: 23
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dace211990ff915b0800000000000000
+      internalID: -5397002261873103699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_3
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 5
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9162971d344cee690800000000000000
+      internalID: -7570898128006994407
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_4
+      rect:
+        serializedVersion: 2
+        x: 125
+        y: 5
+        width: 21
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3dee5732ff146a50800000000000000
+      internalID: 6513366086256094526
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_5
+      rect:
+        serializedVersion: 2
+        x: 154
+        y: 5
+        width: 21
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7c70cfa4d408d480800000000000000
+      internalID: -8874337754205356934
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_6
+      rect:
+        serializedVersion: 2
+        x: 175
+        y: 5
+        width: 36
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4f65c84e3f0a7b70800000000000000
+      internalID: 8897440774007123791
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_7
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 5
+        width: 21
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ebeb5a3150e859970800000000000000
+      internalID: 8761064802574778046
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_8
+      rect:
+        serializedVersion: 2
+        x: 240
+        y: 5
+        width: 21
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 28f260d783747ff00800000000000000
+      internalID: 1150466537757749122
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_9
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 5
+        width: 18
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6714481ff481a4640800000000000000
+      internalID: 5064887462565003638
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_10
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 5
+        width: 33
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f652d5e9fa5254040800000000000000
+      internalID: 4631149228026832239
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_11
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 5
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d905c7ae2a7197a60800000000000000
+      internalID: 7672189428688507037
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_12
+      rect:
+        serializedVersion: 2
+        x: 334
+        y: 5
+        width: 16
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0b6f5d32f44eb420800000000000000
+      internalID: 2647629438142868234
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_13
+      rect:
+        serializedVersion: 2
+        x: 351
+        y: 5
+        width: 20
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9119cdf2a4775dd00800000000000000
+      internalID: 996834053046702361
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_14
+      rect:
+        serializedVersion: 2
+        x: 372
+        y: 5
+        width: 16
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f518c40c35eeec240800000000000000
+      internalID: 4814047095181574495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_15
+      rect:
+        serializedVersion: 2
+        x: 387
+        y: 5
+        width: 9
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 660b8f6f082340d10800000000000000
+      internalID: 2090851656487448678
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_16
+      rect:
+        serializedVersion: 2
+        x: 396
+        y: 5
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac86f18c289d37520800000000000000
+      internalID: 2698739757451536586
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_gas_mask_17
+      rect:
+        serializedVersion: 2
+        x: 411
+        y: 5
+        width: 23
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0aa16c8b035950640800000000000000
+      internalID: 5045602994029468320
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      card_def_gas_mask_0: 6812630666990474509
+      card_def_gas_mask_1: -7724032945407575265
+      card_def_gas_mask_10: 4631149228026832239
+      card_def_gas_mask_11: 7672189428688507037
+      card_def_gas_mask_12: 2647629438142868234
+      card_def_gas_mask_13: 996834053046702361
+      card_def_gas_mask_14: 4814047095181574495
+      card_def_gas_mask_15: 2090851656487448678
+      card_def_gas_mask_16: 2698739757451536586
+      card_def_gas_mask_17: 5045602994029468320
+      card_def_gas_mask_2: -5397002261873103699
+      card_def_gas_mask_3: -7570898128006994407
+      card_def_gas_mask_4: 6513366086256094526
+      card_def_gas_mask_5: -8874337754205356934
+      card_def_gas_mask_6: 8897440774007123791
+      card_def_gas_mask_7: 8761064802574778046
+      card_def_gas_mask_8: 1150466537757749122
+      card_def_gas_mask_9: 5064887462565003638
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

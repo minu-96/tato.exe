@@ -1,0 +1,704 @@
+fileFormatVersion: 2
+guid: 1286be4032f3f42fa9bea5c0b62b1962
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -6505106336692017338
+    second: card_atk_dirt_throw_0
+  - first:
+      213: 8503174533862445884
+    second: card_atk_dirt_throw_1
+  - first:
+      213: -4281743077274797348
+    second: card_atk_dirt_throw_2
+  - first:
+      213: 5257904947408932900
+    second: card_atk_dirt_throw_3
+  - first:
+      213: 84843449189269245
+    second: card_atk_dirt_throw_4
+  - first:
+      213: -6932564916365803943
+    second: card_atk_dirt_throw_5
+  - first:
+      213: -4128270634019990200
+    second: card_atk_dirt_throw_6
+  - first:
+      213: -426461919304204343
+    second: card_atk_dirt_throw_7
+  - first:
+      213: -7232225806905783219
+    second: card_atk_dirt_throw_8
+  - first:
+      213: 779720737371609578
+    second: card_atk_dirt_throw_9
+  - first:
+      213: -4191661514782025808
+    second: card_atk_dirt_throw_10
+  - first:
+      213: -8500613566890667030
+    second: card_atk_dirt_throw_11
+  - first:
+      213: -7230219522240590361
+    second: card_atk_dirt_throw_12
+  - first:
+      213: -5382906608857914651
+    second: card_atk_dirt_throw_13
+  - first:
+      213: -3254747068745429057
+    second: card_atk_dirt_throw_14
+  - first:
+      213: 3711521726895801788
+    second: card_atk_dirt_throw_15
+  - first:
+      213: -7641776134117744048
+    second: card_atk_dirt_throw_16
+  - first:
+      213: 7136090661983721684
+    second: card_atk_dirt_throw_17
+  - first:
+      213: 6027518524387129056
+    second: card_atk_dirt_throw_18
+  - first:
+      213: -6209081091608178566
+    second: card_atk_dirt_throw_19
+  - first:
+      213: 9174076794229627920
+    second: card_atk_dirt_throw_20
+  - first:
+      213: 2929574262922083199
+    second: card_atk_dirt_throw_21
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_0
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 35
+        width: 451
+        height: 344
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6476457904839b5a0800000000000000
+      internalID: -6505106336692017338
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_1
+      rect:
+        serializedVersion: 2
+        x: 65
+        y: 5
+        width: 18
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c33d402df28510670800000000000000
+      internalID: 8503174533862445884
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_2
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 5
+        width: 23
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cda3c8b5b513494c0800000000000000
+      internalID: -4281743077274797348
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_3
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 5
+        width: 11
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 420141d21b4d7f840800000000000000
+      internalID: 5257904947408932900
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_4
+      rect:
+        serializedVersion: 2
+        x: 117
+        y: 5
+        width: 23
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dfef172eaac6d2100800000000000000
+      internalID: 84843449189269245
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_5
+      rect:
+        serializedVersion: 2
+        x: 148
+        y: 5
+        width: 22
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95e3ea950f49acf90800000000000000
+      internalID: -6932564916365803943
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_6
+      rect:
+        serializedVersion: 2
+        x: 169
+        y: 5
+        width: 34
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 845df8a1bbf65b6c0800000000000000
+      internalID: -4128270634019990200
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_7
+      rect:
+        serializedVersion: 2
+        x: 211
+        y: 5
+        width: 23
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9cf34a5d427e41af0800000000000000
+      internalID: -426461919304204343
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_8
+      rect:
+        serializedVersion: 2
+        x: 232
+        y: 5
+        width: 9
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4cc7f352f8f1ab90800000000000000
+      internalID: -7232225806905783219
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_9
+      rect:
+        serializedVersion: 2
+        x: 234
+        y: 16
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae95a0721ef12da00800000000000000
+      internalID: 779720737371609578
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_10
+      rect:
+        serializedVersion: 2
+        x: 242
+        y: 16
+        width: 8
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b7ddb88f0a34d5c0800000000000000
+      internalID: -4191661514782025808
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_11
+      rect:
+        serializedVersion: 2
+        x: 251
+        y: 5
+        width: 23
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae39d94cff0c70a80800000000000000
+      internalID: -8500613566890667030
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_12
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 5
+        width: 18
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ed41c0e6a919ab90800000000000000
+      internalID: -7230219522240590361
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_13
+      rect:
+        serializedVersion: 2
+        x: 303
+        y: 5
+        width: 25
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e2ebe785f21c45b0800000000000000
+      internalID: -5382906608857914651
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_14
+      rect:
+        serializedVersion: 2
+        x: 336
+        y: 5
+        width: 23
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fbf4fad09c0d4d2d0800000000000000
+      internalID: -3254747068745429057
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_15
+      rect:
+        serializedVersion: 2
+        x: 369
+        y: 6
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb5c4cb9859f18330800000000000000
+      internalID: 3711521726895801788
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_16
+      rect:
+        serializedVersion: 2
+        x: 381
+        y: 5
+        width: 39
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 052aad80815f2f590800000000000000
+      internalID: -7641776134117744048
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_17
+      rect:
+        serializedVersion: 2
+        x: 419
+        y: 5
+        width: 22
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d8958006ac780360800000000000000
+      internalID: 7136090661983721684
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_18
+      rect:
+        serializedVersion: 2
+        x: 242
+        y: 5
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e67e2ba92c06a350800000000000000
+      internalID: 6027518524387129056
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_19
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 6
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a709911f4a9e4d9a0800000000000000
+      internalID: -6209081091608178566
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_20
+      rect:
+        serializedVersion: 2
+        x: 329
+        y: 5
+        width: 6
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01c163eec3ed05f70800000000000000
+      internalID: 9174076794229627920
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_dirt_throw_21
+      rect:
+        serializedVersion: 2
+        x: 359
+        y: 5
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7bf8944540f7a820800000000000000
+      internalID: 2929574262922083199
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      card_atk_dirt_throw_0: -6505106336692017338
+      card_atk_dirt_throw_1: 8503174533862445884
+      card_atk_dirt_throw_10: -4191661514782025808
+      card_atk_dirt_throw_11: -8500613566890667030
+      card_atk_dirt_throw_12: -7230219522240590361
+      card_atk_dirt_throw_13: -5382906608857914651
+      card_atk_dirt_throw_14: -3254747068745429057
+      card_atk_dirt_throw_15: 3711521726895801788
+      card_atk_dirt_throw_16: -7641776134117744048
+      card_atk_dirt_throw_17: 7136090661983721684
+      card_atk_dirt_throw_18: 6027518524387129056
+      card_atk_dirt_throw_19: -6209081091608178566
+      card_atk_dirt_throw_2: -4281743077274797348
+      card_atk_dirt_throw_20: 9174076794229627920
+      card_atk_dirt_throw_21: 2929574262922083199
+      card_atk_dirt_throw_3: 5257904947408932900
+      card_atk_dirt_throw_4: 84843449189269245
+      card_atk_dirt_throw_5: -6932564916365803943
+      card_atk_dirt_throw_6: -4128270634019990200
+      card_atk_dirt_throw_7: -426461919304204343
+      card_atk_dirt_throw_8: -7232225806905783219
+      card_atk_dirt_throw_9: 779720737371609578
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

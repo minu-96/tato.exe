@@ -52,6 +52,15 @@ namespace TatoGames.CardGame
         [Tooltip("미니게임별 보상 규칙 — 밸런싱 대상. 인스펙터에서 자유롭게 조정")]
         public List<SourceRule> rules = new();
 
+        [Tooltip("카드 아트 모음(프레임·코스트 배지·기본 일러스트). 전투 씬 밖(런처 감자창고 등)에서 카드를 그릴 때 쓴다")]
+        public BattleTheme theme;
+
+        /// <summary>
+        /// 카드를 그릴 아트 모음 — 씬에 연결된 게 있으면 그걸, 없으면 여기 것을.
+        /// 씬 연결은 씬을 다시 만들거나 저장할 때 빠지기 쉬워서, Resources에 있는 이 에셋을 기본값으로 쓴다.
+        /// </summary>
+        public static BattleTheme ThemeOr(BattleTheme wired) => wired != null ? wired : Load()?.theme;
+
         static CardLibrary cached;
 
         /// <summary>Resources에서 한 번만 읽어 캐시한다. 없으면 null(호출부가 경고).</summary>

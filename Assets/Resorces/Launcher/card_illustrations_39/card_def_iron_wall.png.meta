@@ -1,0 +1,574 @@
+fileFormatVersion: 2
+guid: 833d5169518cc4a6785cd995e47a1c07
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 9124959809740198187
+    second: card_def_iron_wall_0
+  - first:
+      213: -5320093848113131354
+    second: card_def_iron_wall_1
+  - first:
+      213: -8879829331145815652
+    second: card_def_iron_wall_2
+  - first:
+      213: 2197977935064804014
+    second: card_def_iron_wall_3
+  - first:
+      213: 8025049064797589229
+    second: card_def_iron_wall_4
+  - first:
+      213: 3451357549919092546
+    second: card_def_iron_wall_5
+  - first:
+      213: 6981332698136639112
+    second: card_def_iron_wall_6
+  - first:
+      213: 2567272343577456352
+    second: card_def_iron_wall_7
+  - first:
+      213: -237197283372011987
+    second: card_def_iron_wall_8
+  - first:
+      213: -5818735670847980194
+    second: card_def_iron_wall_9
+  - first:
+      213: -298166141396719571
+    second: card_def_iron_wall_10
+  - first:
+      213: -423496520088311378
+    second: card_def_iron_wall_11
+  - first:
+      213: 4425253627616075660
+    second: card_def_iron_wall_12
+  - first:
+      213: -7502627776563056322
+    second: card_def_iron_wall_13
+  - first:
+      213: -4464396539487594235
+    second: card_def_iron_wall_14
+  - first:
+      213: -1628734110228679411
+    second: card_def_iron_wall_15
+  - first:
+      213: -6851468242889174867
+    second: card_def_iron_wall_16
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: card_def_iron_wall_0
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 38
+        width: 472
+        height: 337
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b21d741d99e52ae70800000000000000
+      internalID: 9124959809740198187
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_iron_wall_1
+      rect:
+        serializedVersion: 2
+        x: 75
+        y: 5
+        width: 16
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a0d97b05da3b26b0800000000000000
+      internalID: -5320093848113131354
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_iron_wall_2
+      rect:
+        serializedVersion: 2
+        x: 92
+        y: 5
+        width: 21
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9985fa454284c480800000000000000
+      internalID: -8879829331145815652
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_iron_wall_3
+      rect:
+        serializedVersion: 2
+        x: 113
+        y: 5
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eaa2fab5949c08e10800000000000000
+      internalID: 2197977935064804014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_iron_wall_4
+      rect:
+        serializedVersion: 2
+        x: 125
+        y: 5
+        width: 24
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dee475c1b93be5f60800000000000000
+      internalID: 8025049064797589229
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_iron_wall_5
+      rect:
+        serializedVersion: 2
+        x: 157
+        y: 5
+        width: 21
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24f3ac3d76fa5ef20800000000000000
+      internalID: 3451357549919092546
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_iron_wall_6
+      rect:
+        serializedVersion: 2
+        x: 171
+        y: 5
+        width: 42
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 886f04ba91da2e060800000000000000
+      internalID: 6981332698136639112
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_iron_wall_7
+      rect:
+        serializedVersion: 2
+        x: 231
+        y: 5
+        width: 19
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ee6e903898c0a320800000000000000
+      internalID: 2567272343577456352
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_iron_wall_8
+      rect:
+        serializedVersion: 2
+        x: 250
+        y: 5
+        width: 19
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d2e6ce6d35e45bcf0800000000000000
+      internalID: -237197283372011987
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_iron_wall_9
+      rect:
+        serializedVersion: 2
+        x: 269
+        y: 5
+        width: 21
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5d36318cb2bf3fa0800000000000000
+      internalID: -5818735670847980194
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_iron_wall_10
+      rect:
+        serializedVersion: 2
+        x: 296
+        y: 5
+        width: 23
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d28eff16973bcdbf0800000000000000
+      internalID: -298166141396719571
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_iron_wall_11
+      rect:
+        serializedVersion: 2
+        x: 301
+        y: 6
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea9a584a8207f1af0800000000000000
+      internalID: -423496520088311378
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_iron_wall_12
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 5
+        width: 7
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c8f90137ab8a96d30800000000000000
+      internalID: 4425253627616075660
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_iron_wall_13
+      rect:
+        serializedVersion: 2
+        x: 327
+        y: 5
+        width: 21
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e31faffa9cf41e790800000000000000
+      internalID: -7502627776563056322
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_iron_wall_14
+      rect:
+        serializedVersion: 2
+        x: 349
+        y: 5
+        width: 16
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 509db5f20074b02c0800000000000000
+      internalID: -4464396539487594235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_iron_wall_15
+      rect:
+        serializedVersion: 2
+        x: 366
+        y: 5
+        width: 40
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d05f146c4f29569e0800000000000000
+      internalID: -1628734110228679411
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_iron_wall_16
+      rect:
+        serializedVersion: 2
+        x: 406
+        y: 5
+        width: 24
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da098b80fe1bae0a0800000000000000
+      internalID: -6851468242889174867
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      card_def_iron_wall_0: 9124959809740198187
+      card_def_iron_wall_1: -5320093848113131354
+      card_def_iron_wall_10: -298166141396719571
+      card_def_iron_wall_11: -423496520088311378
+      card_def_iron_wall_12: 4425253627616075660
+      card_def_iron_wall_13: -7502627776563056322
+      card_def_iron_wall_14: -4464396539487594235
+      card_def_iron_wall_15: -1628734110228679411
+      card_def_iron_wall_16: -6851468242889174867
+      card_def_iron_wall_2: -8879829331145815652
+      card_def_iron_wall_3: 2197977935064804014
+      card_def_iron_wall_4: 8025049064797589229
+      card_def_iron_wall_5: 3451357549919092546
+      card_def_iron_wall_6: 6981332698136639112
+      card_def_iron_wall_7: 2567272343577456352
+      card_def_iron_wall_8: -237197283372011987
+      card_def_iron_wall_9: -5818735670847980194
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

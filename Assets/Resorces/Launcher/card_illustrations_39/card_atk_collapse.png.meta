@@ -1,0 +1,548 @@
+fileFormatVersion: 2
+guid: e8508497373d14481a4206c58a3ce818
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1390320045583115635
+    second: card_atk_collapse_0
+  - first:
+      213: -4482544874193058782
+    second: card_atk_collapse_1
+  - first:
+      213: 8568076643791209522
+    second: card_atk_collapse_2
+  - first:
+      213: -5876177581407761401
+    second: card_atk_collapse_3
+  - first:
+      213: 3696338911507080323
+    second: card_atk_collapse_4
+  - first:
+      213: 1268039740895507210
+    second: card_atk_collapse_5
+  - first:
+      213: 4372257525575306312
+    second: card_atk_collapse_6
+  - first:
+      213: -524548099060816214
+    second: card_atk_collapse_7
+  - first:
+      213: -3681568153004166593
+    second: card_atk_collapse_8
+  - first:
+      213: 6152177075900254444
+    second: card_atk_collapse_9
+  - first:
+      213: -5525956897064758794
+    second: card_atk_collapse_10
+  - first:
+      213: -8245417611338217514
+    second: card_atk_collapse_11
+  - first:
+      213: 9098966118764945931
+    second: card_atk_collapse_12
+  - first:
+      213: 1710677361382056569
+    second: card_atk_collapse_13
+  - first:
+      213: 8655249114687639433
+    second: card_atk_collapse_14
+  - first:
+      213: 4503377785083683612
+    second: card_atk_collapse_15
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: card_atk_collapse_0
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 5
+        width: 466
+        height: 370
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 375261917b86b4310800000000000000
+      internalID: 1390320045583115635
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_collapse_1
+      rect:
+        serializedVersion: 2
+        x: 84
+        y: 5
+        width: 35
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22489fbbf2dcac1c0800000000000000
+      internalID: -4482544874193058782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_collapse_2
+      rect:
+        serializedVersion: 2
+        x: 120
+        y: 6
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2340f79df4ce7e670800000000000000
+      internalID: 8568076643791209522
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_collapse_3
+      rect:
+        serializedVersion: 2
+        x: 125
+        y: 5
+        width: 27
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 70c831f7f9f937ea0800000000000000
+      internalID: -5876177581407761401
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_collapse_4
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 5
+        width: 20
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 38465dde7a80c4330800000000000000
+      internalID: 3696338911507080323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_collapse_5
+      rect:
+        serializedVersion: 2
+        x: 181
+        y: 5
+        width: 38
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a03b72d0d6bf89110800000000000000
+      internalID: 1268039740895507210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_collapse_6
+      rect:
+        serializedVersion: 2
+        x: 227
+        y: 5
+        width: 20
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84cc176ed016dac30800000000000000
+      internalID: 4372257525575306312
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_collapse_7
+      rect:
+        serializedVersion: 2
+        x: 246
+        y: 5
+        width: 20
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa6afd7784e68b8f0800000000000000
+      internalID: -524548099060816214
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_collapse_8
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 5
+        width: 7
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f32bbc7454178ecc0800000000000000
+      internalID: -3681568153004166593
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_collapse_9
+      rect:
+        serializedVersion: 2
+        x: 281
+        y: 5
+        width: 19
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce80654747ce06550800000000000000
+      internalID: 6152177075900254444
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_collapse_10
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 5
+        width: 18
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f1d55ada7bdf43b0800000000000000
+      internalID: -5525956897064758794
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_collapse_11
+      rect:
+        serializedVersion: 2
+        x: 317
+        y: 5
+        width: 32
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d78f6b5e54629d80800000000000000
+      internalID: -8245417611338217514
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_collapse_12
+      rect:
+        serializedVersion: 2
+        x: 348
+        y: 5
+        width: 6
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b02ac440a75064e70800000000000000
+      internalID: 9098966118764945931
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_collapse_13
+      rect:
+        serializedVersion: 2
+        x: 357
+        y: 5
+        width: 37
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 972ea722ffb8db710800000000000000
+      internalID: 1710677361382056569
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_collapse_14
+      rect:
+        serializedVersion: 2
+        x: 386
+        y: 5
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98f887b563f9d1870800000000000000
+      internalID: 8655249114687639433
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_atk_collapse_15
+      rect:
+        serializedVersion: 2
+        x: 395
+        y: 5
+        width: 23
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c136c415c363f7e30800000000000000
+      internalID: 4503377785083683612
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      card_atk_collapse_0: 1390320045583115635
+      card_atk_collapse_1: -4482544874193058782
+      card_atk_collapse_10: -5525956897064758794
+      card_atk_collapse_11: -8245417611338217514
+      card_atk_collapse_12: 9098966118764945931
+      card_atk_collapse_13: 1710677361382056569
+      card_atk_collapse_14: 8655249114687639433
+      card_atk_collapse_15: 4503377785083683612
+      card_atk_collapse_2: 8568076643791209522
+      card_atk_collapse_3: -5876177581407761401
+      card_atk_collapse_4: 3696338911507080323
+      card_atk_collapse_5: 1268039740895507210
+      card_atk_collapse_6: 4372257525575306312
+      card_atk_collapse_7: -524548099060816214
+      card_atk_collapse_8: -3681568153004166593
+      card_atk_collapse_9: 6152177075900254444
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -81,6 +81,7 @@ namespace TatoGames.CardGame
             if (uiFont == null)
                 uiFont = Font.CreateDynamicFontFromOSFont(
                     new[] { "Malgun Gothic", "맑은 고딕", "Arial" }, 22);
+            theme = CardLibrary.ThemeOr(theme);   // 씬 연결이 빠져도 아트가 나오게
             BuildUI();
 
             // §7 시간축 = 런 수 — 나이는 <b>새 런을 시작할 때만</b> 먹는다.
@@ -1209,7 +1210,7 @@ namespace TatoGames.CardGame
             {
                 pv = CardView.Create(transform, uiFont, size);
                 pv.name = "HoverPreview";
-                pv.frame.raycastTarget = false;   // 마우스는 계속 원래 카드 위에 있는 것으로 친다
+                pv.hit.raycastTarget = false;     // 마우스는 계속 원래 카드 위에 있는 것으로 친다
                 previews[size] = pv;
             }
             if (previewShown != null && previewShown != pv) previewShown.gameObject.SetActive(false);

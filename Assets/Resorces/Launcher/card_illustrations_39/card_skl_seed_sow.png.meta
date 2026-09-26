@@ -1,0 +1,470 @@
+fileFormatVersion: 2
+guid: 9dedb8d2d7b2b43c48fdb5b37c25a1de
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1960585236356427947
+    second: card_skl_seed_sow_0
+  - first:
+      213: -5681118617620156173
+    second: card_skl_seed_sow_1
+  - first:
+      213: -7779820043339227573
+    second: card_skl_seed_sow_2
+  - first:
+      213: 167344470088371715
+    second: card_skl_seed_sow_3
+  - first:
+      213: -5099096071443969705
+    second: card_skl_seed_sow_4
+  - first:
+      213: -6572909975835313938
+    second: card_skl_seed_sow_5
+  - first:
+      213: -3211071644401044585
+    second: card_skl_seed_sow_6
+  - first:
+      213: 6657298438658528649
+    second: card_skl_seed_sow_7
+  - first:
+      213: -8697338118203709215
+    second: card_skl_seed_sow_8
+  - first:
+      213: -4754115358944199882
+    second: card_skl_seed_sow_9
+  - first:
+      213: -6265470298179228041
+    second: card_skl_seed_sow_10
+  - first:
+      213: -5611596501990743555
+    second: card_skl_seed_sow_11
+  - first:
+      213: -4927981099081913233
+    second: card_skl_seed_sow_12
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: card_skl_seed_sow_0
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 28
+        width: 451
+        height: 347
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 55f891b7d1a9ac4e0800000000000000
+      internalID: -1960585236356427947
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_skl_seed_sow_1
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 5
+        width: 20
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f074e597bc9821b0800000000000000
+      internalID: -5681118617620156173
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_skl_seed_sow_2
+      rect:
+        serializedVersion: 2
+        x: 101
+        y: 5
+        width: 15
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4e1d4cc3e6880490800000000000000
+      internalID: -7779820043339227573
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_skl_seed_sow_3
+      rect:
+        serializedVersion: 2
+        x: 119
+        y: 5
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30e4ebea8e6825200800000000000000
+      internalID: 167344470088371715
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_skl_seed_sow_4
+      rect:
+        serializedVersion: 2
+        x: 133
+        y: 5
+        width: 21
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7590ef1a32f5c39b0800000000000000
+      internalID: -5099096071443969705
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_skl_seed_sow_5
+      rect:
+        serializedVersion: 2
+        x: 162
+        y: 5
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee8f6b5a33558c4a0800000000000000
+      internalID: -6572909975835313938
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_skl_seed_sow_6
+      rect:
+        serializedVersion: 2
+        x: 183
+        y: 5
+        width: 16
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79375273a5bff63d0800000000000000
+      internalID: -3211071644401044585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_skl_seed_sow_7
+      rect:
+        serializedVersion: 2
+        x: 199
+        y: 5
+        width: 11
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 985110878a9736c50800000000000000
+      internalID: 6657298438658528649
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_skl_seed_sow_8
+      rect:
+        serializedVersion: 2
+        x: 218
+        y: 5
+        width: 56
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e8e00ddf09dc4780800000000000000
+      internalID: -8697338118203709215
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_skl_seed_sow_9
+      rect:
+        serializedVersion: 2
+        x: 275
+        y: 5
+        width: 20
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63bf6e8f44df50eb0800000000000000
+      internalID: -4754115358944199882
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_skl_seed_sow_10
+      rect:
+        serializedVersion: 2
+        x: 303
+        y: 5
+        width: 61
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 77e244ea5f39c09a0800000000000000
+      internalID: -6265470298179228041
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_skl_seed_sow_11
+      rect:
+        serializedVersion: 2
+        x: 364
+        y: 5
+        width: 44
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df1640486ba9f12b0800000000000000
+      internalID: -5611596501990743555
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_skl_seed_sow_12
+      rect:
+        serializedVersion: 2
+        x: 409
+        y: 5
+        width: 20
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6c2269cc4b4c9bb0800000000000000
+      internalID: -4927981099081913233
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      card_skl_seed_sow_0: -1960585236356427947
+      card_skl_seed_sow_1: -5681118617620156173
+      card_skl_seed_sow_10: -6265470298179228041
+      card_skl_seed_sow_11: -5611596501990743555
+      card_skl_seed_sow_12: -4927981099081913233
+      card_skl_seed_sow_2: -7779820043339227573
+      card_skl_seed_sow_3: 167344470088371715
+      card_skl_seed_sow_4: -5099096071443969705
+      card_skl_seed_sow_5: -6572909975835313938
+      card_skl_seed_sow_6: -3211071644401044585
+      card_skl_seed_sow_7: 6657298438658528649
+      card_skl_seed_sow_8: -8697338118203709215
+      card_skl_seed_sow_9: -4754115358944199882
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

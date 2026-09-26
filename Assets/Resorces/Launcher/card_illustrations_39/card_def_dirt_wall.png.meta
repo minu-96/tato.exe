@@ -1,0 +1,626 @@
+fileFormatVersion: 2
+guid: 78f6ed71070f54ad69ac388a62a321f9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 228961460008111921
+    second: card_def_dirt_wall_0
+  - first:
+      213: 9098343897836481789
+    second: card_def_dirt_wall_1
+  - first:
+      213: -6630216709297499663
+    second: card_def_dirt_wall_2
+  - first:
+      213: -522109110736275102
+    second: card_def_dirt_wall_3
+  - first:
+      213: 6894456066864829957
+    second: card_def_dirt_wall_4
+  - first:
+      213: 7753053865453774582
+    second: card_def_dirt_wall_5
+  - first:
+      213: 3665506243360274183
+    second: card_def_dirt_wall_6
+  - first:
+      213: -8146741304770981721
+    second: card_def_dirt_wall_7
+  - first:
+      213: 3986005133196690386
+    second: card_def_dirt_wall_8
+  - first:
+      213: -6552929132656688846
+    second: card_def_dirt_wall_9
+  - first:
+      213: -4024940577096456825
+    second: card_def_dirt_wall_10
+  - first:
+      213: 311781483570702780
+    second: card_def_dirt_wall_11
+  - first:
+      213: 4909275210360748268
+    second: card_def_dirt_wall_12
+  - first:
+      213: 6418053942695697620
+    second: card_def_dirt_wall_13
+  - first:
+      213: -6356539850369059017
+    second: card_def_dirt_wall_14
+  - first:
+      213: 5676036141137295628
+    second: card_def_dirt_wall_15
+  - first:
+      213: 8988359582769700181
+    second: card_def_dirt_wall_16
+  - first:
+      213: 8376819720627063086
+    second: card_def_dirt_wall_17
+  - first:
+      213: 1540014396806500927
+    second: card_def_dirt_wall_18
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: card_def_dirt_wall_0
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 28
+        width: 463
+        height: 347
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 13fc90b1c3f6d2300800000000000000
+      internalID: 228961460008111921
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_1
+      rect:
+        serializedVersion: 2
+        x: 80
+        y: 5
+        width: 21
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dfce2eae19fc34e70800000000000000
+      internalID: 9098343897836481789
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_2
+      rect:
+        serializedVersion: 2
+        x: 101
+        y: 5
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f19672080dbcf3a0800000000000000
+      internalID: -6630216709297499663
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_3
+      rect:
+        serializedVersion: 2
+        x: 118
+        y: 5
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 269b190b78811c8f0800000000000000
+      internalID: -522109110736275102
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_4
+      rect:
+        serializedVersion: 2
+        x: 132
+        y: 5
+        width: 20
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 506d301b3470eaf50800000000000000
+      internalID: 6894456066864829957
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_5
+      rect:
+        serializedVersion: 2
+        x: 161
+        y: 5
+        width: 20
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f667d6c961689b60800000000000000
+      internalID: 7753053865453774582
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_6
+      rect:
+        serializedVersion: 2
+        x: 181
+        y: 5
+        width: 35
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7073775f18e7ed230800000000000000
+      internalID: 3665506243360274183
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_7
+      rect:
+        serializedVersion: 2
+        x: 224
+        y: 5
+        width: 21
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a09f1452f5f0fe80800000000000000
+      internalID: -8146741304770981721
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_8
+      rect:
+        serializedVersion: 2
+        x: 238
+        y: 5
+        width: 16
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d38215cc82215730800000000000000
+      internalID: 3986005133196690386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_9
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 13
+        width: 13
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23180b93ca15f05a0800000000000000
+      internalID: -6552929132656688846
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_10
+      rect:
+        serializedVersion: 2
+        x: 257
+        y: 5
+        width: 30
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7852c14ced98428c0800000000000000
+      internalID: -4024940577096456825
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_11
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 16
+        width: 8
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb9a6cf7b9ba35400800000000000000
+      internalID: 311781483570702780
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_12
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 11
+        width: 8
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce8fe2a1bcf312440800000000000000
+      internalID: 4909275210360748268
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_13
+      rect:
+        serializedVersion: 2
+        x: 314
+        y: 5
+        width: 34
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4dc1cab7e02811950800000000000000
+      internalID: 6418053942695697620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_14
+      rect:
+        serializedVersion: 2
+        x: 349
+        y: 5
+        width: 11
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 737332a3fa809c7a0800000000000000
+      internalID: -6356539850369059017
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_15
+      rect:
+        serializedVersion: 2
+        x: 368
+        y: 5
+        width: 32
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0974c42cc455ce40800000000000000
+      internalID: 5676036141137295628
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_16
+      rect:
+        serializedVersion: 2
+        x: 403
+        y: 5
+        width: 21
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 55d577c0b611dbc70800000000000000
+      internalID: 8988359582769700181
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_17
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 5
+        width: 20
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e2986735721704470800000000000000
+      internalID: 8376819720627063086
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_def_dirt_wall_18
+      rect:
+        serializedVersion: 2
+        x: 363
+        y: 5
+        width: 13
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f3293ae3fea3f5510800000000000000
+      internalID: 1540014396806500927
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      card_def_dirt_wall_0: 228961460008111921
+      card_def_dirt_wall_1: 9098343897836481789
+      card_def_dirt_wall_10: -4024940577096456825
+      card_def_dirt_wall_11: 311781483570702780
+      card_def_dirt_wall_12: 4909275210360748268
+      card_def_dirt_wall_13: 6418053942695697620
+      card_def_dirt_wall_14: -6356539850369059017
+      card_def_dirt_wall_15: 5676036141137295628
+      card_def_dirt_wall_16: 8988359582769700181
+      card_def_dirt_wall_17: 8376819720627063086
+      card_def_dirt_wall_18: 1540014396806500927
+      card_def_dirt_wall_2: -6630216709297499663
+      card_def_dirt_wall_3: -522109110736275102
+      card_def_dirt_wall_4: 6894456066864829957
+      card_def_dirt_wall_5: 7753053865453774582
+      card_def_dirt_wall_6: 3665506243360274183
+      card_def_dirt_wall_7: -8146741304770981721
+      card_def_dirt_wall_8: 3986005133196690386
+      card_def_dirt_wall_9: -6552929132656688846
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

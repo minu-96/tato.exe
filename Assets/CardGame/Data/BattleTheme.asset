@@ -18,18 +18,18 @@ MonoBehaviour:
   - {fileID: 3775697863335605481, guid: 63bfbc8a6a74b4b6fb5e00736443ca1d, type: 3}
   background: {fileID: -418106206098598681, guid: f62d6c9f8432f40aba79d2417d2e9b64, type: 3}
   backgroundTint: {r: 1, g: 1, b: 1, a: 1}
-  playerPortrait: {fileID: -8000167652336761950, guid: dafebd31882be4cad888e2b40dfb7a32, type: 3}
+  playerPortrait: {fileID: 21300000, guid: dafebd31882be4cad888e2b40dfb7a32, type: 3}
   nodeBattle: {fileID: 0}
   nodeRest: {fileID: 0}
   nodeForge: {fileID: 0}
   nodeBoss: {fileID: 0}
   cardFrame: {fileID: 0}
-  cardFrameAttack: {fileID: 0}
-  cardFrameDefense: {fileID: 0}
-  cardFrameSkill: {fileID: 0}
-  cardFrameRoot: {fileID: 0}
-  cardArtFallback: {fileID: 0}
-  costBadge: {fileID: 0}
+  cardFrameAttack: {fileID: 21300000, guid: ee456344a0216438995f438dad426b66, type: 3}
+  cardFrameDefense: {fileID: 21300000, guid: ee77dcacfd3974f3096b025e74932fc2, type: 3}
+  cardFrameSkill: {fileID: 21300000, guid: 9393a8d91540d4bb4a45e5603c16839c, type: 3}
+  cardFrameRoot: {fileID: 21300000, guid: b2af875ba814d4c9ba7bd64525543c21, type: 3}
+  cardArtFallback: {fileID: 21300000, guid: 79af410941ffb4a7d9d374056c25f3c5, type: 3}
+  costBadge: {fileID: 21300000, guid: 56ea98d2a4f6e4afdb898d4c7cffa167, type: 3}
   barBackground: {fileID: 0}
   barFill: {fileID: 0}
   blockIcon: {fileID: 0}
