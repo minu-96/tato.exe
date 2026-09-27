@@ -114,6 +114,7 @@ namespace TatoGames.Launcher
         {
             if (busy) return;
             if (!Input.GetKeyDown(KeyCode.Escape)) return;
+            if (TatoGames.CardGame.CardDetailView.UsesEscape) return;   // 카드 자세히 보기를 닫는 ESC — 전투에서 튕겨 나가지 않게
             string scene = SceneManager.GetActiveScene().name;
             if (scene == LauncherScene || SceneHandlesEscape(scene)) return;
             ReturnToLauncher();

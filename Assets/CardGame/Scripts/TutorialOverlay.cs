@@ -45,7 +45,7 @@ namespace TatoGames.CardGame
         {
             Keys.LauncherIntro, Keys.LauncherStorage, Keys.LauncherMinigame, Keys.LauncherShop,
             Keys.BattleBasics, Keys.BattleReward, Keys.BattleMap, Keys.BattleForge, Keys.BattleDefeat,
-            Keys.HintEnemyBlock, Keys.HintEnemyWard, Keys.HintStatus,
+            Keys.HintEnemyBlock, Keys.HintEnemyWard, Keys.HintStatus, Keys.HintCardDetail,
         };
 
         public static class Keys
@@ -62,6 +62,8 @@ namespace TatoGames.CardGame
             public const string HintEnemyBlock = "hint_enemy_block";
             public const string HintEnemyWard = "hint_enemy_ward";
             public const string HintStatus = "hint_status";
+            /// <summary>카드 우클릭(자세히 보기)을 한 번 써 봤나 — 전까지 커진 카드에 꼬리표가 붙는다.</summary>
+            public const string HintCardDetail = "hint_card_detail";
         }
 
         public static bool Seen(string key) => PlayerPrefs.GetInt(Prefix + key, 0) != 0;

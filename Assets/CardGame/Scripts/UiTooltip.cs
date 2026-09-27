@@ -67,7 +67,7 @@ namespace TatoGames.CardGame
             inst.PlaceNear(anchor);
         }
 
-        /// <summary>anchor 오른쪽(자리가 없으면 왼쪽)에 띄운다 — 크게 보이는 카드 옆의 용어 설명.</summary>
+        /// <summary>anchor 오른쪽(자리가 없으면 왼쪽)에 띄운다 — 카드처럼 세로로 긴 대상 옆.</summary>
         public static void ShowBeside(Object who, RectTransform anchor, string title, string body)
         {
             if (!Prepare(who, anchor, title, body)) return;

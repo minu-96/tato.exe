@@ -13,12 +13,21 @@ namespace TatoGames.CardGame
         [Header("배경")]
         [Tooltip("스테이지별 배경 — [0]감자밭 [1]뿌리층 [2]깊은토양. 비면 background 사용")]
         public Sprite[] stageBackgrounds = new Sprite[3];
+        [Tooltip("스테이지별 보스전 배경 — [0]감자밭 [1]뿌리층 [2]깊은토양. 비면 그 스테이지 기본 배경")]
+        public Sprite[] bossBackgrounds = new Sprite[3];
         public Sprite background;
         public Color backgroundTint = Color.white;
 
-        public Sprite BackgroundFor(int stage) =>
-            (stageBackgrounds != null && stage >= 0 && stage < stageBackgrounds.Length
-             && stageBackgrounds[stage] != null) ? stageBackgrounds[stage] : background;
+        /// <summary>스테이지 배경 — 보스전이면 그 스테이지의 보스 배경(없으면 기본 배경).</summary>
+        public Sprite BackgroundFor(int stage, bool boss = false)
+        {
+            var sp = boss ? At(bossBackgrounds, stage) : null;
+            if (sp == null) sp = At(stageBackgrounds, stage);
+            return sp != null ? sp : background;
+        }
+
+        static Sprite At(Sprite[] list, int i) =>
+            list != null && i >= 0 && i < list.Length ? list[i] : null;
 
         [Header("플레이어")]
         [Tooltip("플레이어(감자) 초상화 — 전투 화면 왼쪽")]

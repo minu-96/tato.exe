@@ -96,6 +96,8 @@ namespace TatoGames.CardGame
         const float HandWidth = 980f;
         const float HandSpacing = 8f;
         const float BannerMaxW = 600f;
+        // 맵·보상·대장간 덮개 — 프로젝트가 Linear 색 공간이라 0.8쯤이면 뒤 전투 화면이 절반 가까이 비쳐 어수선했다
+        const float PanelDim = 0.88f;
 
         // 마우스를 올린 카드가 얼마나 커지나 — 작은 카드일수록 크게 키워 글자가 읽히게
         const float HandHoverScale = 1.2f;
@@ -160,6 +162,7 @@ namespace TatoGames.CardGame
         {
             var node = RunState.Current;
             if (node == null) { ShowRunClear(); return; }
+            UpdateBackground();   // 보스 노드면 보스전 배경
 
             // 새 스테이지 첫 노드를 고를 차례
             if (RunState.StageIntro) { stageIntro = true; ShowIdleField(); ShowMap(null); return; }
@@ -212,11 +215,16 @@ namespace TatoGames.CardGame
             Refresh();
         }
 
-        /// <summary>현재 스테이지 배경으로 교체 (보스 클리어 후 전환).</summary>
+        /// <summary>
+        /// 현재 스테이지 배경으로 교체 — 노드에 들어갈 때마다, 그리고 보스 클리어 후 다음 스테이지로 넘어갈 때.
+        /// 보스 노드에 들어가 있으면 그 스테이지의 보스전 배경(보상·패배 화면도 그 위에 뜬다).
+        /// 새 스테이지 첫 노드를 고르는 중에는 보스 노드가 아니라 다음 스테이지 맵이므로 기본 배경.
+        /// </summary>
         void UpdateBackground()
         {
             if (backgroundImage == null) return;
-            var sp = theme != null ? theme.BackgroundFor(RunState.Stage) : null;
+            bool boss = RunState.IsBossNode && !RunState.StageIntro;
+            var sp = theme != null ? theme.BackgroundFor(RunState.Stage, boss) : null;
             UiKit.Apply(backgroundImage, sp,
                         theme != null ? theme.panelColor : new Color(0.09f, 0.10f, 0.13f));
             if (backgroundImage.sprite != null && theme != null)
@@ -620,9 +628,11 @@ namespace TatoGames.CardGame
                 RunState.NodeCleared = true;     // 나갔다 와도 이 전투를 다시 하지 않는다
             }
             BattleSave.ClearBattle();
+            // 끝난 전투의 손패·더미는 치운다 — 쓰지 못할 카드가 보상·맵 화면 아래에 깔려 어수선했다
+            // (저장에서 이어 들어온 보상·맵은 ShowIdleField가 이미 치운 상태라, 두 경우 모습도 달랐다)
+            drawPile.Clear(); hand.Clear(); discard.Clear();
             Refresh();
             if (endTurnBtn != null) endTurnBtn.interactable = false;
-            RebuildHand();
             OfferReward();
         }
 
@@ -929,7 +939,7 @@ namespace TatoGames.CardGame
         {
             var dim = UiKit.Img("Result", transform, raycast: true);
             UiKit.Stretch(dim.rectTransform);
-            dim.color = new Color(0f, 0f, 0f, 0.66f);
+            dim.color = new Color(0f, 0f, 0f, 0.8f);   // 결과 문구 뒤로 전투 장면이 조금 보이게 (0.66은 Linear에서 너무 옅었다)
             resultLayer = dim.gameObject;
 
             message = UiKit.Label("Message", dim.transform, uiFont, 34);
@@ -959,7 +969,7 @@ namespace TatoGames.CardGame
         {
             var panel = UiKit.Img("RewardPanel", transform, raycast: true);
             UiKit.Stretch(panel.rectTransform);
-            panel.color = new Color(0, 0, 0, 0.8f);
+            panel.color = new Color(0, 0, 0, PanelDim);
             rewardPanel = panel.gameObject;
 
             rewardTitle = UiKit.Label("RewardTitle", panel.transform, uiFont, 30);
@@ -989,7 +999,7 @@ namespace TatoGames.CardGame
         {
             var panel = UiKit.Img("MapPanel", transform, raycast: true);
             UiKit.Stretch(panel.rectTransform);
-            panel.color = new Color(0, 0, 0, 0.82f);
+            panel.color = new Color(0, 0, 0, PanelDim);
             mapPanel = panel.gameObject;
 
             mapInfo = UiKit.Label("MapInfo", panel.transform, uiFont, 24);
@@ -1010,7 +1020,7 @@ namespace TatoGames.CardGame
         {
             var panel = UiKit.Img("ForgePanel", transform, raycast: true);
             UiKit.Stretch(panel.rectTransform);
-            panel.color = new Color(0, 0, 0, 0.88f);
+            panel.color = new Color(0, 0, 0, PanelDim);
             forgePanel = panel.gameObject;
 
             forgeInfo = UiKit.Label("ForgeInfo", panel.transform, uiFont, 22);
@@ -1277,6 +1287,9 @@ namespace TatoGames.CardGame
                         : isPast ? new Color(0.2f, 0.42f, 0.26f, 0.9f)
                                  : new Color(0.20f, 0.20f, 0.24f, 0.85f);
 
+                    // 갈 수 있는 노드는 금색 테두리 — 이어진 금색 선과 같은 색. 보스는 빨간 칸이라 색만으로는 갈 수 있는지 몰랐다
+                    if (isPickable) UiKit.Outline(cell, 2f, new Color(1f, 0.82f, 0.35f, 0.95f));
+
                     string enemyName = FindEnemy(n.enemyId)?.enemyName ?? "";
                     string sub = n.type switch
                     {
@@ -1316,7 +1329,11 @@ namespace TatoGames.CardGame
             string head = stageIntro
                 ? $"{RunState.StageName}   ·   체력 {RunState.PlayerHp}/{playerMaxHp}"
                 : $"{RunState.StageName}   ·   노드 {Mathf.Min(RunState.Col + 1, cols.Count)} / {cols.Count}   ·   체력 {RunState.PlayerHp}/{playerMaxHp}";
-            string pickMsg = reachable.Count > 1 ? "\n<color=#9FD6FF>파란 노드 중 갈 길을 고르세요</color>"
+            // 다음이 보스뿐이면 빨간 칸이다 — "파란 노드를 누르라"는 문구와 맞지 않았다
+            bool bossNext = targetCol < cols.Count && reachable.Count > 0
+                            && reachable.TrueForAll(r => r < cols[targetCol].Count && cols[targetCol][r].type == NodeType.Boss);
+            string pickMsg = bossNext ? "\n<color=#FF9A8A>빨간 보스 노드를 눌러 도전하세요</color>"
+                           : reachable.Count > 1 ? "\n<color=#9FD6FF>파란 노드 중 갈 길을 고르세요</color>"
                                                  : "\n<color=#9FD6FF>파란 노드를 눌러 진행하세요</color>";
             mapInfo.text = (string.IsNullOrEmpty(note) ? head : $"{note}\n{head}") + pickMsg;
 
@@ -1708,10 +1725,11 @@ namespace TatoGames.CardGame
             s = now;
         }
 
-        // ── 카드 마우스오버 확대 ──
+        // ── 카드 마우스오버 확대 · 우클릭 자세히 보기 ──
         // 카드 자체를 키우면 옆 카드(나중 형제)가 그 위를 덮어 그린다. 그래서 같은 모양의
         // 확대본을 맨 위에 겹쳐 그린다. 확대본은 클릭을 받지 않으므로 아래 원래 카드가 그대로 눌린다.
-        // 확대본 옆에는 카드에 나오는 용어(소멸·취약…) 설명을 띄운다.
+        // 용어(소멸·취약…) 설명은 우클릭으로 여는 자세히 보기(CardDetailView)에 있다 — 예전엔 확대본 옆에
+        // 설명 말풍선이 늘 붙어 다녀서 카드 위를 지나가기만 해도 화면이 어수선했다.
         readonly Dictionary<Vector2, CardView> previews = new();   // 카드 크기별로 하나씩 재사용
         CardView previewShown;
         CardView previewOwner;
@@ -1722,6 +1740,11 @@ namespace TatoGames.CardGame
             var relay = view.gameObject.AddComponent<CardHoverRelay>();
             relay.onEnter = () => ShowPreview(view, card, playable, size, scale, battle);
             relay.onExit = () => HidePreview(view);
+            relay.onRightClick = () =>
+            {
+                HidePreview(view);
+                CardDetailView.Show(transform, uiFont, theme, card, battle);
+            };
         }
 
         void ShowPreview(CardView source, CardData card, bool playable, Vector2 size, float scale,
@@ -1751,9 +1774,8 @@ namespace TatoGames.CardGame
             previewShown = pv;
             previewOwner = source;
 
-            // 확대본 옆에 용어 설명 (등급·종류 + 소멸·취약 같은 말)
-            string gloss = CardText.Glossary(card);
-            UiTooltip.ShowBeside(source, rt, CardText.CardKind(card), gloss);
+            // 우클릭을 아직 안 써 봤으면 "우클릭: 자세히 보기" 꼬리표 (한 번 열어 보면 사라진다)
+            CardDetailView.SetHint(rt, uiFont, true);
         }
 
         void HidePreview(CardView source)
@@ -1762,7 +1784,6 @@ namespace TatoGames.CardGame
             if (previewShown != null) previewShown.gameObject.SetActive(false);
             previewShown = null;
             previewOwner = null;
-            UiTooltip.Hide(source);
         }
 
         // ══════════════════════════════════════════════ 튜토리얼 ═══════════════
@@ -1837,7 +1858,7 @@ namespace TatoGames.CardGame
             new("에너지", $"카드를 쓰는 데 필요해요. 내 턴마다 <b>{maxEnergy}</b>로 다시 차요.\n카드 왼쪽 위 숫자가 그 카드의 비용이에요.",
                 () => energyOrb, Side.Right),
             new("손패", "매 턴 5장을 뽑아요. 카드를 <b>클릭</b>하면 바로 사용돼요.\n" +
-                       "마우스를 올리면 크게 보이고, 옆에 용어 설명이 나와요.\n" +
+                       "마우스를 올리면 크게 보이고, <b>우클릭</b>하면 용어 설명까지 자세히 볼 수 있어요.\n" +
                        $"숫자가 <color={CardText.UpColor}>초록</color>이면 버프로 강해진 값, <color={CardText.DownColor}>빨강</color>이면 약해진 값이에요.",
                 () => handRow, Side.Above),
             new("블록", "방어 카드를 쓰면 <b>블록</b>이 생겨요. 공격 피해를 먼저 막아줘요.\n" +
@@ -1853,7 +1874,7 @@ namespace TatoGames.CardGame
         List<Step> RewardSteps() => new()
         {
             new("전투 보상", "카드 1장을 골라요. 고른 카드는 바로 <b>런 덱</b>에 들어가요 (덱이 가득 차면 감자창고로).\n" +
-                            "카드에 마우스를 올리면 등급과 용어 설명이 나와요.",
+                            "카드를 <b>우클릭</b>하면 등급과 용어 설명을 자세히 볼 수 있어요.",
                 () => rewardRow, Side.Below),
             new("안 받아도 돼요", "마음에 드는 카드가 없으면 <b>카드 안 받기</b>. 토인은 그대로 받아요.\n덱이 얇으면 좋은 카드가 더 자주 손에 와요.",
                 () => (RectTransform)rewardSkip.transform, Side.Above),
@@ -1861,7 +1882,7 @@ namespace TatoGames.CardGame
 
         List<Step> MapSteps() => new()
         {
-            new("맵", "노드를 하나씩 골라 오른쪽으로 나아가요. <b>선으로 이어진 파란 노드</b>만 갈 수 있어요.\n" +
+            new("맵", "노드를 하나씩 골라 오른쪽으로 나아가요. <b>금색 선으로 이어진 노드</b>(금색 테두리)만 갈 수 있어요.\n" +
                      "노드에 마우스를 올리면 무엇이 있는지 알려줘요.",
                 () => mapArea, Side.Below),
             new("노드 종류", "<b>전투</b> 토인·카드 보상   <b>대장간</b> 카드 강화·제거\n<b>휴식</b> 체력 회복   <b>보스</b> 이기면 다음 스테이지\n" +

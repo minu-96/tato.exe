@@ -201,11 +201,9 @@ public static class LauncherPanelFiller
             ph.color = UiKit.FieldHint;
             ph.fontStyle = FontStyle.Normal;
         }
-        // 돋보기 아이콘 자리를 비워두도록 좌측 여백을 준다
-        var area = go.transform.Find("Text") as RectTransform;
-        if (area != null) { area.offsetMin = new Vector2(34, 2); area.offsetMax = new Vector2(-8, -2); }
-        var phRt = go.transform.Find("Placeholder") as RectTransform;
-        if (phRt != null) { phRt.offsetMin = new Vector2(34, 2); phRt.offsetMax = new Vector2(-8, -2); }
+        // 돋보기 아이콘 자리를 비워두도록 좌측 여백을 준다 — 입력 글자·안내 문구 둘 다.
+        // (예전엔 이름 "Text"로 찾았는데 Unity 6에서는 "Text (Legacy)"라 입력 글자만 돋보기 위에서 시작했다)
+        UiKit.InsetInputText(field, UiKit.SearchIconInset, 10f);
         return field;
     }
 

@@ -13,10 +13,14 @@ MonoBehaviour:
   m_Name: BattleTheme
   m_EditorClassIdentifier: Assembly-CSharp::TatoGames.CardGame.BattleTheme
   stageBackgrounds:
-  - {fileID: -418106206098598681, guid: f62d6c9f8432f40aba79d2417d2e9b64, type: 3}
-  - {fileID: -1007680577685229406, guid: 9aa83134c806843068fe48869351d135, type: 3}
-  - {fileID: 3775697863335605481, guid: 63bfbc8a6a74b4b6fb5e00736443ca1d, type: 3}
-  background: {fileID: -418106206098598681, guid: f62d6c9f8432f40aba79d2417d2e9b64, type: 3}
+  - {fileID: 21300000, guid: 6fef1e4fe54ca7b4da30b7dbb720da90, type: 3}
+  - {fileID: 21300000, guid: a277114b46ba8b94bb9aa52a774fb1c8, type: 3}
+  - {fileID: 21300000, guid: e2d917aeefd1932418be706fa4400bca, type: 3}
+  bossBackgrounds:
+  - {fileID: 21300000, guid: 0ebc62170f66b8d4ab6892e6134a3210, type: 3}
+  - {fileID: 21300000, guid: 0c3982418ed32284cb3fdb7e9087a04e, type: 3}
+  - {fileID: 21300000, guid: 0e40d504863aaab45b1cccf720db1d8a, type: 3}
+  background: {fileID: 21300000, guid: 6fef1e4fe54ca7b4da30b7dbb720da90, type: 3}
   backgroundTint: {r: 1, g: 1, b: 1, a: 1}
   playerPortrait: {fileID: 21300000, guid: dafebd31882be4cad888e2b40dfb7a32, type: 3}
   nodeBattle: {fileID: 0}

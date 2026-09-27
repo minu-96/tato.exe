@@ -211,6 +211,29 @@ namespace TatoGames.CardGame
             if (!btn.TryGetComponent(out ButtonDim _)) btn.gameObject.AddComponent<ButtonDim>();
         }
 
+        /// <summary>감자창고 검색창 그림(Search/Pressed 200×36)에서 돋보기가 끝나는 자리 — 글자는 여기서 시작한다.</summary>
+        public const float SearchIconInset = 34f;
+
+        /// <summary>
+        /// 입력칸의 입력 글자·안내 문구 칸을 같은 자리로 맞춘다 (왼쪽 left · 오른쪽 right 여백, 세로 가운데).
+        /// ※ Unity 6의 기본 입력칸은 입력 글자 오브젝트 이름이 "Text (Legacy)"라 이름("Text")으로 찾으면 못 찾는다
+        ///   — 그래서 안내 문구만 밀리고 입력한 글자는 돋보기 위에서 시작했다. 컴포넌트로 직접 잡는다.
+        /// </summary>
+        public static void InsetInputText(InputField field, float left, float right)
+        {
+            if (field == null) return;
+            foreach (var g in new Graphic[] { field.textComponent, field.placeholder })
+            {
+                if (g == null) continue;
+                var rt = g.rectTransform;
+                rt.anchorMin = Vector2.zero;
+                rt.anchorMax = Vector2.one;
+                rt.offsetMin = new Vector2(left, 2f);
+                rt.offsetMax = new Vector2(-right, -2f);
+                if (g is Text t) t.alignment = TextAnchor.MiddleLeft;
+            }
+        }
+
         /// <summary>
         /// Unity 기본 입력칸을 어두운 테마로. 배경 그림이 없으면(흰 상자) 어두운 알약으로 바꾼다.
         /// </summary>

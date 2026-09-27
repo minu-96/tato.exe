@@ -98,6 +98,19 @@ namespace TatoGames.Launcher
 
         void OnDisable() => PlayerData.Changed -= Rebuild;
 
+        Transform canvasRoot;
+
+        /// <summary>자세히 보기 창을 띄울 곳 — 런처 캔버스 맨 위 (탭 패널 안에 두면 사이드바·HUD가 위에 그려진다).</summary>
+        Transform CanvasRoot()
+        {
+            if (canvasRoot == null)
+            {
+                var c = GetComponentInParent<Canvas>();
+                canvasRoot = c != null ? c.rootCanvas.transform : transform;
+            }
+            return canvasRoot;
+        }
+
         void SetupSearchSort()
         {
             if (searchField != null)
@@ -106,6 +119,9 @@ namespace TatoGames.Launcher
                 searchField.onValueChanged.AddListener(q => { searchQuery = q ?? ""; Rebuild(); });
                 // 예전 씬은 검색창 그림이 빠져 흰 상자였고, 글자가 어두운 그림 위에서 안 보였다
                 UiKit.StyleDarkInput(searchField, "카드 이름 검색");
+                // 입력한 글자가 돋보기 그림 위에서부터 써졌다 — 안내 문구와 같은 자리(돋보기 오른쪽)에서 시작하게
+                if (searchField.targetGraphic is Image bg && bg.sprite != null)
+                    UiKit.InsetInputText(searchField, UiKit.SearchIconInset, 10f);
             }
 
             if (sortDropdown != null)
@@ -379,8 +395,17 @@ namespace TatoGames.Launcher
                 // 클릭 기능은 없다. 다 쓴 카드(다음 런에 썩음)는 어둡게
                 var shown = ShownCard(inst, card);
                 view.Bind(shown, CardLibrary.ThemeOr(theme), !inst.IsSpent, null);
-                // 마우스를 올리면 옆에 등급·종류와 용어 설명 (전투 화면과 같은 문구)
-                TooltipTrigger.On(view.hit, CardText.CardKind(shown), CardText.Glossary(shown), beside: true);
+                // 우클릭 = 자세히 보기 (등급·종류·용어 설명 — 전투 화면과 같은 창).
+                // 예전엔 마우스만 올려도 옆에 설명 말풍선이 떠서, 카드 위를 지나갈 때마다 화면이 어수선했다
+                var relay = view.gameObject.AddComponent<CardHoverRelay>();
+                var vt = view.transform;
+                relay.onEnter = () => CardDetailView.SetHint(vt, labelFont, true);
+                relay.onExit = () => CardDetailView.SetHint(vt, labelFont, false);
+                relay.onRightClick = () =>
+                {
+                    CardDetailView.SetHint(vt, labelFont, false);
+                    CardDetailView.Show(CanvasRoot(), labelFont, CardLibrary.ThemeOr(theme), shown);
+                };
             }
             else
             {
