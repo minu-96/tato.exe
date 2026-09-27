@@ -77,6 +77,7 @@ namespace TatoGames.Launcher
         CardType? typeFilter;   // null = 전체 타입
         Rarity activeRarity;
         int matchCount;
+        int pendingSell = -1;   // 판매 확인 중인 카드 (한 번 더 누르면 팔린다)
 
         void Start()
         {
@@ -90,6 +91,7 @@ namespace TatoGames.Launcher
         // 예전엔 Start에서 한 번만 그려서, 상점에서 게임을 팔아 사라진 카드가 창고에 계속 보였다.
         void OnEnable()
         {
+            pendingSell = -1;
             PlayerData.Changed += Rebuild;
             Rebuild();
         }
@@ -102,6 +104,8 @@ namespace TatoGames.Launcher
             {
                 // 입력할 때마다 즉시 걸러준다
                 searchField.onValueChanged.AddListener(q => { searchQuery = q ?? ""; Rebuild(); });
+                // 예전 씬은 검색창 그림이 빠져 흰 상자였고, 글자가 어두운 그림 위에서 안 보였다
+                UiKit.StyleDarkInput(searchField, "카드 이름 검색");
             }
 
             if (sortDropdown != null)
@@ -111,6 +115,12 @@ namespace TatoGames.Launcher
                 sortDropdown.value = (int)sortMode;
                 sortDropdown.RefreshShownValue();
                 sortDropdown.onValueChanged.AddListener(v => { sortMode = (SortMode)v; Rebuild(); });
+                // 정렬 상자 그림(어두운 바탕 + ∨)에 어두운 글자를 쓰고 있었다 — 밝은 글자, 흰 네모 화살표 숨김
+                UiKit.StyleDarkDropdown(sortDropdown, 16, replaceBackground: false);
+
+                // 검색창(200) + 간격 + 정렬(150)이 칸(330)보다 넓어 정렬 상자가 화면 끝에 잘렸다
+                if (sortDropdown.transform.parent is RectTransform bar && bar.sizeDelta.x < 380f)
+                    bar.sizeDelta = new Vector2(380f, bar.sizeDelta.y);
             }
         }
 
@@ -367,7 +377,10 @@ namespace TatoGames.Launcher
                 vrt.anchorMin = vrt.anchorMax = vrt.pivot = new Vector2(0.5f, 1);
                 vrt.anchoredPosition = Vector2.zero;
                 // 클릭 기능은 없다. 다 쓴 카드(다음 런에 썩음)는 어둡게
-                view.Bind(ShownCard(inst, card), CardLibrary.ThemeOr(theme), !inst.IsSpent, null);
+                var shown = ShownCard(inst, card);
+                view.Bind(shown, CardLibrary.ThemeOr(theme), !inst.IsSpent, null);
+                // 마우스를 올리면 옆에 등급·종류와 용어 설명 (전투 화면과 같은 문구)
+                TooltipTrigger.On(view.hit, CardText.CardKind(shown), CardText.Glossary(shown), beside: true);
             }
             else
             {
@@ -437,19 +450,27 @@ namespace TatoGames.Launcher
             trt.sizeDelta = new Vector2(92, 28); trt.anchoredPosition = new Vector2(2, 36);
 
             var t = MakeTagText(tagGO.transform, 16);
+            var bg = tagGO.GetComponent<Image>();
             switch (inst.NextRunState)
             {
                 case CardState.Sprouted:
-                    tagGO.GetComponent<Image>().color = new Color(0.20f, 0.45f, 0.22f, 0.95f);
+                    bg.color = new Color(0.20f, 0.45f, 0.22f, 0.95f);
                     t.text = "싹 · 마지막"; t.color = new Color(0.75f, 1f, 0.75f);
+                    TooltipTrigger.On(bg, "싹 — 마지막 런",
+                        "다음 런이 이 카드의 마지막 런이에요. 대신 효과가 더 강해요(싹 효과).\n그 런이 끝나면 썩어서 쓸 수 없어요. 대장간 강화와 겹쳐요!");
                     break;
                 case CardState.Rotten:
-                    tagGO.GetComponent<Image>().color = new Color(0.34f, 0.24f, 0.16f, 0.95f);
+                    bg.color = new Color(0.34f, 0.24f, 0.16f, 0.95f);
                     t.text = "썩음"; t.color = new Color(1f, 0.65f, 0.5f);
+                    TooltipTrigger.On(bg, "썩음",
+                        $"수명이 다해 더 이상 덱에 넣을 수 없어요.\n{PlayerData.RottenSellPrice}토인에 팔 수 있어요.");
                     break;
                 default:
-                    tagGO.GetComponent<Image>().color = new Color(0.18f, 0.20f, 0.24f, 0.9f);
+                    bg.color = new Color(0.18f, 0.20f, 0.24f, 0.9f);
                     t.text = $"{inst.RunsLeftToPlay}런 남음"; t.color = new Color(0.8f, 0.85f, 0.9f);
+                    TooltipTrigger.On(bg, $"수명 {inst.RunsLeftToPlay}런",
+                        $"앞으로 {inst.RunsLeftToPlay}번의 런에서 쓸 수 있어요. 새 런을 시작할 때마다 1씩 줄어요.\n" +
+                        "마지막 런에는 싹이 나서 더 강해지고, 그 다음엔 썩어요.");
                     break;
             }
         }
@@ -475,23 +496,33 @@ namespace TatoGames.Launcher
             img.color = locked ? new Color(0.24f, 0.24f, 0.28f, 0.9f)
                                : new Color(0.45f, 0.32f, 0.12f, 0.95f);
 
+            int id = inst.instanceId;
+            bool confirming = pendingSell == id;
             var t = MakeTagText(goSell.transform, compact ? 15 : 17);
-            t.text = locked ? "사용 중" : $"판매 +{value}";
-            t.color = locked ? new Color(0.6f, 0.62f, 0.68f) : OkColor;
+            t.text = locked ? "사용 중" : confirming ? "정말?" : $"판매 +{value}";
+            t.color = locked ? new Color(0.6f, 0.62f, 0.68f) : confirming ? new Color(1f, 0.6f, 0.5f) : OkColor;
 
-            if (locked) { img.raycastTarget = false; return; }
+            if (locked)
+            {
+                TooltipTrigger.On(img, "판매할 수 없어요", "진행 중인 런의 덱에 든 카드예요. 런이 끝난 뒤에 팔 수 있어요.");
+                return;
+            }
+            TooltipTrigger.On(img, $"판매 +{value} 토인",
+                "이 카드를 팔고 토인을 받아요. 되돌릴 수 없어서 한 번 더 눌러야 팔려요.");
 
             var btn = goSell.AddComponent<Button>();
             btn.targetGraphic = img;
-            int id = inst.instanceId;
             btn.onClick.AddListener(() =>
             {
+                // 되돌릴 수 없으니 두 번 눌러야 판다 (상점의 게임 판매와 같은 방식)
+                if (pendingSell != id) { pendingSell = id; Rebuild(); UpdateDeckLabel("한 번 더 누르면 팔려요"); return; }
+                pendingSell = -1;
                 if (PlayerData.TrySellCard(id, out int refund, out string reason))
                 {
                     Rebuild();
-                    UpdateDeckLabel($"카드를 팔았습니다 (+{refund} 토인)");
+                    UpdateDeckLabel($"카드를 팔았어요 (+{refund} 토인)");
                 }
-                else UpdateDeckLabel(reason);
+                else { Rebuild(); UpdateDeckLabel(reason); }
             });
         }
 
@@ -513,10 +544,19 @@ namespace TatoGames.Launcher
             tImg.color = locked ? new Color(0.22f, 0.23f, 0.27f, 0.9f)
                        : inDeck ? new Color(0.16f, 0.42f, 0.24f, 0.95f)
                                 : new Color(0.28f, 0.28f, 0.31f, 0.95f);
-            tTxt.text = locked ? (inDeck ? "덱 🔒" : "—") : (inDeck ? "덱 ✓" : "덱 +");
+            // 글꼴에 ✓·🔒 모양이 없어 네모로 나오던 자리 — 글자로 쓴다
+            tTxt.text = locked ? (inDeck ? "덱 잠김" : "—") : (inDeck ? "덱 포함" : "덱 +");
+            tTxt.fontSize = 16;
             tTxt.color = locked ? new Color(0.6f, 0.62f, 0.68f) : Color.white;
 
-            if (locked) { tImg.raycastTarget = false; return; }   // 런 중에는 누를 수 없다
+            if (locked)   // 런 중에는 누를 수 없다 — 이유는 말풍선으로
+            {
+                TooltipTrigger.On(tImg, "덱 편성 잠김", "런이 진행 중이라 덱을 바꿀 수 없어요.\n런을 끝내면(클리어하거나 패배하면) 다시 편성할 수 있어요.");
+                return;
+            }
+            TooltipTrigger.On(tImg, inDeck ? "런 덱에 들어 있어요" : "런 덱에 넣기",
+                inDeck ? "누르면 덱에서 빠져요 (카드는 창고에 남아요)."
+                       : $"누르면 이 카드가 런 덱에 들어가요 (덱 {PlayerData.MinDeck}~{PlayerData.MaxDeck}장).");
 
             var btn = tagGO.AddComponent<Button>();
             btn.targetGraphic = tImg;
@@ -524,6 +564,7 @@ namespace TatoGames.Launcher
             bool want = !inDeck;
             btn.onClick.AddListener(() =>
             {
+                pendingSell = -1;
                 if (PlayerData.TrySetInDeck(id, want, out string reason)) Rebuild();
                 else UpdateDeckLabel(reason);
             });
@@ -537,10 +578,13 @@ namespace TatoGames.Launcher
             var trt = tagGO.GetComponent<RectTransform>();
             trt.anchorMin = trt.anchorMax = trt.pivot = new Vector2(0, 0);
             trt.sizeDelta = new Vector2(92, 28); trt.anchoredPosition = new Vector2(2, 36);
-            tagGO.GetComponent<Image>().color = new Color(0.35f, 0.30f, 0.18f, 0.95f);
+            var bg = tagGO.GetComponent<Image>();
+            bg.color = new Color(0.35f, 0.30f, 0.18f, 0.95f);
 
             var t = MakeTagText(tagGO.transform, 16);
             t.text = "귀속 · 무기한"; t.color = OkColor;
+            TooltipTrigger.On(bg, "귀속 (시작 카드)",
+                "처음부터 가진 카드예요. 썩지 않고, 전투에서 져도 사라지지 않아요.\n대신 팔 수 없고 싹 효과도 받지 못해요. 덱에서 빼는 건 자유예요.");
         }
 
         Text MakeTagText(Transform parent, int size)

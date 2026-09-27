@@ -88,17 +88,14 @@ public static class CardListExporter
         Debug.Log($"[TatoGames] 카드 목록 {cards.Count}종 → {OutPath}");
     }
 
-    /// <summary>효과 여러 줄을 한 칸에 담는다. 표기는 게임과 동일(CardText).</summary>
+    /// <summary>
+    /// 효과 여러 줄을 한 칸에 담는다. 표기는 게임과 동일(CardText) —
+    /// 자기에게 거는 건 `힘 +2`, 적에게 거는 건 `취약 2 부여`로 이미 구분된다.
+    /// </summary>
     static string Line(List<CardEffect> effects)
     {
         if (effects == null || effects.Count == 0) return "—";
-        return string.Join(" + ", effects.Select(e =>
-        {
-            string s = CardText.Effect(e);
-            // 힘·민첩처럼 자기에게 거는 버프는 표에서 구분이 필요하다
-            if (e.type == EffectType.ApplyStatus && e.target == TargetType.Self) s += "(자신)";
-            return s;
-        }));
+        return string.Join(" + ", effects.Select(CardText.Effect));
     }
 
     static void AppendSummary(StringBuilder sb, List<CardData> cards)

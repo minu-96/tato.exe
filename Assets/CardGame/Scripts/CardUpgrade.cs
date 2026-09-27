@@ -30,6 +30,8 @@ namespace TatoGames.CardGame
             c.name = source.name + "_rt";
             c.description = "";                   // 설명은 효과에서 조합된다(CardText.Describe) — 메모는 원본에만
             c.displayName = source.displayName;
+            c.shownState = state;                 // 카드 용어 설명(싹·강화)용
+            c.shownUpgrade = kind;
 
             // ① 상태별 효과로 교체 (싹이면 sproutEffects)
             if (state != CardState.Fresh)

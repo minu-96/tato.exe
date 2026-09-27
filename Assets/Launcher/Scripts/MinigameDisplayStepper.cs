@@ -19,7 +19,7 @@ namespace TatoGames.Launcher
         public static void Spawn(DisplayTarget target)
         {
             // 씬을 다시 로드하면 또 만들어지므로 중복 방지
-            if (Object.FindFirstObjectByType<MinigameDisplayStepper>() != null) return;
+            if (Object.FindAnyObjectByType<MinigameDisplayStepper>() != null) return;
 
             var canvasGO = new GameObject("DisplayStepper",
                 typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));

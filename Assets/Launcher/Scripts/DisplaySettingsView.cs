@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using TatoGames.CardGame;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,6 +31,17 @@ namespace TatoGames.Launcher
         {
             Bind(launcherDropdown, DisplayTarget.Launcher);
             Bind(mainGameDropdown, DisplayTarget.MainGame);
+
+            // 설정 탭 전용 그림이 없어 감자창고 필터 그림('전체' 글자가 박힌 알약)을 빌려 쓰고 있었다 —
+            // 드롭다운·버튼마다 '전체'가 겹쳐 보였다. 글자 없는 어두운 알약으로 바꾼다 (항목을 채운 뒤에 — 목록 높이를 맞추려고)
+            UiKit.StyleDarkDropdown(launcherDropdown, 18, replaceBackground: true);
+            UiKit.StyleDarkDropdown(mainGameDropdown, 18, replaceBackground: true);
+            if (fullscreenToggle != null)
+            {
+                UiKit.StylePillButton(fullscreenToggle, UiKit.FieldBg, UiKit.FieldText);
+                if (fullscreenToggle.targetGraphic != null)
+                    UiKit.Outline(fullscreenToggle.targetGraphic, 1f, new Color(1f, 1f, 1f, 0.2f));
+            }
 
             if (fullscreenToggle != null)
                 fullscreenToggle.onClick.AddListener(() =>

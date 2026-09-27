@@ -30,24 +30,27 @@ MonoBehaviour:
   cardFrameRoot: {fileID: 21300000, guid: b2af875ba814d4c9ba7bd64525543c21, type: 3}
   cardArtFallback: {fileID: 21300000, guid: 79af410941ffb4a7d9d374056c25f3c5, type: 3}
   costBadge: {fileID: 21300000, guid: 56ea98d2a4f6e4afdb898d4c7cffa167, type: 3}
-  barBackground: {fileID: 0}
-  barFill: {fileID: 0}
-  blockIcon: {fileID: 0}
-  wardIcon: {fileID: 0}
-  energyOrb: {fileID: 0}
-  intentAttack: {fileID: 0}
-  intentBlock: {fileID: 0}
-  intentDebuff: {fileID: 0}
-  intentBuff: {fileID: 0}
-  iconVulnerable: {fileID: 0}
-  iconWeak: {fileID: 0}
-  iconPoison: {fileID: 0}
-  iconStrength: {fileID: 0}
-  iconDexterity: {fileID: 0}
-  iconRegen: {fileID: 0}
-  buttonIdle: {fileID: 0}
-  buttonHover: {fileID: 0}
-  buttonPressed: {fileID: 0}
+  barBackground: {fileID: 872854090410020880, guid: c6778d3a16147cd48af94e94c9a51e1c, type: 3}
+  barFill: {fileID: 7015821716059973168, guid: 4c748fdaee98782468e674184866ef48, type: 3}
+  blockIcon: {fileID: -8902913519144511781, guid: eea72fc89bc9d8c47b98ef1d0250246a, type: 3}
+  wardIcon: {fileID: 7051529376959257385, guid: f473ed69b5e0a2c439f5e3bd57cb6e49, type: 3}
+  energyOrb: {fileID: -1354816702281924300, guid: c387e89386bdfe448adb41e0acb27162, type: 3}
+  intentAttack: {fileID: -2010189686977633252, guid: a07f1f008e95ac741829edc11a59ceb8, type: 3}
+  intentBlock: {fileID: 1863564173548396610, guid: 1aae522fbf5740848b0a2e2d57011e18, type: 3}
+  intentDebuff: {fileID: -4733334407014783266, guid: bf6ae207bc4ff354c97e9d2285ba7e98, type: 3}
+  intentBuff: {fileID: 2237975799771548433, guid: aef78b2784714bc4f8bd78682f12e374, type: 3}
+  iconVulnerable: {fileID: 9168171492045885951, guid: 28475a2fae2e3fe4cbefcb925f832b34, type: 3}
+  iconWeak: {fileID: 4734778117163265463, guid: 95ac7ab091af345499b1cfc1480041b4, type: 3}
+  iconPoison: {fileID: -8083910369672293409, guid: e91babc50d4ea644a9debb6febb489b9, type: 3}
+  iconStrength: {fileID: 3817611031507007380, guid: f57904450ac5a72449a2c1c82cf25914, type: 3}
+  iconDexterity: {fileID: 4031785230274974486, guid: 727c454e43882304c9f90411b535c5e1, type: 3}
+  iconRegen: {fileID: -8108158202392737736, guid: 377f1704f1058cb489e921f79fb0ef89, type: 3}
+  buttonIdle: {fileID: -1093830811530412188, guid: 2dcc32bb9fe272f43bc79a5d68baa1c6, type: 3}
+  buttonHover: {fileID: 5838007505081797893, guid: e8464e85f35cffe46af2170956db64ec, type: 3}
+  buttonPressed: {fileID: -601227414311507233, guid: a9c4563dd15c0e945afa6303876867cd, type: 3}
+  toinIcon: {fileID: 21300000, guid: a453621bab91e4e2d9b7bfa8215cb009, type: 3}
+  deckIcon: {fileID: 21300000, guid: 86d0b52a0901b4c4d99a7fe5e82110a5, type: 3}
+  stageIcon: {fileID: 21300000, guid: 4e52df1de9e814fb39f2ca35c29d3a24, type: 3}
   panelColor: {r: 0.14, g: 0.15, b: 0.19, a: 0.92}
   cardColor: {r: 0.18, g: 0.2, b: 0.24, a: 1}
   cardDisabledColor: {r: 0.11, g: 0.12, b: 0.14, a: 1}

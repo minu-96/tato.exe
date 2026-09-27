@@ -24,6 +24,9 @@ namespace TatoGames.Launcher
     {
         public static LauncherTransition Instance { get; private set; }
 
+        /// <summary>전환 연출 중인가 (화면이 가려져 있다) — 튜토리얼이 이때는 입력을 받지 않는다.</summary>
+        public static bool Busy => Instance != null && Instance.busy;
+
         /// <summary>런처 씬 이름과 런처가 쓰는 창 크기 (Launcher.unity의 CanvasScaler 기준 해상도).</summary>
         public const string LauncherScene = "Launcher";
         public const int LauncherWidth = 1280;

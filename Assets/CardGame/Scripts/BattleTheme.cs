@@ -71,10 +71,15 @@ namespace TatoGames.CardGame
         public Sprite iconDexterity;
         public Sprite iconRegen;
 
-        [Header("버튼 (SpriteSwap)")]
+        [Header("버튼 (SpriteSwap · 9-slice 권장)")]
         public Sprite buttonIdle;
         public Sprite buttonHover;
         public Sprite buttonPressed;
+
+        [Header("상단 바 아이콘 (런처 공용 아이콘을 같이 쓴다)")]
+        public Sprite toinIcon;
+        public Sprite deckIcon;
+        public Sprite stageIcon;
 
         [Header("폴백 색상 (아트 없을 때)")]
         public Color panelColor = new(0.14f, 0.15f, 0.19f, 0.92f);

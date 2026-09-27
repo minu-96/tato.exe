@@ -26,6 +26,8 @@ namespace TatoGames.CardGame
         public Text nameText;
         public Text descText;
         public Button button;
+        public Image rarityPill;  // 일러스트 창 오른쪽 위 등급 표시 (작은 카드는 생략)
+        public Text rarityText;
 
         // ── 프레임 아트(360×500)에서 잰 영역 — (왼쪽, 위, 오른쪽, 아래)를 카드 폭·높이에 대한 비율로 ──
         static readonly Rect WindowArea = Area(45, 48, 320, 254);    // 투명한 일러스트 창
@@ -93,6 +95,22 @@ namespace TatoGames.CardGame
             UiKit.Stretch(view.costText.rectTransform);
             view.costText.fontStyle = FontStyle.Bold;
 
+            // 등급 표시 — 프레임에 등급 칸이 없어서, 보스 보상(초월·전설)도 카드만 봐서는 등급을 알 수 없었다.
+            // 대장간처럼 작은 카드는 글자가 읽히지 않아 생략한다.
+            if (size.x >= 130f)
+            {
+                view.rarityPill = UiKit.Img("Rarity", rt);
+                var prt = view.rarityPill.rectTransform;
+                prt.anchorMin = prt.anchorMax = new Vector2(WindowArea.xMax, 1f - WindowArea.yMin);
+                prt.pivot = new Vector2(1f, 1f);
+                prt.anchoredPosition = new Vector2(-3f, -3f);
+                prt.sizeDelta = new Vector2(size.x * 0.25f, size.x * 0.12f);
+                view.rarityPill.color = new Color(0.06f, 0.05f, 0.04f, 0.78f);
+                view.rarityText = UiKit.Label("Text", prt, font, Mathf.Max(10, Mathf.RoundToInt(size.x * 0.078f)));
+                UiKit.Stretch(view.rarityText.rectTransform);
+                view.rarityText.fontStyle = FontStyle.Bold;
+            }
+
             return view;
         }
 
@@ -110,7 +128,8 @@ namespace TatoGames.CardGame
         static readonly Color CostOnBadge = new(0.36f, 0.18f, 0.03f);
         static readonly Color WindowBack = new(0.20f, 0.16f, 0.12f, 1f);
 
-        public void Bind(CardData card, BattleTheme theme, bool playable, UnityAction onClick)
+        public void Bind(CardData card, BattleTheme theme, bool playable, UnityAction onClick,
+                         CardText.Context battle = null)
         {
             if (card == null) return;
             var t = theme;
@@ -145,12 +164,58 @@ namespace TatoGames.CardGame
 
             nameText.text = card.displayName;
             nameText.color = framed ? NameOnFrame : Color.white;
-            descText.text = CardText.Describe(card);
+            // 전투 중(손패)이면 힘·약화·취약·민첩이 반영된 실제 수치 — 달라진 숫자만 색이 바뀐다
+            descText.supportRichText = true;
+            descText.text = battle != null ? CardText.Describe(card, battle) : CardText.Describe(card);
             descText.color = Color.white;
+
+            if (rarityPill != null)
+            {
+                rarityText.text = CardText.RarityName(card.rarity);
+                var rc = CardText.RarityColor(card.rarity);
+                rarityText.color = playable ? rc : rc * 0.65f;
+            }
 
             button.interactable = playable;
             button.onClick.RemoveAllListeners();
             if (onClick != null) button.onClick.AddListener(onClick);
+        }
+
+        /// <summary>
+        /// 카드 모양(프레임·이름 띠·설명 칸)만 빌려 임의의 글을 쓴다 — 코스트·등급·일러스트 없음 (업적 칸 등).
+        /// bright가 아니면 어둡게.
+        /// </summary>
+        public void BindPlain(string title, string desc, CardType frameType, BattleTheme theme, bool bright)
+        {
+            var frameSprite = theme != null ? theme.FrameFor(frameType) : null;
+            bool framed = frameSprite != null;
+
+            hit.sprite = null;
+            hit.color = framed ? new Color(0, 0, 0, 0)
+                               : (bright ? (theme != null ? theme.cardColor : new Color(0.18f, 0.2f, 0.24f))
+                                         : (theme != null ? theme.cardDisabledColor : new Color(0.11f, 0.12f, 0.14f)));
+            frame.gameObject.SetActive(framed);
+            if (framed)
+            {
+                UiKit.Apply(frame, frameSprite, Color.white);
+                frame.color = bright ? Color.white : new Color(0.66f, 0.66f, 0.7f, 1f);
+            }
+            window.color = framed ? (bright ? WindowBack : WindowBack * 0.6f + new Color(0, 0, 0, 0.4f))
+                                  : new Color(0, 0, 0, 0.25f);
+            UiKit.Apply(art, null, new Color(0, 0, 0, 0));
+
+            costBadge.gameObject.SetActive(false);
+            if (rarityPill != null) rarityPill.gameObject.SetActive(false);
+
+            // 이름은 어둡게 하지 않는다 — 흐린 프레임 위에서 이름까지 흐리면 읽히지 않았다
+            nameText.text = title;
+            nameText.color = framed ? NameOnFrame : Color.white;
+            descText.supportRichText = true;
+            descText.text = desc;
+            descText.color = bright ? Color.white : new Color(0.7f, 0.7f, 0.74f);
+
+            button.interactable = false;
+            button.onClick.RemoveAllListeners();
         }
     }
 }

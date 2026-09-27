@@ -1,15 +1,23 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Keys = TatoGames.CardGame.TutorialOverlay.Keys;
+using Step = TatoGames.CardGame.TutorialOverlay.Step;
+using Side = TatoGames.CardGame.TutorialOverlay.Side;
 
 namespace TatoGames.CardGame
 {
     /// <summary>
     /// MVP 전투 1판 코어. 턴제(플레이어 ↔ 적), 에너지·드로우·블록, 상태이상 6종,
-    /// 방어 2종 분리(§9). 데이터는 전부 SO(CardData/EnemyData, 외부화). UI는 코드로 만든
-    /// 기능용 프로그래머 아트 — 디자인은 추후 교체(§14.5).
+    /// 방어 2종 분리(§9). 데이터는 전부 SO(CardData/EnemyData, 외부화). UI는 코드로 만든다
+    /// — 아트는 BattleTheme 슬롯으로 들어온다(§14.5).
+    ///
+    /// 화면 구성(1280×720 기준, 아래→위):
+    ///   배경 · 적/플레이어 패널 · 에너지 · 덱 카운터 · 손패 · 턴 종료 · 결과(패배/클리어) ·
+    ///   보상 · 맵 · 대장간 · 상단 바(스테이지·토인·덱·도움말·나가기) · 알림 배너 · 말풍선 · 튜토리얼
     /// </summary>
     public class BattleController : MonoBehaviour
     {
@@ -47,34 +55,59 @@ namespace TatoGames.CardGame
         // ── UI 참조 ──
         CombatantPanel enemyPanel, playerPanel;
         Text message, energyText, pileText;
+        RectTransform energyOrb;
         Image backgroundImage;
         RectTransform handRow;
         Button endTurnBtn;
+        GameObject resultLayer;     // 패배·런 클리어 — 어둡게 덮고 가운데 문구 + 버튼
         GameObject restartBtn;
         GameObject exitBtn;
         GameObject rewardPanel;
         Text rewardTitle;
         RectTransform rewardRow;
+        Button rewardSkip;
         GameObject mapPanel;
         Text mapInfo;
         RectTransform mapArea;     // 노드 그래프가 그려지는 영역
         bool stageIntro;           // 새 스테이지 첫 노드 진입 대기
         GameObject forgePanel;     // 대장간
         Text forgeInfo, forgeHint;
-        RectTransform forgeGrid, forgeActionRow;
+        RectTransform forgeGrid, forgeActionRow, forgeScroll;
         int forgeSelected = -1;
+        int forgeConfirmRemove = -1;   // 제거는 되돌릴 수 없어서 두 번 눌러야 한다
+        readonly Dictionary<int, CardView> forgeViews = new();
+        CardView forgePopup;           // 강화 버튼에 마우스를 올리면 결과 카드를 미리 보여준다
+
+        // 상단 바 · 알림
+        RectTransform topBar;
+        Text topStage, topToin, topDeck;
+        Image bannerBg;
+        Text bannerText;
+        float bannerHideAt = -1f;
+        bool bannerSticky;
 
         // ── 배치 기준 (1280×720) ──
+        const float TopBarH = 44f;
         const float HandY = 16f;                                   // 손패 아래끝
         static readonly Vector2 HandCardSize = new(150, 210);
         static readonly Vector2 RewardCardSize = new(180, 250);
         static readonly Vector2 ForgeCardSize = new(102, 142);
         const float PanelBottomY = HandY + 210f + 10f;             // 적·플레이어 패널은 손패 윗변 바로 위
+        const float HandWidth = 980f;
+        const float HandSpacing = 8f;
+        const float BannerMaxW = 600f;
 
         // 마우스를 올린 카드가 얼마나 커지나 — 작은 카드일수록 크게 키워 글자가 읽히게
         const float HandHoverScale = 1.2f;
         const float RewardHoverScale = 1.1f;
         const float ForgeHoverScale = 1.4f;
+
+        // 떠오르는 숫자 색
+        static readonly Color DamageColor = new(1f, 0.42f, 0.36f);
+        static readonly Color HealColor = new(0.5f, 1f, 0.55f);
+        static readonly Color BlockColor = new(0.55f, 0.8f, 1f);
+        static readonly Color WardColor = new(0.8f, 0.65f, 1f);
+        static readonly Color Accent = new(1f, 0.78f, 0.2f);
 
         void Start()
         {
@@ -97,10 +130,24 @@ namespace TatoGames.CardGame
                 if (rotted > 0)
                     TatoGames.Launcher.Achievements.Bump(TatoGames.Launcher.Achievements.CardsRotted, rotted);
                 if (rotted > 0)
-                    startNotice = $"카드 {rotted}장이 썩었습니다 — " +
+                    startNotice = $"카드 {rotted}장이 수명이 다해 썩었어요 — " +
                                   $"감자창고에서 장당 {PlayerData.RottenSellPrice}토인에 팔 수 있어요";
             }
             EnterNode();
+        }
+
+        void OnEnable() => PlayerData.Changed += UpdateTopBar;
+        void OnDisable() => PlayerData.Changed -= UpdateTopBar;
+
+        void Update()
+        {
+            // 알림 배너 — 정해진 시간이 지나면 흐려지며 사라진다
+            if (bannerBg == null || !bannerBg.gameObject.activeSelf || bannerSticky) return;
+            float left = bannerHideAt - Time.unscaledTime;
+            if (left <= 0f) { bannerBg.gameObject.SetActive(false); return; }
+            float a = Mathf.Clamp01(left / 0.35f);
+            bannerBg.color = new Color(0.05f, 0.05f, 0.07f, 0.85f * a);
+            var c = bannerText.color; c.a = a; bannerText.color = c;
         }
 
         // ══════════════════════════════════════════════ 런 진행 (§11.3) ════════
@@ -127,10 +174,15 @@ namespace TatoGames.CardGame
 
             if (node.type == NodeType.Rest)
             {
-                RunState.PlayerHp = Mathf.Min(playerMaxHp, RunState.PlayerHp + RunState.RestHeal);
+                // 실제로 오른 만큼만 알린다 — 체력이 거의 차 있으면 +29가 아니다
+                int before = Mathf.Clamp(RunState.PlayerHp, 0, playerMaxHp);
+                RunState.PlayerHp = Mathf.Min(playerMaxHp, before + RunState.RestHeal);
+                int healed = RunState.PlayerHp - before;
                 RunState.NodeCleared = true;   // 다시 들어와도 또 회복하지 않는다
                 ShowIdleField();
-                ShowMap($"휴식 — 체력 +{RunState.RestHeal}  (현재 {RunState.PlayerHp}/{playerMaxHp})");
+                ShowMap(healed > 0
+                    ? $"휴식 — 체력 +{healed} 회복  ({RunState.PlayerHp}/{playerMaxHp})"
+                    : $"휴식 — 체력이 이미 가득 차 있어요  ({RunState.PlayerHp}/{playerMaxHp})");
                 return;
             }
 
@@ -156,6 +208,7 @@ namespace TatoGames.CardGame
             enemy = null;
             if (enemyPanel != null) enemyPanel.gameObject.SetActive(false);
             if (endTurnBtn != null) endTurnBtn.interactable = false;
+            if (resultLayer != null) resultLayer.SetActive(false);
             Refresh();
         }
 
@@ -180,14 +233,13 @@ namespace TatoGames.CardGame
         }
 
         // ══════════════════════════════════════════════ 전투 진행 ══════════════
-        /// <summary>전투 화면으로 전환 — 맵·대장간·종료 버튼을 내리고 적 패널을 올린다.</summary>
+        /// <summary>전투 화면으로 전환 — 맵·대장간·결과 화면을 내리고 적 패널을 올린다.</summary>
         void ShowBattleField()
         {
             if (mapPanel != null) mapPanel.SetActive(false);
             if (forgePanel != null) forgePanel.SetActive(false);
             if (rewardPanel != null) rewardPanel.SetActive(false);
-            if (restartBtn != null) restartBtn.SetActive(false);
-            if (exitBtn != null) exitBtn.SetActive(false);
+            if (resultLayer != null) resultLayer.SetActive(false);
             if (endTurnBtn != null) endTurnBtn.interactable = true;
             if (enemyPanel != null) enemyPanel.gameObject.SetActive(true);
         }
@@ -216,6 +268,7 @@ namespace TatoGames.CardGame
             enemyIndex = 0;
 
             StartPlayerTurn();
+            AfterBattleShown();
         }
 
         /// <summary>
@@ -241,6 +294,15 @@ namespace TatoGames.CardGame
             RestorePile(s.discard, discard, owned);
 
             Refresh();
+            AfterBattleShown();
+        }
+
+        /// <summary>전투 화면이 뜬 직후 — 런 시작 알림과 첫 전투 안내.</summary>
+        void AfterBattleShown()
+        {
+            if (!string.IsNullOrEmpty(startNotice)) Banner(startNotice, sticky: true);
+            // 안내를 닫자마자 이 전투의 상황 힌트(적의 블록 등)를 확인한다 — 다음 행동까지 기다리지 않게
+            Tutor(Keys.BattleBasics, BasicsSteps(), onClosed: CheckHints);
         }
 
         void RestorePile(List<BattleSave.CardRef> refs, List<BattleCard> pile, Dictionary<int, CardInstance> owned)
@@ -319,6 +381,7 @@ namespace TatoGames.CardGame
         {
             if (over) return;
             startNotice = "";                   // 첫 턴이 지나면 런 시작 알림을 내린다
+            if (bannerSticky) HideBanner();
             player.OnTurnEnd();                 // 취약·약화 감소
             foreach (var c in hand) discard.Add(c);
             hand.Clear();
@@ -339,32 +402,53 @@ namespace TatoGames.CardGame
             if (enemyData == null || pattern.Count == 0) return;
 
             enemy.OnTurnStart();
-            if (enemy.IsDead) { Win(); return; }
+            if (enemy.IsDead) { Banner($"{enemy.name}{CardText.Josa(enemy.name, "이", "가")} 중독으로 쓰러졌어요!"); Win(); return; }
 
             var act = pattern[Mathf.Clamp(enemyIndex, 0, pattern.Count - 1)];
+            string result = "";
             switch (act.kind)
             {
                 case EnemyActionKind.Attack:
+                {
                     int hits = Mathf.Max(1, act.hits);
+                    int raw = 0, lost = 0;
                     for (int i = 0; i < hits && !player.IsDead; i++)
                     {
-                        int raw = player.ModifyIncoming(enemy.ModifyOutgoing(ScaleAtk(act.amount)));
-                        player.TakeAttack(raw);
+                        int dmg = player.ModifyIncoming(enemy.ModifyOutgoing(ScaleAtk(act.amount)));
+                        raw += dmg;
+                        lost += player.TakeAttack(dmg);
                     }
+                    int absorbed = raw - lost;
+                    result = lost <= 0 ? $"블록으로 {raw} 모두 막음"
+                           : absorbed > 0 ? $"{lost} 피해 (블록으로 {absorbed} 막음)"
+                           : $"{lost} 피해";
                     break;
+                }
                 case EnemyActionKind.Block:
+                {
+                    int before = enemy.TotalBlock;
                     enemy.GainBlock(ScaleAtk(act.amount), temporary: false);   // 적 블록도 누적
+                    result = $"블록 +{enemy.TotalBlock - before}";
                     break;
+                }
                 case EnemyActionKind.Debuff:
-                    player.TryApplyDebuff(act.status, act.amount);
+                    result = player.TryApplyDebuff(act.status, act.amount)
+                        ? $"{CardText.Kor(act.status)} {act.amount} 걸림"
+                        : $"{CardText.Kor(act.status)} — 효과 방어로 막음";
                     break;
                 case EnemyActionKind.Buff:
                     enemy.Add(act.status, act.amount);
+                    result = $"{CardText.Kor(act.status)} +{act.amount}";
                     break;
             }
 
             // 되받아치기 — 이번 적 턴에 받은 피해의 절반을 되돌려준다 (블록 무시)
             int reflected = player.ConsumeReflect();
+            if (reflected > 0) result += $"  ·  반사 {reflected}";
+
+            string label = string.IsNullOrEmpty(act.label) ? "" : $" · {act.label}";
+            Banner($"{enemy.name}{label} — {result}", 3f);
+
             if (reflected > 0)
             {
                 enemy.TakeLoss(reflected);
@@ -396,10 +480,15 @@ namespace TatoGames.CardGame
             if (blockBefore <= 0 || enemy.TotalBlock > 0) return;   // 서 있던 방어를 0으로 깬 순간만
             transformed = true;
             enemyIndex = 0;
+            string before = enemy.name;
             enemy.name = string.IsNullOrEmpty(enemyData.phase2Name) ? enemy.name : enemyData.phase2Name;
             enemy.maxHp = ScaleHp(Mathf.Max(1, enemyData.phase2Hp));
             enemy.hp = enemy.maxHp;   // 껍질 속 본체 (감자벌레: 10)
             enemy.block = 0; enemy.tempBlock = 0; enemy.ward = 0;
+
+            // 체력이 갑자기 가득 차는 이유를 알려준다 — 안 그러면 버그처럼 보인다
+            snapEnemyRef = null;
+            Banner($"{before}의 블록이 무너졌어요! {enemy.name}{CardText.Josa(enemy.name, "이", "가")} 본모습을 드러냈어요 (체력 {enemy.maxHp})", 3.5f);
         }
 
         // ══════════════════════════════════════════════ 카드 플레이 ════════════
@@ -449,7 +538,8 @@ namespace TatoGames.CardGame
                     break;
                 case EffectType.ApplyStatus:
                     if (target == self) self.Add(e.status, e.value);      // 버프/자기부여
-                    else target.TryApplyDebuff(e.status, e.value);         // 디버프(효과방어 검사)
+                    else if (!target.TryApplyDebuff(e.status, e.value))   // 디버프(효과방어 검사)
+                        Banner($"{target.name}의 효과 방어가 {CardText.Kor(e.status)}{CardText.Josa(CardText.Kor(e.status), "을", "를")} 막았어요", 2.4f);
                     break;
                 case EffectType.DrawPerRemainingEnergy:
                     DrawCards(energy * Mathf.Max(1, e.value));   // 근사: 즉시 처리(정식은 턴 종료 시)
@@ -531,7 +621,6 @@ namespace TatoGames.CardGame
             }
             BattleSave.ClearBattle();
             Refresh();
-            message.text = "승리!";
             if (endTurnBtn != null) endTurnBtn.interactable = false;
             RebuildHand();
             OfferReward();
@@ -543,10 +632,11 @@ namespace TatoGames.CardGame
             // §10.7 "복사가 아니라 이동" · §13.2 손실 채널 — 인게임 덱 소멸(귀속 제외)
             int lost = PlayerData.DestroyRunDeck();
             message.text = lost > 0
-                ? $"패배…  인게임 덱의 카드 {lost}장이 소멸했습니다 (귀속 제외)"
-                : "패배…  런이 여기서 끝났습니다";
+                ? $"패배…\n<size=22>런 덱의 카드 {lost}장이 사라졌어요 (시작 카드는 남아요)</size>"
+                : "패배…\n<size=22>런이 여기서 끝났어요</size>";
             RunState.End();          // 런 종료 — 런·전투·보상 저장을 전부 지운다
             EndControls();
+            Tutor(Keys.BattleDefeat, DefeatSteps());
         }
 
         /// <summary>노드 클리어 후: 보스였으면 런 종료, 아니면 맵으로.</summary>
@@ -558,7 +648,7 @@ namespace TatoGames.CardGame
                 RunState.NextStage(enemyPool);   // 새 스테이지 맵 생성 (그 스테이지 적으로)
                 UpdateBackground();       // 배경 전환 (감자밭 → 뿌리층 → 깊은 토양)
                 stageIntro = true;
-                string head = $"보스 격파!   {RunState.StageName} 진입";
+                string head = $"보스 격파!   {RunState.StageName} 진입 — 적이 더 단단하고 아파져요";
                 ShowMap(note == null ? head : $"{head}\n{note}");
                 return;
             }
@@ -570,7 +660,7 @@ namespace TatoGames.CardGame
             TatoGames.Launcher.Achievements.Bump(TatoGames.Launcher.Achievements.RunsCleared);
             RunState.End();
             if (mapPanel != null) mapPanel.SetActive(false);
-            message.text = "런 클리어!  보스를 쓰러뜨렸습니다.";
+            message.text = "런 클리어!\n<size=22>세 스테이지의 보스를 모두 쓰러뜨렸어요. 덱의 카드는 그대로 남아요</size>";
             EndControls();
         }
 
@@ -588,8 +678,7 @@ namespace TatoGames.CardGame
             if (cards.Count == 0)   // 후보 없으면 토인만 지급
             {
                 PlayerData.AddToin(toin);
-                message.text = $"승리!   +{toin} 토인";
-                AfterNodeCleared();
+                AfterNodeCleared($"승리!   +{toin} 토인");
                 return;
             }
 
@@ -625,8 +714,8 @@ namespace TatoGames.CardGame
                 Destroy(rewardRow.GetChild(i).gameObject);
 
             rewardTitle.text = boss
-                ? $"보스 보상\n+{toin} 토인 · 초월/전설 카드 {cards.Count}장 중 1장 선택"
-                : $"전투 보상\n+{toin} 토인 · 카드 {cards.Count}장 중 1장 선택";
+                ? $"보스 격파! 보상\n<size=21>+{toin} 토인  ·  초월·전설 카드 {cards.Count}장 중 1장을 골라요</size>"
+                : $"승리! 전투 보상\n<size=21>+{toin} 토인  ·  카드 {cards.Count}장 중 1장을 골라요</size>";
             foreach (var card in cards)
             {
                 var local = card;
@@ -635,7 +724,14 @@ namespace TatoGames.CardGame
                 view.Bind(card, theme, true, () => PickReward(local, toin));
                 AttachHover(view, card, true, RewardCardSize, RewardHoverScale);
             }
+
+            // 카드를 안 받아도 된다 — 덱이 얇은 게 나을 때도 있고, 받은 카드는 지면 같이 사라진다
+            rewardSkip.onClick.RemoveAllListeners();
+            rewardSkip.onClick.AddListener(() => SkipReward(toin));
+            SetButtonText(rewardSkip, $"카드 안 받기  (+{toin} 토인만)");
+
             rewardPanel.SetActive(true);
+            Tutor(Keys.BattleReward, RewardSteps());
         }
 
         void PickReward(CardData card, int toin)
@@ -646,10 +742,18 @@ namespace TatoGames.CardGame
             bool inDeck = PlayerData.AddCard(card.id, card.rarity);
 
             rewardPanel.SetActive(false);
-            message.text = $"획득: {card.displayName}   (+{toin} 토인)";
-            // 바로 맵이 덮으므로 덱이 찼다는 안내는 맵 상단 문구로 띄운다
-            AfterNodeCleared(inDeck ? null
-                : $"{card.displayName} — 덱이 가득 차서({PlayerData.MaxDeck}장) 감자창고로 보냈어요");
+            // 바로 맵이 덮으므로 무엇을 받았는지는 맵 상단 문구로 띄운다
+            AfterNodeCleared(inDeck
+                ? $"획득: {card.displayName} — 런 덱에 들어갔어요  (+{toin} 토인)"
+                : $"획득: {card.displayName} — 덱이 가득 차서({PlayerData.MaxDeck}장) 감자창고로 보냈어요  (+{toin} 토인)");
+        }
+
+        void SkipReward(int toin)
+        {
+            BattleSave.ClearReward();
+            PlayerData.AddToin(toin);
+            rewardPanel.SetActive(false);
+            AfterNodeCleared($"카드 보상을 건너뛰었어요  (+{toin} 토인)");
         }
 
         int RewardToin()
@@ -723,17 +827,16 @@ namespace TatoGames.CardGame
             return chosen;
         }
 
+        /// <summary>패배·런 클리어 — 화면을 어둡게 덮고 가운데에 결과와 버튼을 띄운다.</summary>
         void EndControls()
         {
             if (endTurnBtn != null) endTurnBtn.interactable = false;
-            ShowEndButtons();
+            if (rewardPanel != null) rewardPanel.SetActive(false);
+            if (forgePanel != null) forgePanel.SetActive(false);
+            if (resultLayer != null) resultLayer.SetActive(true);
+            HideBanner();
             RebuildHand();
-        }
-
-        void ShowEndButtons()
-        {
-            if (restartBtn != null) restartBtn.SetActive(true);
-            if (exitBtn != null) exitBtn.SetActive(true);
+            UpdateTopBar();
         }
 
         void ExitToLauncher()
@@ -774,27 +877,30 @@ namespace TatoGames.CardGame
             // ── 에너지 오브 (좌하단) ──
             var orb = UiKit.Img("EnergyOrb", transform);
             UiKit.Place(orb.rectTransform, new Vector2(0, 0), new Vector2(70, 120), new Vector2(84, 84));
-            UiKit.Apply(orb, theme != null ? theme.energyOrb : null,
-                        theme != null ? theme.accentColor : new Color(1f, 0.78f, 0.2f));
+            UiKit.Apply(orb, theme != null ? theme.energyOrb : null, Accent);
+            energyOrb = orb.rectTransform;
             energyText = UiKit.Label("EnergyText", orb.rectTransform, uiFont, 26);
             UiKit.Stretch(energyText.rectTransform);
-            energyText.color = orb.sprite != null ? Color.white : new Color(0.1f, 0.1f, 0.12f);
+            energyText.fontStyle = FontStyle.Bold;
+            if (orb.sprite != null) UiKit.Outline(energyText, 2f, new Color(0.35f, 0.18f, 0.02f, 0.95f));
+            else energyText.color = new Color(0.1f, 0.1f, 0.12f);
+            TooltipTrigger.On(orb, "에너지",
+                $"카드를 쓰려면 카드 왼쪽 위 숫자만큼 에너지가 필요해요.\n내 턴이 시작될 때마다 {maxEnergy}로 다시 차요 (남은 에너지는 넘어가지 않아요).");
 
             // ── 덱/버림 카운터 ──
             pileText = UiKit.Label("PileText", transform, uiFont, 17, TextAnchor.LowerLeft);
-            UiKit.Place(pileText.rectTransform, new Vector2(0, 0), new Vector2(20, 24), new Vector2(420, 26));
-
-            message = UiKit.Label("Message", transform, uiFont, 30);
-            UiKit.Place(message.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0, 40), new Vector2(760, 60));
-            message.color = theme != null ? theme.accentColor : new Color(1f, 0.78f, 0.2f);
+            UiKit.Place(pileText.rectTransform, new Vector2(0, 0), new Vector2(20, 24), new Vector2(150, 26));
+            UiKit.Outline(pileText);
+            TooltipTrigger.On(pileText, "덱 · 버림",
+                "덱: 앞으로 뽑을 카드 / 버림: 쓴 카드와 턴이 끝날 때 버린 손패.\n덱이 비면 버림 더미를 섞어서 다시 뽑아요. 〈소멸〉 카드는 이번 전투에서 사라져요.");
 
             // ── 손패 (하단 중앙) ──
             handRow = UiKit.Rect("Hand", transform);
             handRow.anchorMin = handRow.anchorMax = new Vector2(0.5f, 0);
             handRow.pivot = new Vector2(0.5f, 0);
-            handRow.anchoredPosition = new Vector2(30, HandY); handRow.sizeDelta = new Vector2(980, 240);
+            handRow.anchoredPosition = new Vector2(30, HandY); handRow.sizeDelta = new Vector2(HandWidth, 240);
             var hlg = handRow.gameObject.AddComponent<HorizontalLayoutGroup>();
-            hlg.spacing = 8; hlg.childAlignment = TextAnchor.LowerCenter;
+            hlg.spacing = HandSpacing; hlg.childAlignment = TextAnchor.LowerCenter;
             hlg.childControlWidth = hlg.childControlHeight = false;
             hlg.childForceExpandWidth = hlg.childForceExpandHeight = false;
 
@@ -803,99 +909,321 @@ namespace TatoGames.CardGame
             endTurnBtn = MakeButton("EndTurn", "턴 종료", new Vector2(1, 0), new Vector2(-109, PanelBottomY + 30f),
                                     new Vector2(170, 60), OnEndTurn);
             UiKit.ApplyButton(endTurnBtn, theme);
+            SetButtonFont(endTurnBtn, 22);
 
-            restartBtn = MakeButton("Restart", "다시하기", new Vector2(0.5f, 0.5f), new Vector2(-110, -70), new Vector2(200, 56),
-                                    () => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex)).gameObject;
-            restartBtn.SetActive(false);
+            BuildResultLayer();
+            BuildRewardPanel();
+            BuildMapPanel();
+            BuildForgePanel();
 
-            exitBtn = MakeButton("Exit", "나가기 (런처로)", new Vector2(0.5f, 0.5f), new Vector2(110, -70), new Vector2(200, 56),
-                                 ExitToLauncher).gameObject;
-            exitBtn.SetActive(false);
+            // 상단 바·알림은 맵·대장간 위에도 보여야 하므로 패널들 다음에 만든다
+            BuildTopBar();
+            BuildBanner();
 
-            // 보상 패널 (기본 숨김) — 승리 시 활성화
-            var panelGO = new GameObject("RewardPanel", typeof(RectTransform), typeof(Image));
-            panelGO.transform.SetParent(transform, false);
-            var prt = panelGO.GetComponent<RectTransform>();
-            prt.anchorMin = Vector2.zero; prt.anchorMax = Vector2.one; prt.offsetMin = prt.offsetMax = Vector2.zero;
-            panelGO.GetComponent<Image>().color = new Color(0, 0, 0, 0.78f);
-            rewardPanel = panelGO;
+            // 아이콘 설명 말풍선 — 맨 마지막에 만들어 모든 패널보다 위에 그린다
+            UiTooltip.Init(transform, uiFont);
+        }
 
-            rewardTitle = MakeText("RewardTitle", new Vector2(0.5f, 0.5f), new Vector2(0, 130), new Vector2(820, 90),
-                                   TextAnchor.MiddleCenter, panelGO.transform);
-            rewardTitle.fontSize = 28; rewardTitle.color = new Color(1f, 0.78f, 0.2f);
+        /// <summary>패배·런 클리어 화면 — 어둡게 덮고 결과 문구 + 새 런 / 나가기.</summary>
+        void BuildResultLayer()
+        {
+            var dim = UiKit.Img("Result", transform, raycast: true);
+            UiKit.Stretch(dim.rectTransform);
+            dim.color = new Color(0f, 0f, 0f, 0.66f);
+            resultLayer = dim.gameObject;
 
-            var rrGO = new GameObject("RewardRow", typeof(RectTransform));
-            rrGO.transform.SetParent(panelGO.transform, false);
-            rewardRow = rrGO.GetComponent<RectTransform>();
-            rewardRow.anchorMin = rewardRow.anchorMax = new Vector2(0.5f, 0.5f); rewardRow.pivot = new Vector2(0.5f, 0.5f);
-            rewardRow.anchoredPosition = new Vector2(0, -40); rewardRow.sizeDelta = new Vector2(780, 270);
-            var rhlg = rrGO.AddComponent<HorizontalLayoutGroup>();
-            rhlg.spacing = 16; rhlg.childAlignment = TextAnchor.MiddleCenter;
+            message = UiKit.Label("Message", dim.transform, uiFont, 34);
+            UiKit.Place(message.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0, 60), new Vector2(1000, 130));
+            message.color = theme != null ? theme.accentColor : Accent;
+            message.supportRichText = true;
+            message.horizontalOverflow = HorizontalWrapMode.Wrap;
+            message.lineSpacing = 1.2f;
+            UiKit.Outline(message, 2f);
+
+            var restart = MakeButton("Restart", "새 런 시작", new Vector2(0.5f, 0.5f), new Vector2(-125, -50), new Vector2(220, 58),
+                                     () => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex), dim.transform);
+            UiKit.ApplyButton(restart, theme);
+            TooltipTrigger.On(restart.targetGraphic, "새 런 시작",
+                "바로 새 런을 시작해요. 새 런을 시작하면 모든 카드가 한 살 먹어요.\n덱을 바꾸고 싶으면 먼저 런처의 감자창고에서 편성하세요.");
+            restartBtn = restart.gameObject;
+
+            var exit = MakeButton("Exit", "런처로 나가기", new Vector2(0.5f, 0.5f), new Vector2(125, -50), new Vector2(220, 58),
+                                  ExitToLauncher, dim.transform);
+            UiKit.ApplyButton(exit, theme);
+            exitBtn = exit.gameObject;
+
+            resultLayer.SetActive(false);
+        }
+
+        void BuildRewardPanel()
+        {
+            var panel = UiKit.Img("RewardPanel", transform, raycast: true);
+            UiKit.Stretch(panel.rectTransform);
+            panel.color = new Color(0, 0, 0, 0.8f);
+            rewardPanel = panel.gameObject;
+
+            rewardTitle = UiKit.Label("RewardTitle", panel.transform, uiFont, 30);
+            UiKit.Place(rewardTitle.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0, 140), new Vector2(900, 90));
+            rewardTitle.color = Accent;
+            rewardTitle.supportRichText = true;
+            rewardTitle.lineSpacing = 1.15f;
+
+            rewardRow = UiKit.Rect("RewardRow", panel.transform);
+            UiKit.Place(rewardRow, new Vector2(0.5f, 0.5f), new Vector2(0, -35), new Vector2(780, 270));
+            var rhlg = rewardRow.gameObject.AddComponent<HorizontalLayoutGroup>();
+            rhlg.spacing = 20; rhlg.childAlignment = TextAnchor.MiddleCenter;
             rhlg.childControlWidth = rhlg.childControlHeight = false;
             rhlg.childForceExpandWidth = rhlg.childForceExpandHeight = false;
 
+            rewardSkip = MakeButton("RewardSkip", "카드 안 받기", new Vector2(0.5f, 0.5f), new Vector2(0, -222),
+                                    new Vector2(290, 48), () => { }, panel.transform);
+            UiKit.ApplyButton(rewardSkip, theme);
+            SetButtonFont(rewardSkip, 18);
+            TooltipTrigger.On(rewardSkip.targetGraphic, "카드 안 받기",
+                "토인만 받고 카드는 받지 않아요.\n덱이 얇을수록 좋은 카드가 자주 나오고, 덱에 넣은 카드는 패배하면 사라져요.");
+
             rewardPanel.SetActive(false);
+        }
 
-            // ── 맵 패널 (노드 진행, 기본 숨김) ──
-            var mapGO = new GameObject("MapPanel", typeof(RectTransform), typeof(Image));
-            mapGO.transform.SetParent(transform, false);
-            var mrt = mapGO.GetComponent<RectTransform>();
-            mrt.anchorMin = Vector2.zero; mrt.anchorMax = Vector2.one; mrt.offsetMin = mrt.offsetMax = Vector2.zero;
-            mapGO.GetComponent<Image>().color = new Color(0, 0, 0, 0.82f);
-            mapPanel = mapGO;
+        void BuildMapPanel()
+        {
+            var panel = UiKit.Img("MapPanel", transform, raycast: true);
+            UiKit.Stretch(panel.rectTransform);
+            panel.color = new Color(0, 0, 0, 0.82f);
+            mapPanel = panel.gameObject;
 
-            mapInfo = MakeText("MapInfo", new Vector2(0.5f, 0.5f), new Vector2(0, 140), new Vector2(900, 90),
-                               TextAnchor.MiddleCenter, mapGO.transform);
-            mapInfo.fontSize = 26; mapInfo.color = new Color(1f, 0.78f, 0.2f);
+            mapInfo = UiKit.Label("MapInfo", panel.transform, uiFont, 24);
+            UiKit.Place(mapInfo.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0, 150), new Vector2(1100, 100));
+            mapInfo.color = Accent;
+            mapInfo.supportRichText = true;
+            mapInfo.lineSpacing = 1.15f;
+            mapInfo.horizontalOverflow = HorizontalWrapMode.Wrap;
 
             // 노드 그래프 영역 (연결선 + 노드를 직접 그린다)
-            mapArea = UiKit.Rect("MapArea", mapGO.transform);
-            UiKit.Place(mapArea, new Vector2(0.5f, 0.5f), new Vector2(0, -10), new Vector2(MapW, MapH));
+            mapArea = UiKit.Rect("MapArea", panel.transform);
+            UiKit.Place(mapArea, new Vector2(0.5f, 0.5f), new Vector2(0, -30), new Vector2(MapW, MapH));
 
             mapPanel.SetActive(false);
+        }
 
-            // ── 대장간 패널 (§11.2 · 기본 숨김) ──
-            var fgGO = new GameObject("ForgePanel", typeof(RectTransform), typeof(Image));
-            fgGO.transform.SetParent(transform, false);
-            var frt = fgGO.GetComponent<RectTransform>();
-            frt.anchorMin = Vector2.zero; frt.anchorMax = Vector2.one; frt.offsetMin = frt.offsetMax = Vector2.zero;
-            fgGO.GetComponent<Image>().color = new Color(0, 0, 0, 0.88f);
-            forgePanel = fgGO;
+        void BuildForgePanel()
+        {
+            var panel = UiKit.Img("ForgePanel", transform, raycast: true);
+            UiKit.Stretch(panel.rectTransform);
+            panel.color = new Color(0, 0, 0, 0.88f);
+            forgePanel = panel.gameObject;
 
-            forgeInfo = UiKit.Label("ForgeInfo", fgGO.transform, uiFont, 24);
-            UiKit.Place(forgeInfo.rectTransform, new Vector2(0.5f, 1), new Vector2(0, -24), new Vector2(1000, 70));
-            forgeInfo.color = theme != null ? theme.accentColor : new Color(1f, 0.78f, 0.2f);
+            forgeInfo = UiKit.Label("ForgeInfo", panel.transform, uiFont, 22);
+            UiKit.Place(forgeInfo.rectTransform, new Vector2(0.5f, 1), new Vector2(0, -(TopBarH + 8)), new Vector2(1000, 64));
+            forgeInfo.color = theme != null ? theme.accentColor : Accent;
+            forgeInfo.supportRichText = true;
+            forgeInfo.lineSpacing = 1.15f;
 
-            forgeGrid = UiKit.Rect("ForgeGrid", fgGO.transform);
-            forgeGrid.anchorMin = forgeGrid.anchorMax = new Vector2(0.5f, 1);
+            // 카드가 많으면(최대 30장) 한 화면에 안 들어간다 — 스크롤 안에 넣는다.
+            // 예전엔 4줄째가 아래 버튼·안내 글씨를 덮었다.
+            forgeScroll = UiKit.Rect("ForgeScroll", panel.transform);
+            UiKit.Place(forgeScroll, new Vector2(0.5f, 1), new Vector2(0, -(TopBarH + 80)), new Vector2(1010, 402));
+            var drag = forgeScroll.gameObject.AddComponent<Image>();
+            drag.color = new Color(1, 1, 1, 0.03f);          // 휠·드래그를 받는 바탕
+            var sr = forgeScroll.gameObject.AddComponent<ScrollRect>();
+            sr.horizontal = false; sr.vertical = true;
+            sr.movementType = ScrollRect.MovementType.Clamped;
+            sr.scrollSensitivity = 32;
+
+            var viewport = UiKit.Rect("Viewport", forgeScroll);
+            UiKit.Stretch(viewport);
+            viewport.gameObject.AddComponent<RectMask2D>();
+
+            forgeGrid = UiKit.Rect("ForgeGrid", viewport);
+            forgeGrid.anchorMin = new Vector2(0, 1); forgeGrid.anchorMax = new Vector2(1, 1);
             forgeGrid.pivot = new Vector2(0.5f, 1);
-            forgeGrid.anchoredPosition = new Vector2(0, -104);
-            forgeGrid.sizeDelta = new Vector2(980, 420);
+            forgeGrid.anchoredPosition = Vector2.zero; forgeGrid.sizeDelta = Vector2.zero;
             var fgrid = forgeGrid.gameObject.AddComponent<GridLayoutGroup>();
-            fgrid.cellSize = new Vector2(102, 142);
-            fgrid.spacing = new Vector2(6, 6);
+            fgrid.cellSize = ForgeCardSize;
+            fgrid.spacing = new Vector2(8, 10);
+            fgrid.padding = new RectOffset(8, 8, 10, 10);
             fgrid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             fgrid.constraintCount = 9;
             fgrid.childAlignment = TextAnchor.UpperCenter;
+            var ffit = forgeGrid.gameObject.AddComponent<ContentSizeFitter>();
+            ffit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            sr.viewport = viewport; sr.content = forgeGrid;
 
-            forgeHint = UiKit.Label("ForgeHint", fgGO.transform, uiFont, 19);
-            UiKit.Place(forgeHint.rectTransform, new Vector2(0.5f, 0), new Vector2(0, 148), new Vector2(950, 30));
+            forgeHint = UiKit.Label("ForgeHint", panel.transform, uiFont, 19);
+            UiKit.Place(forgeHint.rectTransform, new Vector2(0.5f, 0), new Vector2(0, 150), new Vector2(1000, 30));
+            forgeHint.supportRichText = true;
 
-            forgeActionRow = UiKit.Rect("ForgeActions", fgGO.transform);
-            UiKit.Place(forgeActionRow, new Vector2(0.5f, 0), new Vector2(0, 92), new Vector2(950, 52));
+            forgeActionRow = UiKit.Rect("ForgeActions", panel.transform);
+            UiKit.Place(forgeActionRow, new Vector2(0.5f, 0), new Vector2(0, 92), new Vector2(1000, 52));
             var fhlg = forgeActionRow.gameObject.AddComponent<HorizontalLayoutGroup>();
             fhlg.spacing = 14; fhlg.childAlignment = TextAnchor.MiddleCenter;
             fhlg.childControlWidth = fhlg.childControlHeight = false;
             fhlg.childForceExpandWidth = fhlg.childForceExpandHeight = false;
 
-            MakeButton("ForgeLeave", "대장간 나가기", new Vector2(0.5f, 0), new Vector2(0, 32), new Vector2(220, 48),
-                       LeaveForge, fgGO.transform);
+            var leave = MakeButton("ForgeLeave", "대장간 나가기", new Vector2(0.5f, 0), new Vector2(0, 32), new Vector2(230, 50),
+                                   LeaveForge, panel.transform);
+            UiKit.ApplyButton(leave, theme);
 
             forgePanel.SetActive(false);
+        }
 
-            // 전투 중에도 언제든 런처로 (런은 유지되어 다음에 이어서 진행)
-            MakeButton("Leave", "나가기", new Vector2(0, 1), new Vector2(110, -178), new Vector2(140, 44),
-                       ExitToLauncher);
+        /// <summary>
+        /// 상단 바 — 스테이지·진행 / 토인 · 런 덱 / 도움말 · 나가기.
+        /// 전투 중에 지금 몇 번째 노드인지, 토인이 얼마인지 볼 곳이 없었다.
+        /// </summary>
+        void BuildTopBar()
+        {
+            var bar = UiKit.Img("TopBar", transform);
+            bar.color = new Color(0.04f, 0.04f, 0.06f, 0.8f);
+            topBar = bar.rectTransform;
+            topBar.anchorMin = new Vector2(0, 1); topBar.anchorMax = new Vector2(1, 1);
+            topBar.pivot = new Vector2(0.5f, 1);
+            topBar.anchoredPosition = Vector2.zero; topBar.sizeDelta = new Vector2(0, TopBarH);
+
+            // 왼쪽: 스테이지
+            var left = BarGroup("Left", new Vector2(0, 0.5f), new Vector2(12, 0), TextAnchor.MiddleLeft);
+            var stageIcon = BarIcon(left, theme != null ? theme.stageIcon : null);
+            topStage = BarText(left, 19, new Color(0.92f, 0.92f, 0.95f));
+            string stageTip = $"런은 스테이지 {RunState.StageCount}개로 이뤄져 있어요. 스테이지마다 노드 10개,\n마지막 노드는 보스예요. 보스를 이기면 다음 스테이지로 가요.";
+            TooltipTrigger.On(topStage, "스테이지 · 진행", stageTip);
+            if (stageIcon != null) TooltipTrigger.On(stageIcon, "스테이지 · 진행", stageTip);
+
+            // 오른쪽: 토인 · 덱 · ? · 나가기
+            var right = BarGroup("Right", new Vector2(1, 0.5f), new Vector2(-10, 0), TextAnchor.MiddleRight);
+            var toinIcon = BarIcon(right, theme != null ? theme.toinIcon : null);
+            topToin = BarText(right, 19, Accent);
+            const string toinTip = "게임의 돈이에요. 전투에서 벌고, 대장간 강화·제거와 런처 상점에서 써요.";
+            TooltipTrigger.On(topToin, "토인", toinTip);
+            if (toinIcon != null) TooltipTrigger.On(toinIcon, "토인", toinTip);
+
+            BarSpacer(right, 10);
+            var deckIcon = BarIcon(right, theme != null ? theme.deckIcon : null);
+            topDeck = BarText(right, 19, new Color(0.9f, 0.9f, 0.93f));
+            const string deckTip = "이번 런에 가져온 카드 수예요.\n전투에서 지면 덱에 든 카드가 사라져요 (시작 카드는 남아요).";
+            TooltipTrigger.On(topDeck, "런 덱", deckTip);
+            if (deckIcon != null) TooltipTrigger.On(deckIcon, "런 덱", deckTip);
+
+            BarSpacer(right, 14);
+            var help = BarButton(right, "?", 44, ShowHelp);
+            TooltipTrigger.On(help.targetGraphic, "도움말", "지금 화면의 안내를 다시 보여줘요.");
+            var leave = BarButton(right, "나가기", 104, ExitToLauncher);
+            TooltipTrigger.On(leave.targetGraphic, "런처로 나가기",
+                "언제 나가도 진행은 저장돼요. 런처에서 GAME START를 누르면 이 자리에서 이어져요.");
+        }
+
+        RectTransform BarGroup(string name, Vector2 anchor, Vector2 pos, TextAnchor align)
+        {
+            var g = UiKit.Rect(name, topBar);
+            g.anchorMin = g.anchorMax = anchor;
+            g.pivot = anchor;
+            g.anchoredPosition = pos;
+            g.sizeDelta = new Vector2(620, TopBarH - 6);
+            var hlg = g.gameObject.AddComponent<HorizontalLayoutGroup>();
+            hlg.spacing = 6; hlg.childAlignment = align;
+            hlg.childControlWidth = true; hlg.childControlHeight = false;
+            hlg.childForceExpandWidth = hlg.childForceExpandHeight = false;
+            return g;
+        }
+
+        Image BarIcon(Transform parent, Sprite sp)
+        {
+            if (sp == null) return null;
+            var img = UiKit.Img("Icon", parent);
+            img.sprite = sp; img.preserveAspect = true;
+            img.rectTransform.sizeDelta = new Vector2(28, 28);
+            var le = img.gameObject.AddComponent<LayoutElement>();
+            le.preferredWidth = 28;
+            return img;
+        }
+
+        Text BarText(Transform parent, int size, Color color)
+        {
+            var t = UiKit.Label("Text", parent, uiFont, size, TextAnchor.MiddleLeft);
+            t.rectTransform.sizeDelta = new Vector2(0, TopBarH - 6);
+            t.color = color;
+            UiKit.Outline(t, 1f);
+            return t;
+        }
+
+        static void BarSpacer(Transform parent, float width)
+        {
+            var s = UiKit.Rect("Space", parent);
+            s.sizeDelta = new Vector2(width, 10);
+            var le = s.gameObject.AddComponent<LayoutElement>();
+            le.preferredWidth = width;
+        }
+
+        Button BarButton(Transform parent, string caption, float width, UnityEngine.Events.UnityAction onClick)
+        {
+            var b = MakeButton("Btn_" + caption, caption, new Vector2(0.5f, 0.5f), Vector2.zero,
+                               new Vector2(width, 34), onClick, parent);
+            var le = b.gameObject.AddComponent<LayoutElement>();
+            le.preferredWidth = width;
+            UiKit.ApplyButton(b, theme);
+            SetButtonFont(b, 17);
+            return b;
+        }
+
+        void UpdateTopBar()
+        {
+            if (topStage == null) return;
+            if (RunState.Active)
+            {
+                int cols = RunState.Columns.Count;
+                string node = stageIntro ? "첫 노드를 고르세요"
+                            : cols > 0 ? $"노드 {Mathf.Min(RunState.Col + 1, cols)} / {cols}" : "";
+                topStage.text = $"{RunState.StageName}    {node}";
+            }
+            else topStage.text = "런 종료";
+            topToin.text = PlayerData.Toin.ToString();
+            topDeck.text = $"{PlayerData.DeckInstances().Count}장";
+        }
+
+        /// <summary>상단 바 아래 왼쪽의 알림 한 줄 — 적의 행동, 변신, 런 시작 알림 등.</summary>
+        void BuildBanner()
+        {
+            bannerBg = UiKit.Img("Banner", transform);
+            var rt = bannerBg.rectTransform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0, 1);
+            rt.pivot = new Vector2(0, 1);
+            rt.anchoredPosition = new Vector2(12, -(TopBarH + 8));
+            bannerBg.color = new Color(0.05f, 0.05f, 0.07f, 0.85f);
+            var ol = bannerBg.gameObject.AddComponent<Outline>();
+            ol.effectColor = new Color(Accent.r, Accent.g, Accent.b, 0.45f);
+            ol.effectDistance = new Vector2(1.5f, -1.5f);
+
+            bannerText = UiKit.Label("Text", rt, uiFont, 19, TextAnchor.MiddleLeft);
+            UiKit.Stretch(bannerText.rectTransform, 14, 6, 14, 6);
+            bannerText.supportRichText = true;
+            bannerBg.gameObject.SetActive(false);
+        }
+
+        /// <summary>알림을 띄운다. sticky면 직접 내릴 때까지 남는다.</summary>
+        void Banner(string msg, float seconds = 2.6f, bool sticky = false)
+        {
+            if (bannerBg == null) return;
+            if (string.IsNullOrEmpty(msg)) { HideBanner(); return; }
+
+            var rt = bannerBg.rectTransform;
+            bannerText.text = msg;
+            bannerText.color = Color.white;
+            bannerText.horizontalOverflow = HorizontalWrapMode.Overflow;
+            float w = Mathf.Min(bannerText.preferredWidth, BannerMaxW);
+            bannerText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            rt.sizeDelta = new Vector2(w + 28f, 40f);
+            float h = bannerText.preferredHeight;   // 폭을 정한 뒤에 줄바꿈된 높이를 잰다
+            rt.sizeDelta = new Vector2(w + 28f, Mathf.Max(36f, h + 12f));
+
+            bannerBg.color = new Color(0.05f, 0.05f, 0.07f, 0.85f);
+            bannerBg.gameObject.SetActive(true);
+            bannerSticky = sticky;
+            bannerHideAt = Time.unscaledTime + seconds;
+        }
+
+        void HideBanner()
+        {
+            bannerSticky = false;
+            if (bannerBg != null) bannerBg.gameObject.SetActive(false);
         }
 
         // ══════════════════════════════════════════════════ 맵 (§11.3) ═════════
@@ -930,6 +1258,7 @@ namespace TatoGames.CardGame
                     }
 
             // ── 노드 ──
+            bool lastStage = !RunState.HasNextStage;
             for (int c = 0; c < cols.Count; c++)
                 for (int r = 0; r < cols[c].Count; r++)
                 {
@@ -938,7 +1267,7 @@ namespace TatoGames.CardGame
                     bool isPast = c < RunState.Col && !stageIntro;
                     bool isPickable = c == targetCol && reachable.Contains(r);
 
-                    var cell = UiKit.Img($"N{c}_{r}", mapArea, raycast: isPickable);
+                    var cell = UiKit.Img($"N{c}_{r}", mapArea, raycast: true);
                     UiKit.Place(cell.rectTransform, new Vector2(0.5f, 0.5f),
                                 NodePos(cols, c, r), new Vector2(96, 66));
                     cell.color =
@@ -948,11 +1277,12 @@ namespace TatoGames.CardGame
                         : isPast ? new Color(0.2f, 0.42f, 0.26f, 0.9f)
                                  : new Color(0.20f, 0.20f, 0.24f, 0.85f);
 
+                    string enemyName = FindEnemy(n.enemyId)?.enemyName ?? "";
                     string sub = n.type switch
                     {
                         NodeType.Rest => $"+{RunState.RestHeal}",
                         NodeType.Forge => "강화·제거",
-                        _ => FindEnemy(n.enemyId)?.enemyName ?? "",
+                        _ => enemyName,
                     };
                     var t = MakeStretchText(cell.transform, 15);
                     t.text = $"{RunState.Label(n)}\n{sub}";
@@ -970,6 +1300,12 @@ namespace TatoGames.CardGame
                         t.rectTransform.offsetMin = new Vector2(40, 0);
                     }
 
+                    // 노드에 마우스를 올리면 무엇을 하는 곳인지 — 처음 보면 '대장간'이 뭔지 모른다
+                    var (tipTitle, tipBody) = NodeTip(n, enemyName, lastStage);
+                    if (isCurrent) tipBody += "\n<color=#FFC845>지금 있는 곳</color>";
+                    else if (isPickable) tipBody += "\n<color=#9FD6FF>클릭해서 이동</color>";
+                    TooltipTrigger.On(cell, tipTitle, tipBody);
+
                     if (!isPickable) continue;
                     int pick = r;
                     var btn = cell.gameObject.AddComponent<Button>();
@@ -977,13 +1313,27 @@ namespace TatoGames.CardGame
                     btn.onClick.AddListener(() => OnChooseNode(pick));
                 }
 
-            int shown = Mathf.Min(RunState.Col + 1, cols.Count);
-            string head = $"{RunState.StageName}   ·   노드 {shown} / {cols.Count}   ·   체력 {RunState.PlayerHp}/{playerMaxHp}";
-            string pickMsg = reachable.Count > 1 ? "\n갈 길을 선택하세요" : "\n이어서 진행하세요";
+            string head = stageIntro
+                ? $"{RunState.StageName}   ·   체력 {RunState.PlayerHp}/{playerMaxHp}"
+                : $"{RunState.StageName}   ·   노드 {Mathf.Min(RunState.Col + 1, cols.Count)} / {cols.Count}   ·   체력 {RunState.PlayerHp}/{playerMaxHp}";
+            string pickMsg = reachable.Count > 1 ? "\n<color=#9FD6FF>파란 노드 중 갈 길을 고르세요</color>"
+                                                 : "\n<color=#9FD6FF>파란 노드를 눌러 진행하세요</color>";
             mapInfo.text = (string.IsNullOrEmpty(note) ? head : $"{note}\n{head}") + pickMsg;
 
             mapPanel.SetActive(true);
+            UpdateTopBar();
+            Tutor(Keys.BattleMap, MapSteps());
         }
+
+        static (string title, string body) NodeTip(RunNode n, string enemyName, bool lastStage) => n.type switch
+        {
+            NodeType.Rest => ("휴식", $"체력을 {RunState.RestHeal} 회복해요.\n체력은 전투가 끝나도 이어지니, 휴식이 유일한 회복 수단이에요."),
+            NodeType.Forge => ("대장간", "토인으로 덱의 카드를 강화하거나 제거해요.\n강화는 카드당 1번이에요."),
+            NodeType.Boss => ($"보스 · {enemyName}",
+                              lastStage ? "마지막 보스! 이기면 런 클리어예요.\n보상: 초월·전설 카드 2장 중 1장"
+                                        : "이기면 다음 스테이지로 가요.\n보상: 초월·전설 카드 2장 중 1장"),
+            _ => ($"전투 · {enemyName}", "이기면 토인과 카드 보상(3장 중 1장)을 받아요."),
+        };
 
         static Vector2 NodePos(List<List<RunNode>> cols, int c, int r)
         {
@@ -1021,18 +1371,22 @@ namespace TatoGames.CardGame
             if (forgePanel == null) { ShowMap(null); return; }
             if (mapPanel != null) mapPanel.SetActive(false);
             forgeSelected = -1;
+            forgeConfirmRemove = -1;
             RebuildForge();
             forgePanel.SetActive(true);
+            Tutor(Keys.BattleForge, ForgeSteps());
         }
 
         void RebuildForge()
         {
             forgeInfo.text =
-                $"대장간   ·   보유 토인 {PlayerData.Toin}\n" +
-                $"강화 {PlayerData.UpgradeCost} 토인 (카드당 1회)   ·   제거 {PlayerData.RemoveCost} 토인";
+                $"대장간   ·   보유 토인 <color=#FFFFFF>{PlayerData.Toin}</color>\n" +
+                $"<size=18><color=#D8D8DD>강화 {PlayerData.UpgradeCost} 토인 (카드당 1번 · 수치 강화 또는 코스트 −1)   ·   " +
+                $"제거 {PlayerData.RemoveCost} 토인</color></size>";
 
             for (int i = forgeGrid.childCount - 1; i >= 0; i--)
                 Destroy(forgeGrid.GetChild(i).gameObject);
+            forgeViews.Clear();
 
             foreach (var inst in PlayerData.DeckInstances())
             {
@@ -1042,59 +1396,167 @@ namespace TatoGames.CardGame
                 int id = inst.instanceId;
                 var view = CardView.Create(forgeGrid, uiFont, ForgeCardSize);
                 view.name = $"Forge_{id}";
-                view.Bind(shown, theme, true, () => { forgeSelected = id; RebuildForgeActions(); });
+                view.Bind(shown, theme, true, () => SelectForge(id));
                 AttachHover(view, shown, true, ForgeCardSize, ForgeHoverScale);
+                forgeViews[id] = view;
             }
 
             RebuildForgeActions();
+            UpdateTopBar();
+        }
+
+        void SelectForge(int id)
+        {
+            forgeSelected = id;
+            forgeConfirmRemove = -1;
+            RebuildForgeActions();
+        }
+
+        /// <summary>고른 카드에 금색 테두리 — 예전엔 아래 글자만 바뀌어서 무엇을 골랐는지 잘 안 보였다.</summary>
+        void HighlightForge()
+        {
+            foreach (var kv in forgeViews)
+            {
+                var v = kv.Value;
+                if (v == null) continue;
+                var mark = v.transform.Find("Selected");
+                bool sel = kv.Key == forgeSelected;
+                if (sel && mark == null)
+                {
+                    var img = UiKit.Img("Selected", v.transform);
+                    UiKit.Stretch(img.rectTransform, -5, -5, -5, -5);
+                    img.color = Accent;
+                    img.transform.SetAsFirstSibling();       // 카드 그림 뒤 — 가장자리만 금색으로 보인다
+                }
+                else if (!sel && mark != null) Destroy(mark.gameObject);
+            }
         }
 
         void RebuildForgeActions()
         {
             for (int i = forgeActionRow.childCount - 1; i >= 0; i--)
                 Destroy(forgeActionRow.GetChild(i).gameObject);
+            HideForgePopup();
 
             var inst = PlayerData.Instances().FirstOrDefault(c => c.instanceId == forgeSelected);
             if (inst == null)
             {
                 forgeSelected = -1;
                 forgeHint.text = "강화하거나 제거할 카드를 고르세요";
+                forgeHint.color = Color.white;
+                HighlightForge();
                 return;
             }
+            HighlightForge();
 
             var data = FindCard(inst.cardId);
-            forgeHint.text = $"선택: {(data != null ? data.displayName : inst.cardId)}{CardUpgrade.Suffix(inst.upgrade)}";
+            string cardName = (data != null ? data.displayName : inst.cardId) + CardUpgrade.Suffix(inst.upgrade);
+            int toin = PlayerData.Toin;
+            bool canUpgrade = !inst.IsUpgraded && toin >= PlayerData.UpgradeCost;
+            bool canRemove = toin >= PlayerData.RemoveCost;
+
+            forgeHint.color = Color.white;
+            forgeHint.text = inst.IsUpgraded
+                ? $"선택: <b>{cardName}</b> — 이미 강화한 카드예요 (카드당 1번)"
+                : $"선택: <b>{cardName}</b> — 버튼에 마우스를 올리면 강화 결과를 미리 볼 수 있어요";
+            if (!canUpgrade && !inst.IsUpgraded && !canRemove)
+            {
+                forgeHint.text = $"선택: <b>{cardName}</b> — 토인이 부족해요 (강화 {PlayerData.UpgradeCost} · 제거 {PlayerData.RemoveCost})";
+                forgeHint.color = new Color(1f, 0.6f, 0.5f);
+            }
 
             int id = inst.instanceId;
-            if (!inst.IsUpgraded)
+            if (!inst.IsUpgraded && data != null)
             {
-                AddForgeButton($"강화 +  ({PlayerData.UpgradeCost})", () => DoUpgrade(id, UpgradeKind.Plus));
-                AddForgeButton($"강화 −  ({PlayerData.UpgradeCost})", () => DoUpgrade(id, UpgradeKind.Minus));
+                var plus = AddForgeButton($"수치 강화  ({PlayerData.UpgradeCost})", () => DoUpgrade(id, UpgradeKind.Plus), canUpgrade);
+                ForgePreviewOnHover(plus, CardUpgrade.Build(data, UpgradeKind.Plus, inst.State));
+                var minus = AddForgeButton($"코스트 −1  ({PlayerData.UpgradeCost})", () => DoUpgrade(id, UpgradeKind.Minus), canUpgrade);
+                ForgePreviewOnHover(minus, CardUpgrade.Build(data, UpgradeKind.Minus, inst.State));
             }
-            AddForgeButton($"제거  ({PlayerData.RemoveCost})", () => DoRemove(id));
-            AddForgeButton("취소", () => { forgeSelected = -1; RebuildForgeActions(); });
+
+            bool confirming = forgeConfirmRemove == id;
+            var remove = AddForgeButton(confirming ? "정말 제거할까요?" : $"제거  ({PlayerData.RemoveCost})", () =>
+            {
+                if (forgeConfirmRemove != id) { forgeConfirmRemove = id; RebuildForgeActions(); return; }
+                DoRemove(id);
+            }, canRemove);
+            TooltipTrigger.On(remove.targetGraphic, "카드 제거",
+                "이 카드를 영원히 없애요 (감자창고에서도 사라져요).\n약한 카드를 빼면 좋은 카드가 더 자주 나와요. 덱은 최소 8장이 필요해요.");
+
+            AddForgeButton("취소", () => { forgeSelected = -1; forgeConfirmRemove = -1; RebuildForgeActions(); }, true);
         }
 
-        void AddForgeButton(string caption, UnityEngine.Events.UnityAction act)
+        Button AddForgeButton(string caption, UnityEngine.Events.UnityAction act, bool interactable)
         {
-            var b = MakeButton("FA", caption, Vector2.zero, Vector2.zero, new Vector2(196, 48), act, forgeActionRow);
+            var b = MakeButton("FA", caption, Vector2.zero, Vector2.zero, new Vector2(200, 48), act, forgeActionRow);
             UiKit.ApplyButton(b, theme);
+            SetButtonFont(b, 18);
+            b.interactable = interactable;
+            return b;
+        }
+
+        /// <summary>강화 버튼에 마우스를 올리면 강화된 카드를 버튼 위에 크게 보여준다.</summary>
+        void ForgePreviewOnHover(Button b, CardData result)
+        {
+            var relay = b.gameObject.AddComponent<CardHoverRelay>();
+            var rt = (RectTransform)b.transform;
+            relay.onEnter = () => ShowForgePopup(result, rt);
+            relay.onExit = HideForgePopup;
+        }
+
+        void ShowForgePopup(CardData card, RectTransform near)
+        {
+            if (card == null || near == null) return;
+            if (forgePopup == null)
+            {
+                forgePopup = CardView.Create(forgePanel.transform, uiFont, RewardCardSize);
+                forgePopup.name = "ForgePreview";
+                forgePopup.hit.raycastTarget = false;
+            }
+            forgePopup.Bind(card, theme, true, null);
+            var rt = (RectTransform)forgePopup.transform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0f);
+            var c = new Vector3[4];
+            near.GetWorldCorners(c);
+            rt.position = (c[1] + c[2]) * 0.5f + Vector3.up * (10f * rt.lossyScale.y);
+            rt.SetAsLastSibling();
+            forgePopup.gameObject.SetActive(true);
+        }
+
+        void HideForgePopup()
+        {
+            if (forgePopup != null) forgePopup.gameObject.SetActive(false);
         }
 
         void DoUpgrade(int id, UpgradeKind kind)
         {
-            if (PlayerData.TryUpgrade(id, kind, out string reason)) { forgeSelected = -1; RebuildForge(); }
-            else forgeHint.text = reason;
+            if (PlayerData.TryUpgrade(id, kind, out string reason))
+            {
+                forgeSelected = -1;
+                RebuildForge();
+                forgeHint.text = "강화했어요!";
+                forgeHint.color = new Color(0.6f, 1f, 0.6f);
+            }
+            else { forgeHint.text = reason; forgeHint.color = new Color(1f, 0.6f, 0.5f); }
         }
 
         void DoRemove(int id)
         {
-            if (PlayerData.TryRemoveCard(id, out string reason)) { forgeSelected = -1; RebuildForge(); }
-            else forgeHint.text = reason;
+            forgeConfirmRemove = -1;
+            if (PlayerData.TryRemoveCard(id, out string reason))
+            {
+                forgeSelected = -1;
+                RebuildForge();
+                forgeHint.text = "카드를 제거했어요";
+                forgeHint.color = new Color(0.6f, 1f, 0.6f);
+            }
+            else { RebuildForgeActions(); forgeHint.text = reason; forgeHint.color = new Color(1f, 0.6f, 0.5f); }
         }
 
         void LeaveForge()
         {
+            HideForgePopup();
             RunState.NodeCleared = true;   // 나간 뒤 다시 들어오면 맵부터
             forgePanel.SetActive(false);
             ShowMap(null);
@@ -1116,15 +1578,8 @@ namespace TatoGames.CardGame
 
         Text MakeStretchText(Transform parent, int size)
         {
-            var go = new GameObject("T", typeof(RectTransform), typeof(Text));
-            go.transform.SetParent(parent, false);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
-            rt.offsetMin = rt.offsetMax = Vector2.zero;
-            var t = go.GetComponent<Text>();
-            t.font = uiFont; t.fontSize = size; t.alignment = TextAnchor.MiddleCenter;
-            t.color = Color.white; t.raycastTarget = false;
-            t.horizontalOverflow = HorizontalWrapMode.Overflow;
+            var t = UiKit.Label("T", parent, uiFont, size);
+            UiKit.Stretch(t.rectTransform);
             return t;
         }
 
@@ -1134,15 +1589,17 @@ namespace TatoGames.CardGame
             {
                 enemyPanel.Bind(enemy, theme, EnemyArt());
                 var intent = CurrentIntent();
-                enemyPanel.SetIntent(intent, theme, intent != null ? IntentAmount(intent) : 0);
+                enemyPanel.SetIntent(over ? null : intent, theme, intent != null ? IntentAmount(intent) : 0);
             }
             playerPanel.Bind(player, theme, theme != null ? theme.playerPortrait : null);
 
             energyText.text = $"{energy}/{maxEnergy}";
-            pileText.text = $"덱 {drawPile.Count}    버림 {discard.Count}";
-            if (!over) message.text = startNotice;
+            pileText.text = $"덱 {drawPile.Count}   버림 {discard.Count}";
             RebuildHand();
+            UpdateTopBar();
+            EmitDeltas();
             if (!over) SaveBattle();   // 입력을 기다리는 순간마다 저장 — 언제 나가도 그 자리에서 이어진다
+            if (!over) CheckHints();
         }
 
         /// <summary>적 그림 — 2페이즈로 변신했고 변신 그림이 있으면 그걸 쓴다.</summary>
@@ -1176,6 +1633,8 @@ namespace TatoGames.CardGame
             for (int i = handRow.childCount - 1; i >= 0; i--)
                 Destroy(handRow.GetChild(i).gameObject);
 
+            FitHandSpacing();
+            var ctx = HandContext();
             foreach (var bc in hand)
             {
                 var local = bc;
@@ -1184,26 +1643,89 @@ namespace TatoGames.CardGame
                 var view = CardView.Create(handRow, uiFont, HandCardSize);
                 ((RectTransform)view.transform).pivot = new Vector2(0.5f, 0f);   // 커질 때 화면 밖이 아니라 위로 자라게
                 view.name = "Card_" + card.id;
-                view.Bind(card, theme, playable, () => PlayCard(local));
-                AttachHover(view, card, playable, HandCardSize, HandHoverScale);
+                view.Bind(card, theme, playable, () => PlayCard(local), ctx);
+                AttachHover(view, card, playable, HandCardSize, HandHoverScale, ctx);
             }
+        }
+
+        /// <summary>
+        /// 손패가 많으면 카드끼리 겹쳐 폭 안에 넣는다 (최대 8장).
+        /// 예전엔 7장부터 화면 밖으로 삐져나갔다. 마우스를 올리면 확대본이 맨 위에 떠서 가려진 카드도 읽힌다.
+        /// </summary>
+        void FitHandSpacing()
+        {
+            var hlg = handRow.GetComponent<HorizontalLayoutGroup>();
+            if (hlg == null) return;
+            int n = hand.Count;
+            float w = HandCardSize.x;
+            float spacing = HandSpacing;
+            if (n > 1 && n * w + (n - 1) * HandSpacing > HandWidth)
+                spacing = (HandWidth - n * w) / (n - 1);
+            hlg.spacing = spacing;
+        }
+
+        /// <summary>
+        /// 손패 카드에 "지금 쓰면 실제로 들어갈 수치"를 넣는 문맥 — ResolveEffect와 같은 계산을 쓴다.
+        /// 피해: 내 힘·약화 → 적 취약. 블록: 내 민첩, 이번 턴 블록 불가면 0.
+        /// </summary>
+        CardText.Context HandContext()
+        {
+            if (over || player == null) return null;
+            return new CardText.Context
+            {
+                damage = b => enemy != null ? enemy.ModifyIncoming(player.ModifyOutgoing(b))
+                                            : player.ModifyOutgoing(b),
+                block = b => player.blockDisabled ? 0 : Mathf.Max(0, b + player.Get(StatusType.Dexterity)),
+                currentBlock = player.TotalBlock,
+            };
+        }
+
+        // ── 피격 숫자 ──
+        // 전투는 한 번에 계산된다. 달라진 체력·블록·효과 방어를 지난 화면과 비교해 숫자로 띄운다.
+        struct Snap { public int hp, block, ward; }
+        Combatant snapPlayerRef, snapEnemyRef;
+        Snap snapPlayer, snapEnemy;
+
+        void EmitDeltas()
+        {
+            Emit(player, ref snapPlayerRef, ref snapPlayer, playerPanel);
+            Emit(enemy, ref snapEnemyRef, ref snapEnemy, enemyPanel);
+        }
+
+        static void Emit(Combatant c, ref Combatant seen, ref Snap s, CombatantPanel panel)
+        {
+            if (c == null || panel == null) { seen = c; return; }
+            var now = new Snap { hp = c.hp, block = c.TotalBlock, ward = c.ward };
+            if (seen == c && panel.isActiveAndEnabled)       // 같은 전투의 같은 대상일 때만 (새 전투·변신 직후는 제외)
+            {
+                int dh = now.hp - s.hp, db = now.block - s.block, dw = now.ward - s.ward;
+                if (dh < 0) { panel.Float($"-{-dh}", DamageColor, 0); panel.Flash(); }
+                else if (dh > 0) panel.Float($"+{dh}", HealColor, 0);
+                if (db != 0) panel.Float(db > 0 ? $"블록 +{db}" : $"블록 {db}", BlockColor, 1);
+                if (dw != 0) panel.Float(dw > 0 ? $"효과 방어 +{dw}" : $"효과 방어 {dw}", WardColor, 2);
+            }
+            seen = c;
+            s = now;
         }
 
         // ── 카드 마우스오버 확대 ──
         // 카드 자체를 키우면 옆 카드(나중 형제)가 그 위를 덮어 그린다. 그래서 같은 모양의
         // 확대본을 맨 위에 겹쳐 그린다. 확대본은 클릭을 받지 않으므로 아래 원래 카드가 그대로 눌린다.
+        // 확대본 옆에는 카드에 나오는 용어(소멸·취약…) 설명을 띄운다.
         readonly Dictionary<Vector2, CardView> previews = new();   // 카드 크기별로 하나씩 재사용
         CardView previewShown;
         CardView previewOwner;
 
-        void AttachHover(CardView view, CardData card, bool playable, Vector2 size, float scale)
+        void AttachHover(CardView view, CardData card, bool playable, Vector2 size, float scale,
+                         CardText.Context battle = null)
         {
             var relay = view.gameObject.AddComponent<CardHoverRelay>();
-            relay.onEnter = () => ShowPreview(view, card, playable, size, scale);
+            relay.onEnter = () => ShowPreview(view, card, playable, size, scale, battle);
             relay.onExit = () => HidePreview(view);
         }
 
-        void ShowPreview(CardView source, CardData card, bool playable, Vector2 size, float scale)
+        void ShowPreview(CardView source, CardData card, bool playable, Vector2 size, float scale,
+                         CardText.Context battle = null)
         {
             if (source == null || card == null) return;
             if (!previews.TryGetValue(size, out var pv) || pv == null)
@@ -1215,7 +1737,7 @@ namespace TatoGames.CardGame
             }
             if (previewShown != null && previewShown != pv) previewShown.gameObject.SetActive(false);
 
-            pv.Bind(card, theme, playable, null);
+            pv.Bind(card, theme, playable, null, battle);   // 확대본도 손패와 같은 실제 수치
             var src = (RectTransform)source.transform;
             var rt = (RectTransform)pv.transform;
             rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
@@ -1228,6 +1750,10 @@ namespace TatoGames.CardGame
 
             previewShown = pv;
             previewOwner = source;
+
+            // 확대본 옆에 용어 설명 (등급·종류 + 소멸·취약 같은 말)
+            string gloss = CardText.Glossary(card);
+            UiTooltip.ShowBeside(source, rt, CardText.CardKind(card), gloss);
         }
 
         void HidePreview(CardView source)
@@ -1236,22 +1762,135 @@ namespace TatoGames.CardGame
             if (previewShown != null) previewShown.gameObject.SetActive(false);
             previewShown = null;
             previewOwner = null;
+            UiTooltip.Hide(source);
         }
+
+        // ══════════════════════════════════════════════ 튜토리얼 ═══════════════
+        /// <summary>
+        /// 처음 보는 화면에 안내를 띄운다. 한 프레임 뒤에 띄운다 — 방금 만든 카드·노드가 자리를 잡은 뒤여야
+        /// 설명할 곳을 정확히 뚫을 수 있다.
+        /// </summary>
+        void Tutor(string key, List<Step> steps, bool force = false, System.Action onClosed = null)
+        {
+            if (!force && TutorialOverlay.Seen(key)) return;
+            if (!isActiveAndEnabled) return;
+            StartCoroutine(TutorNextFrame(key, steps, force, onClosed));
+        }
+
+        IEnumerator TutorNextFrame(string key, List<Step> steps, bool force, System.Action onClosed)
+        {
+            yield return null;
+            TutorialOverlay.Run(transform, uiFont, key, steps, force, onClosed);
+        }
+
+        /// <summary>상단 바 `?` — 지금 떠 있는 화면의 안내를 다시 보여준다.</summary>
+        void ShowHelp()
+        {
+            TutorialOverlay.CloseAll();
+            if (forgePanel != null && forgePanel.activeSelf) Tutor(Keys.BattleForge, ForgeSteps(), true);
+            else if (rewardPanel != null && rewardPanel.activeSelf) Tutor(Keys.BattleReward, RewardSteps(), true);
+            else if (mapPanel != null && mapPanel.activeSelf) Tutor(Keys.BattleMap, MapSteps(), true);
+            else Tutor(Keys.BattleBasics, BasicsSteps(), true);
+        }
+
+        /// <summary>전투 중 처음 겪는 상황에 한 줄 안내 — 첫 전투 안내를 본 뒤부터.</summary>
+        void CheckHints()
+        {
+            if (over || enemy == null || player == null) return;
+            if (!TutorialOverlay.Seen(Keys.BattleBasics)) return;
+
+            if (enemy.TotalBlock > 0 && !TutorialOverlay.Seen(Keys.HintEnemyBlock))
+                Tutor(Keys.HintEnemyBlock, new List<Step>
+                {
+                    new("적의 블록", "적에게 <b>블록</b>이 있어요. 내 공격은 블록부터 깎고, 남은 만큼만 체력이 줄어요.\n" +
+                                    "<b>중독</b>은 블록을 무시하고 바로 체력을 깎아요.",
+                        () => enemyPanel.BlockRect, Side.Left),
+                });
+
+            if (enemy.ward > 0 && !TutorialOverlay.Seen(Keys.HintEnemyWard))
+                Tutor(Keys.HintEnemyWard, new List<Step>
+                {
+                    new("적의 효과 방어", "적에게 <b>효과 방어</b>가 있어요. 내가 거는 취약·약화·중독을 1건씩 막아요.\n" +
+                                        "약한 디버프로 먼저 벗겨내면 중요한 디버프가 들어가요.",
+                        () => enemyPanel.WardRect, Side.Left),
+                });
+
+            if ((player.status.Count > 0 || enemy.status.Count > 0) && !TutorialOverlay.Seen(Keys.HintStatus))
+            {
+                var row = player.status.Count > 0 ? playerPanel.statusRow : enemyPanel.statusRow;
+                Tutor(Keys.HintStatus, new List<Step>
+                {
+                    new("상태이상", "상태이상이 생겼어요. 아이콘 오른쪽 숫자는 남은 턴(또는 세기)이에요.\n" +
+                                  "<b>아이콘에 마우스를 올리면</b> 무슨 효과인지 알려줘요.",
+                        () => row),
+                });
+            }
+        }
+
+        List<Step> BasicsSteps() => new()
+        {
+            new("첫 전투!", "카드로 적의 체력을 0으로 만들면 이겨요.\n<b>내 턴</b>에 카드를 쓰고 턴을 끝내면 <b>적의 턴</b>이 와요.\n" +
+                            "이 화면에서 알아둘 것만 짧게 볼게요."),
+            new("적의 다음 행동", "적이 <b>다음 턴에 할 행동</b>이에요. 칼은 공격, 방패는 방어예요.\n" +
+                                 "숫자는 실제로 들어올 피해예요. 공격이 오면 블록으로 막을 준비를!\n아이콘에 마우스를 올리면 설명이 나와요.",
+                () => enemyPanel.intentRow, Side.Left),
+            new("에너지", $"카드를 쓰는 데 필요해요. 내 턴마다 <b>{maxEnergy}</b>로 다시 차요.\n카드 왼쪽 위 숫자가 그 카드의 비용이에요.",
+                () => energyOrb, Side.Right),
+            new("손패", "매 턴 5장을 뽑아요. 카드를 <b>클릭</b>하면 바로 사용돼요.\n" +
+                       "마우스를 올리면 크게 보이고, 옆에 용어 설명이 나와요.\n" +
+                       $"숫자가 <color={CardText.UpColor}>초록</color>이면 버프로 강해진 값, <color={CardText.DownColor}>빨강</color>이면 약해진 값이에요.",
+                () => handRow, Side.Above),
+            new("블록", "방어 카드를 쓰면 <b>블록</b>이 생겨요. 공격 피해를 먼저 막아줘요.\n" +
+                       "이 게임의 블록은 <b>턴이 지나도 사라지지 않고 쌓여요!</b>\n체력은 전투가 끝나도 이어지고 <b>휴식</b>에서만 회복돼요.",
+                () => (RectTransform)playerPanel.transform, Side.Right),
+            new("턴 종료", "쓸 카드를 다 썼으면 턴 종료. 남은 손패는 버려지고 적이 예고한 행동을 해요.",
+                () => (RectTransform)endTurnBtn.transform, Side.Left),
+            new("상단 바", "스테이지 진행 · 토인 · 런 덱 장수예요.\n<b>?</b>를 누르면 이 안내를 다시 볼 수 있고, <b>나가기</b>로 언제든 런처에 갈 수 있어요 (진행은 저장돼요).\n" +
+                          "<color=#FF9A8A>전투에서 지면 덱에 넣은 카드가 사라져요</color> (시작 카드는 남아요).",
+                () => topBar, Side.Below),
+        };
+
+        List<Step> RewardSteps() => new()
+        {
+            new("전투 보상", "카드 1장을 골라요. 고른 카드는 바로 <b>런 덱</b>에 들어가요 (덱이 가득 차면 감자창고로).\n" +
+                            "카드에 마우스를 올리면 등급과 용어 설명이 나와요.",
+                () => rewardRow, Side.Below),
+            new("안 받아도 돼요", "마음에 드는 카드가 없으면 <b>카드 안 받기</b>. 토인은 그대로 받아요.\n덱이 얇으면 좋은 카드가 더 자주 손에 와요.",
+                () => (RectTransform)rewardSkip.transform, Side.Above),
+        };
+
+        List<Step> MapSteps() => new()
+        {
+            new("맵", "노드를 하나씩 골라 오른쪽으로 나아가요. <b>선으로 이어진 파란 노드</b>만 갈 수 있어요.\n" +
+                     "노드에 마우스를 올리면 무엇이 있는지 알려줘요.",
+                () => mapArea, Side.Below),
+            new("노드 종류", "<b>전투</b> 토인·카드 보상   <b>대장간</b> 카드 강화·제거\n<b>휴식</b> 체력 회복   <b>보스</b> 이기면 다음 스테이지\n" +
+                            $"스테이지 {RunState.StageCount}개의 보스를 모두 이기면 런 클리어예요!",
+                () => mapArea, Side.Below),
+            new("현재 상태", "지금 스테이지·진행 노드·체력이에요. 체력은 휴식에서만 회복되니 아껴 쓰세요.",
+                () => mapInfo.rectTransform, Side.Below),
+        };
+
+        List<Step> ForgeSteps() => new()
+        {
+            new("대장간", "덱의 카드를 골라 <b>강화</b>하거나 <b>제거</b>해요. 토인이 들어요.",
+                () => forgeScroll, Side.Below),
+            new("강화", "카드당 1번, 둘 중 하나를 골라요.\n<b>수치 강화</b>: 피해·블록 +3, 상태이상 +1\n<b>코스트 −1</b>: 에너지를 1 덜 써요\n" +
+                       "강화 버튼에 마우스를 올리면 결과 카드를 미리 보여줘요.",
+                () => forgeInfo.rectTransform, Side.Below),
+            new("제거", "제거한 카드는 영원히 사라져요 (감자창고에서도).\n약한 카드를 빼면 강한 카드가 더 자주 나와요. 덱은 최소 8장이 필요해요.",
+                () => forgeInfo.rectTransform, Side.Below),
+        };
+
+        List<Step> DefeatSteps() => new()
+        {
+            new("런이 끝났어요", "체력이 0이 되면 런이 끝나고, <b>덱에 넣었던 카드는 사라져요</b> (시작 카드는 남아요).\n" +
+                                "런처의 <b>미니게임</b>으로 카드를 다시 모으고, <b>감자창고</b>에서 덱을 짜서 다시 도전하세요.\n" +
+                                "새 런을 시작할 때마다 모든 카드가 한 살 먹는다는 것도 잊지 마세요!",
+                () => (RectTransform)restartBtn.transform, Side.Below),
+        };
 
         // ── UI 헬퍼 ──
-        Text MakeText(string name, Vector2 anchor, Vector2 pos, Vector2 size, TextAnchor align, Transform parent = null)
-        {
-            var go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent != null ? parent : transform, false);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = rt.anchorMax = rt.pivot = anchor;
-            rt.anchoredPosition = pos; rt.sizeDelta = size;
-            var t = go.AddComponent<Text>();
-            t.font = uiFont; t.fontSize = 22; t.color = Color.white; t.alignment = align;
-            t.horizontalOverflow = HorizontalWrapMode.Overflow; t.verticalOverflow = VerticalWrapMode.Overflow;
-            return t;
-        }
-
         Button MakeButton(string name, string caption, Vector2 anchor, Vector2 pos, Vector2 size,
                           UnityEngine.Events.UnityAction onClick, Transform parent = null)
         {
@@ -1273,8 +1912,21 @@ namespace TatoGames.CardGame
             var txt = txtGO.AddComponent<Text>();
             txt.font = uiFont; txt.fontSize = 20; txt.color = Color.white;
             txt.alignment = TextAnchor.MiddleCenter; txt.text = caption;
+            txt.raycastTarget = false;
             txt.horizontalOverflow = HorizontalWrapMode.Overflow; txt.verticalOverflow = VerticalWrapMode.Overflow;
             return btn;
+        }
+
+        static void SetButtonText(Button b, string caption)
+        {
+            var t = b != null ? b.GetComponentInChildren<Text>(true) : null;
+            if (t != null) t.text = caption;
+        }
+
+        static void SetButtonFont(Button b, int size)
+        {
+            var t = b != null ? b.GetComponentInChildren<Text>(true) : null;
+            if (t != null) t.fontSize = size;
         }
     }
 }

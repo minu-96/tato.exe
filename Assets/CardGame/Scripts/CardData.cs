@@ -33,6 +33,11 @@ namespace TatoGames.CardGame
         /// <summary>획득처가 시작덱이면 귀속(bound): 소멸·썩음·판매 면제 (§8.2).</summary>
         public bool IsBound => source == AcquireSource.Starter;
 
+        // 런타임 복제본(CardUpgrade.Build)이 어떤 상태·강화를 얹었는지 — 카드 용어 설명(싹·강화)에 쓴다.
+        // 에셋에는 저장되지 않는다.
+        [System.NonSerialized] public CardState shownState = CardState.Fresh;
+        [System.NonSerialized] public UpgradeKind shownUpgrade = UpgradeKind.None;
+
         /// <summary>
         /// 현재 상태에 맞는 효과 목록.
         /// 싹은 sproutEffects(없으면 effects로 폴백), 썩음은 사용 불가라 빈 목록.

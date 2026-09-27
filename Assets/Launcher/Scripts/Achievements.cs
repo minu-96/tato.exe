@@ -13,6 +13,10 @@ namespace TatoGames.Launcher
         public string desc;
         /// <summary>지금 조건을 만족하나. 저장된 카운터·컬렉션 상태로 판정한다.</summary>
         public System.Func<bool> check;
+        /// <summary>지금 값 (진행도 표시 — "3 / 10").</summary>
+        public System.Func<int> current;
+        /// <summary>목표 값.</summary>
+        public int target = 1;
     }
 
     /// <summary>
@@ -43,38 +47,30 @@ namespace TatoGames.Launcher
 
         public static IReadOnlyList<Achievement> All => all ??= Build();
 
+        /// <summary>카운터가 목표에 닿으면 달성 — 진행도("3 / 10")도 같은 값으로 보여준다.</summary>
+        static Achievement A(string id, string title, string desc, System.Func<int> current, int target) => new()
+        {
+            id = id, title = title, desc = desc, current = current, target = target,
+            check = () => current() >= target,
+        };
+
         static List<Achievement> Build() => new()
         {
-            new Achievement { id = "first_run",   title = "첫 수확",     desc = "런을 한 번 시작한다",
-                              check = () => Get(RunsStarted) >= 1 },
-            new Achievement { id = "first_win",   title = "첫 승리",     desc = "전투에서 한 번 이긴다",
-                              check = () => Get(BattlesWon) >= 1 },
-            new Achievement { id = "win_10",      title = "밭을 갈다",   desc = "전투에서 10번 이긴다",
-                              check = () => Get(BattlesWon) >= 10 },
-            new Achievement { id = "win_50",      title = "대풍년",      desc = "전투에서 50번 이긴다",
-                              check = () => Get(BattlesWon) >= 50 },
-            new Achievement { id = "boss_1",      title = "허수아비 사냥", desc = "보스를 한 번 쓰러뜨린다",
-                              check = () => Get(BossesKilled) >= 1 },
-            new Achievement { id = "boss_3",      title = "세 층 아래로", desc = "보스를 3번 쓰러뜨린다",
-                              check = () => Get(BossesKilled) >= 3 },
-            new Achievement { id = "clear_run",   title = "깊은 토양까지", desc = "런을 클리어한다",
-                              check = () => Get(RunsCleared) >= 1 },
-            new Achievement { id = "minigame_1",  title = "곁다리 농사",  desc = "미니게임을 한 번 끝낸다",
-                              check = () => Get(MinigamesPlayed) >= 1 },
-            new Achievement { id = "minigame_10", title = "부업 전문",    desc = "미니게임을 10번 끝낸다",
-                              check = () => Get(MinigamesPlayed) >= 10 },
-            new Achievement { id = "collect_20",  title = "감자 수집가",  desc = "카드를 20장 모은다",
-                              check = () => PlayerData.Instances().Count >= 20 },
-            new Achievement { id = "collect_40",  title = "창고가 좁다",  desc = "카드를 40장 모은다",
-                              check = () => PlayerData.Instances().Count >= 40 },
-            new Achievement { id = "rotten_1",    title = "썩은 감자",    desc = "카드를 한 장 썩힌다",
-                              check = () => Get(CardsRotted) >= 1 },
-            new Achievement { id = "rotten_10",   title = "퇴비 더미",    desc = "카드를 10장 썩힌다",
-                              check = () => Get(CardsRotted) >= 10 },
-            new Achievement { id = "upgrade_1",   title = "대장간 단골",  desc = "대장간에서 카드를 강화한다",
-                              check = () => Get(CardsUpgraded) >= 1 },
-            new Achievement { id = "rich",        title = "토인 부자",    desc = "토인을 200개 모은다",
-                              check = () => PlayerData.Toin >= 200 },
+            A("first_run",   "첫 수확",       "런을 한 번 시작한다",        () => Get(RunsStarted), 1),
+            A("first_win",   "첫 승리",       "전투에서 한 번 이긴다",      () => Get(BattlesWon), 1),
+            A("win_10",      "밭을 갈다",     "전투에서 10번 이긴다",       () => Get(BattlesWon), 10),
+            A("win_50",      "대풍년",        "전투에서 50번 이긴다",       () => Get(BattlesWon), 50),
+            A("boss_1",      "허수아비 사냥", "보스를 한 번 쓰러뜨린다",    () => Get(BossesKilled), 1),
+            A("boss_3",      "세 층 아래로",  "보스를 3번 쓰러뜨린다",      () => Get(BossesKilled), 3),
+            A("clear_run",   "깊은 토양까지", "런을 클리어한다",            () => Get(RunsCleared), 1),
+            A("minigame_1",  "곁다리 농사",   "미니게임을 한 번 끝낸다",    () => Get(MinigamesPlayed), 1),
+            A("minigame_10", "부업 전문",     "미니게임을 10번 끝낸다",     () => Get(MinigamesPlayed), 10),
+            A("collect_20",  "감자 수집가",   "카드를 20장 모은다",         () => PlayerData.Instances().Count, 20),
+            A("collect_40",  "창고가 좁다",   "카드를 40장 모은다",         () => PlayerData.Instances().Count, 40),
+            A("rotten_1",    "썩은 감자",     "카드를 한 장 썩힌다",        () => Get(CardsRotted), 1),
+            A("rotten_10",   "퇴비 더미",     "카드를 10장 썩힌다",         () => Get(CardsRotted), 10),
+            A("upgrade_1",   "대장간 단골",   "대장간에서 카드를 강화한다", () => Get(CardsUpgraded), 1),
+            A("rich",        "토인 부자",     "토인을 200개 모은다",        () => PlayerData.Toin, 200),
         };
 
         /// <summary>한 번 달성하면 조건이 깨져도 유지된다(카드를 팔아도 업적은 남는다).</summary>

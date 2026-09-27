@@ -17,7 +17,7 @@ using TatoGames.CardGame;
 /// 구조 원칙(해상도 정책 미결 상태 대응 — 좌표 하드코딩 대신 유연 레이아웃):
 ///  - 각 패널은 Content(1080×820 기준)를 꽉 채우는 Stretch. Title은 상단 160px.
 ///  - 콘텐츠는 ScrollRect + Viewport(RectMask2D) + Content(LayoutGroup + ContentSizeFitter).
-///  - 감자창고/업적 = 세로 스크롤(GridLayoutGroup), 상점 = 가로 스크롤(요청 사항).
+///  - 감자창고/업적/상점 = 세로 스크롤 (상점은 대표 타일 + 3열 그리드, 목업 Main_Shop).
 ///  - 카드/타일은 GridLayoutGroup가 배치 → 항목 수가 바뀌어도 자동 정렬.
 ///  - 픽셀 정밀이 아니라 1차 셸. 해상도 확정 후 셀 크기·간격만 미세조정.
 /// </summary>
@@ -84,8 +84,7 @@ public static class LauncherPanelFiller
         ClearContent(panel);
 
         var font = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
-        var view = panel.gameObject.GetComponent<MinigameTabView>()
-                   ?? panel.gameObject.AddComponent<MinigameTabView>();
+        var view = Ensure<MinigameTabView>(panel.gameObject);
 
         view.labelFont = font;
         view.purchaseTile = S("Minigame/Tile/Purchase");
@@ -110,7 +109,7 @@ public static class LauncherPanelFiller
         view.storageLabel = Label(panel, "Label_Storage", "", font, -300f, -170f);
         view.storageLabel.fontSize = 21;
 
-        var barBg = Img(panel, "StorageBar", null, -110f, -206f);
+        var barBg = Img(panel, "StorageBar", null, -160f, -206f);   // 왼쪽 끝을 저장공간 글자(-480)에 맞춘다
         barBg.rectTransform.sizeDelta = new Vector2(640, 16);
         barBg.color = new Color(1f, 1f, 1f, 0.12f);
         barBg.raycastTarget = false;
@@ -142,7 +141,9 @@ public static class LauncherPanelFiller
     /// <summary>
     /// 설정 탭 — 런처/메인 게임 해상도 드롭다운 + 메인 게임 전체화면 토글.
     /// 미니게임 해상도는 여기 없다(각 타이틀 화면의 ◀▶ 위젯에서만 바꾼다).
-    /// 설정 탭 전용 아트가 없어서 감자창고 필터의 알약 버튼 스프라이트를 재사용한다.
+    /// 설정 탭 전용 아트가 없어 글자 없는 어두운 알약으로 그린다.
+    /// (예전엔 감자창고 필터 그림을 빌려 썼는데 그 그림에 '전체'가 박혀 있어 모든 칸에 '전체'가 겹쳤다)
+    /// '튜토리얼 다시 보기' 줄은 LauncherTutorial이 실행할 때 붙인다.
     /// </summary>
     static void BuildSettings(Transform panel)
     {
@@ -151,22 +152,24 @@ public static class LauncherPanelFiller
         ClearContent(panel);
 
         var font = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
-        var idle = S("TATOstorage/Filter/All_Idle");
-        var press = S("TATOstorage/Filter/All_Pressed");
 
-        var view = panel.gameObject.GetComponent<DisplaySettingsView>()
-                   ?? panel.gameObject.AddComponent<DisplaySettingsView>();
+        var view = Ensure<DisplaySettingsView>(panel.gameObject);
 
+        // 모양(알약·테두리·열린 목록)은 실행할 때 DisplaySettingsView가 입힌다 — 알약 그림은 실행 중에 만드는
+        // 스프라이트라 씬에 저장할 수 없다. 여기서는 에디터에서도 글자가 읽히게 색만 맞춘다
         Label(panel, "Label_Launcher", "런처 해상도", font, -280f, 130f);
-        view.launcherDropdown = MakeDropdown(panel, "Dropdown_Launcher", font, idle, 60f, 130f);
+        view.launcherDropdown = MakeDropdown(panel, "Dropdown_Launcher", font, null, 60f, 130f);
+        DarkenForEditor(view.launcherDropdown.gameObject);
 
         Label(panel, "Label_MainGame", "메인 게임 해상도", font, -280f, 50f);
-        view.mainGameDropdown = MakeDropdown(panel, "Dropdown_MainGame", font, idle, 60f, 50f);
+        view.mainGameDropdown = MakeDropdown(panel, "Dropdown_MainGame", font, null, 60f, 50f);
+        DarkenForEditor(view.mainGameDropdown.gameObject);
 
         Label(panel, "Label_Fullscreen", "메인 게임 화면", font, -280f, -30f);
-        var toggle = Btn(panel, "Btn_Fullscreen", idle, null, press, 60f, -30f, 200, 48);
+        var toggle = Btn(panel, "Btn_Fullscreen", null, null, null, 60f, -30f, 200, 48);
         view.fullscreenToggle = toggle;
         view.fullscreenToggleLabel = CenterText(toggle.transform, "전체화면", font, 20);
+        DarkenForEditor(toggle.gameObject);
 
         Label(panel, "Label_Hint",
               "미니게임 해상도는 각 게임 타이틀 화면에서 조절합니다", font, -280f, -110f).fontSize = 18;
@@ -174,10 +177,14 @@ public static class LauncherPanelFiller
         EditorUtility.SetDirty(view);
     }
 
-    /// <summary>레이아웃 그룹 안에 들어가는 검색 입력창. 배경은 기존 검색창 아트.</summary>
+    /// <summary>
+    /// 레이아웃 그룹 안에 들어가는 검색 입력창. 배경은 검색창 아트(돋보기만 있고 글자 없는 Pressed).
+    /// ※ 입력창 배경 그림은 Resources.<b>inputField</b> 칸이다 — 예전엔 standard 칸에 넣어서 흰 상자로 나왔다.
+    ///   Idle 그림은 안내 문구("감자 이름을 검색하세요.")가 그려져 있어, 입력해도 그 글자가 남으므로 쓰지 않는다.
+    /// </summary>
     static InputField MakeSearchField(Transform parent, string name, Font font, Sprite bg, float w, float h)
     {
-        var go = DefaultControls.CreateInputField(new DefaultControls.Resources { standard = bg });
+        var go = DefaultControls.CreateInputField(new DefaultControls.Resources { inputField = bg });
         go.name = name;
         go.transform.SetParent(parent, false);
         go.GetComponent<RectTransform>().sizeDelta = new Vector2(w, h);
@@ -185,13 +192,13 @@ public static class LauncherPanelFiller
         var field = go.GetComponent<InputField>();
         foreach (var t in go.GetComponentsInChildren<Text>(true))
         {
-            t.font = font; t.fontSize = 18;
-            t.color = new Color(0.12f, 0.12f, 0.14f);
+            t.font = font; t.fontSize = 17;
+            t.color = UiKit.FieldText;               // 어두운 그림 위 — 밝은 글자
         }
         if (field.placeholder is Text ph)
         {
-            ph.text = "카드 이름 검색";
-            ph.color = new Color(0.45f, 0.45f, 0.5f);
+            ph.text = "카드 이름 검색";   // 칸이 좁아 긴 문구는 두 줄로 접혀 잘린다
+            ph.color = UiKit.FieldHint;
             ph.fontStyle = FontStyle.Normal;
         }
         // 돋보기 아이콘 자리를 비워두도록 좌측 여백을 준다
@@ -212,18 +219,11 @@ public static class LauncherPanelFiller
         go.GetComponent<RectTransform>().sizeDelta = new Vector2(w, h);
 
         var dd = go.GetComponent<Dropdown>();
-        foreach (var t in go.GetComponentsInChildren<Text>(true))
-        {
-            t.font = font; t.fontSize = 17;
-            t.color = new Color(0.12f, 0.12f, 0.14f);
-        }
-        // 열린 목록 배경
-        if (dd.template != null)
-        {
-            var img = dd.template.GetComponent<Image>();
-            if (img != null && list != null) img.sprite = list;
-            dd.template.sizeDelta = new Vector2(dd.template.sizeDelta.x, 200);
-        }
+        foreach (var t in go.GetComponentsInChildren<Text>(true)) t.font = font;
+        // 어두운 정렬 상자 그림(∨ 포함) — 밝은 글자, 그림 없는 화살표·체크(흰 네모) 숨김, 열린 목록도 어둡게.
+        // (목록 그림 Dropdown.png는 윗부분에 ∧와 구분선이 그려져 있어 목록 바탕으로 쓰면 어색하다)
+        UiKit.StyleDarkDropdown(dd, 16, replaceBackground: false);
+        if (dd.template != null) dd.template.sizeDelta = new Vector2(dd.template.sizeDelta.x, 200);
         return dd;
     }
 
@@ -247,6 +247,13 @@ public static class LauncherPanelFiller
             t.color = new Color(0.1f, 0.1f, 0.12f);
         }
         return go.GetComponent<Dropdown>();
+    }
+
+    /// <summary>그림 없는 기본 위젯을 어두운 바탕 + 밝은 글자로 (에디터에서 흰 상자로 보이지 않게).</summary>
+    static void DarkenForEditor(GameObject go)
+    {
+        if (go.TryGetComponent(out Image bg) && bg.sprite == null) bg.color = UiKit.FieldBg;
+        foreach (var t in go.GetComponentsInChildren<Text>(true)) t.color = UiKit.FieldText;
     }
 
     static Text CenterText(Transform parent, string caption, Font font, int size)
@@ -290,25 +297,12 @@ public static class LauncherPanelFiller
         var fit = content.gameObject.AddComponent<ContentSizeFitter>();
         fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-        var view = panel.gameObject.GetComponent<PatchNoteView>() ?? panel.gameObject.AddComponent<PatchNoteView>();
+        var view = Ensure<PatchNoteView>(panel.gameObject);
         view.content = content;
         view.labelFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
         EditorUtility.SetDirty(view);
     }
 
-    /// <summary>타일 하단의 이름·가격·용량 표시.</summary>
-    static Text InfoText(Transform tile, Font font)
-    {
-        var rt = NewRect("Info", tile);
-        rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0f);
-        rt.sizeDelta = new Vector2(220, 52);
-        rt.anchoredPosition = new Vector2(0f, 8f);
-        var t = rt.gameObject.AddComponent<Text>();
-        t.font = font; t.fontSize = 17; t.color = Color.white;
-        t.alignment = TextAnchor.LowerCenter; t.raycastTarget = false;
-        t.horizontalOverflow = HorizontalWrapMode.Overflow;
-        return t;
-    }
 
     static void BuildStorage(Transform panel)
     {
@@ -349,7 +343,7 @@ public static class LauncherPanelFiller
         toolBar.anchorMin = toolBar.anchorMax = new Vector2(1, 1);
         toolBar.pivot = new Vector2(1, 1);
         toolBar.anchoredPosition = new Vector2(-24, -176);
-        toolBar.sizeDelta = new Vector2(330, 36);
+        toolBar.sizeDelta = new Vector2(380, 36);   // 검색 200 + 12 + 정렬 150 — 330이면 정렬 상자가 화면 끝에 잘렸다
         var thlg = toolBar.gameObject.AddComponent<HorizontalLayoutGroup>();
         thlg.spacing = 12; thlg.childAlignment = TextAnchor.MiddleRight;
         thlg.childControlWidth = thlg.childControlHeight = false;
@@ -358,7 +352,7 @@ public static class LauncherPanelFiller
         // 아트는 기존 스프라이트를 그대로 쓴다: Search/Idle 200×36, Sort/Options 102×36
         var storageFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
         var search = MakeSearchField(toolBar, "SearchBox", storageFont,
-                                     S("TATOstorage/Search/Idle"), 200, 36);
+                                     S("TATOstorage/Search/Pressed"), 200, 36);
         var sortDd = MakeDropdownInLayout(toolBar, "SortDropdown", storageFont,
                                           S("TATOstorage/Sort/Options"),
                                           S("TATOstorage/Sort/Dropdown"), 150, 36);
@@ -414,11 +408,12 @@ public static class LauncherPanelFiller
             .Where(c => c != null).ToArray();
 
     // ══════════════════════════════════════════════════════ 상점 ══════════════
-    // 가로 스크롤: 대표타일(TATO.EXE) + 게임타일 2행 그리드 / 우하단 알림(고정)
+    // 세로 스크롤: 대표타일(TATO.EXE) + 게임타일 3열 그리드 / 알림은 ShopView가 우하단 상자로
     /// <summary>
-    /// 상점 — 원래 구조 그대로: 대표 타일(tato.exe) + 미니게임 2행 그리드.
+    /// 상점 — 목업(Main_Shop) 구조: 대표 타일(tato.exe) + 미니게임 3열 그리드.
     /// 대표 타일은 판매 불가·위치 고정이라 여기서 만들고, 미니게임 타일만
     /// <see cref="ShopView"/>가 런타임에 그린다(보유 여부로 순서·표시가 달라지므로).
+    /// 용량 표시(알약)·알림 상자도 ShopView가 실행할 때 붙인다.
     /// </summary>
     static void BuildShop(Transform panel)
     {
@@ -427,46 +422,47 @@ public static class LauncherPanelFiller
 
         var font = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
 
-        var content = MakeScroll(panel, "Scroll_Shop", horizontal: true, l: 24, b: 28, r: 24, t: 176);
+        // 세로 스크롤 — 목업(Main_Shop)처럼 왼쪽에 대표 타일, 오른쪽에 3열 그리드가 아래로 늘어난다
+        var content = MakeScroll(panel, "Scroll_Shop", horizontal: false, l: 24, b: 28, r: 24, t: 176);
         var hlg = content.gameObject.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 24; hlg.childAlignment = TextAnchor.MiddleLeft;
-        hlg.padding = new RectOffset(4, 4, 0, 0);
+        hlg.spacing = 24; hlg.childAlignment = TextAnchor.UpperLeft;
+        hlg.padding = new RectOffset(4, 4, 4, 4);
         hlg.childControlWidth = hlg.childControlHeight = false;
         hlg.childForceExpandWidth = hlg.childForceExpandHeight = false;
         var cfit = content.gameObject.AddComponent<ContentSizeFitter>();
-        cfit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+        cfit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;   // 폭은 뷰포트에 맞추고 높이만 늘린다
 
         // ── 대표 타일 — 본편 tato.exe. 항상 맨 앞, 판매 불가 ──
         var featured = ImgInLayout(content, "Featured_TATOEXE", S("Shop/Tile/TATOEXE"));
         var ownedBtn = Btn(featured.transform, "Btn_Owned", S("Shop/Tile/Button/OWNED_Idle"), null, null, 0f, -188f);
         ownedBtn.interactable = false;
-        var core = StorageData.Find("tato");
-        var coreInfo = InfoText(featured.transform, font);
-        coreInfo.text = core != null ? $"{core.displayName}\n{core.sizeMb}MB · 판매 불가" : "";
-        coreInfo.color = new Color(0.85f, 0.88f, 0.95f);
+        // 이름·'무료'는 타일 그림에 이미 있다. 예전엔 아래에 글자를 또 써서 주황 장식 막대를 덮었다
+        // (용량은 ShopView가 그림 칸 모서리에 작게 붙인다)
 
-        // ── 미니게임 2행 그리드 (내용은 ShopView가 채운다) ──
+        // ── 미니게임 3열 그리드 (내용은 ShopView가 채운다) — 줄이 늘면 아래로 스크롤 ──
+        const int ShopCols = 3;
         var gridGO = NewRect("Tiles", content);
         var gg = gridGO.gameObject.AddComponent<GridLayoutGroup>();
         gg.cellSize = new Vector2(234, 294);
         gg.spacing = new Vector2(16, 12);
-        gg.startAxis = GridLayoutGroup.Axis.Vertical;   // 위→아래 먼저 채우고 다음 열
-        gg.constraint = GridLayoutGroup.Constraint.FixedRowCount;
-        gg.constraintCount = 2;
+        gg.startAxis = GridLayoutGroup.Axis.Horizontal;   // 왼→오 먼저 채우고 다음 줄
+        gg.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        gg.constraintCount = ShopCols;
         var gfit = gridGO.gameObject.AddComponent<ContentSizeFitter>();
         gfit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
         gfit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        // 타일은 런타임에 채워지므로 지금은 비어 있다. 크기를 0으로 두면 가로 레이아웃이
-        // 대표 타일 위에 겹쳐 놓으므로, 들어갈 개수만큼 미리 자리를 잡아둔다.
-        int cols = Mathf.CeilToInt(StorageData.MiniGames.Count() / 2f);
-        gridGO.sizeDelta = new Vector2(cols * 234 + (cols - 1) * 16, 2 * 294 + 12);
+        // 타일은 런타임에 채워지므로 지금은 비어 있다. 크기를 0으로 두면 스크롤 높이가
+        // 대표 타일만큼만 잡히므로, 들어갈 줄 수만큼 미리 자리를 잡아둔다.
+        int rows = Mathf.Max(1, Mathf.CeilToInt(StorageData.MiniGames.Count() / (float)ShopCols));
+        gridGO.sizeDelta = new Vector2(ShopCols * 234 + (ShopCols - 1) * 16, rows * 294 + (rows - 1) * 12);
 
-        var shop = panel.gameObject.GetComponent<ShopView>() ?? panel.gameObject.AddComponent<ShopView>();
+        var shop = Ensure<ShopView>(panel.gameObject);
         shop.tileRoot = gridGO;
         shop.labelFont = font;
         shop.buyIdle = S("Shop/Tile/Button/Idle");
         shop.buyHover = S("Shop/Tile/Button/Hover");
         shop.buyPressed = S("Shop/Tile/Button/Pressed");
+        shop.ownedIdle = S("Shop/Tile/Button/OWNED_Idle");   // 보유 중 — 버튼 그림에 글자가 박혀 있어 다른 글자를 얹지 않는다
         shop.tileArts.Clear();
         foreach (var g in StorageData.MiniGames)
             shop.tileArts.Add(new ShopView.TileArt { gameId = g.id, sprite = S(g.tileSprite) });
@@ -476,8 +472,9 @@ public static class LauncherPanelFiller
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(content);
 
-        // 할인 알림 — 스크롤과 무관하게 우하단 고정
-        Img(panel, "Notification", S("Shop/Notification"), 300f, -300f);
+        // 할인 알림 그림("지금 할인하고있음!!") — 할인 기능이 생기면 켠다. 지금 켜두면 거짓 안내가 된다
+        var sale = Img(panel, "Notification", S("Shop/Notification"), 300f, -300f);
+        sale.gameObject.SetActive(false);
     }
 
     static void BuildAchieve(Transform panel)
@@ -485,7 +482,8 @@ public static class LauncherPanelFiller
         if (panel == null) { Debug.LogWarning("[TatoGames] Panel_Achieve 없음"); return; }
         ClearContent(panel);
 
-        var grid = MakeScroll(panel, "Scroll_Achieve", horizontal: false, l: 24, b: 24, r: 24, t: 176);
+        // 위쪽 한 줄(176~212)은 진행도 글자 자리 — AchievementView가 오른쪽 정렬로 놓는다
+        var grid = MakeScroll(panel, "Scroll_Achieve", horizontal: false, l: 24, b: 24, r: 24, t: 212);
         var g = grid.gameObject.AddComponent<GridLayoutGroup>();
         g.cellSize = new Vector2(166, 250);
         g.spacing = new Vector2(40, 24);
@@ -495,7 +493,7 @@ public static class LauncherPanelFiller
         var fit = grid.gameObject.AddComponent<ContentSizeFitter>();
         fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         var achFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/MoaMoa/Font/WinKor.ttf");
-        var av = panel.gameObject.GetComponent<AchievementView>() ?? panel.gameObject.AddComponent<AchievementView>();
+        var av = Ensure<AchievementView>(panel.gameObject);
         av.content = grid;
         av.cardSprite = S("Achievement/card");
         av.sleeveAcquired = S("Achievement/Card_Sleeve/Acquired");
@@ -557,14 +555,14 @@ public static class LauncherPanelFiller
         var t = content.Find(path);
         if (t == null) { Debug.LogWarning($"[TatoGames] 버튼 없음: {path}"); return; }
         if (t.GetComponent<Button>() == null) { Debug.LogWarning($"[TatoGames] Button 아님: {path}"); return; }
-        var gl = t.GetComponent<GameLaunchButton>() ?? t.gameObject.AddComponent<GameLaunchButton>();
+        var gl = Ensure<GameLaunchButton>(t.gameObject);
         gl.sceneName = scene; gl.width = w; gl.height = h; gl.exeLabel = exe;
     }
 
     // LauncherTransition 씬 오브젝트를 두고 DOSGothic 폰트를 연결(없으면 생성).
     static void EnsureTransition()
     {
-        LauncherTransition tr = Object.FindFirstObjectByType<LauncherTransition>();
+        LauncherTransition tr = Object.FindAnyObjectByType<LauncherTransition>();
         if (tr == null)
         {
             var go = new GameObject("LauncherTransition");
@@ -624,7 +622,7 @@ public static class LauncherPanelFiller
         else label = labelT.GetComponent<Text>();
         label.text = "0";
 
-        var hs = chip.GetComponent<HudStat>() ?? chip.gameObject.AddComponent<HudStat>();
+        var hs = Ensure<HudStat>(chip.gameObject);
         hs.stat = stat;
         hs.label = label;
     }
@@ -736,6 +734,17 @@ public static class LauncherPanelFiller
         var sp = AssetDatabase.LoadAssetAtPath<Sprite>(Base + rel + ".png");
         if (sp == null) Debug.LogWarning($"[TatoGames] 스프라이트 없음: {Base}{rel}.png");
         return sp;
+    }
+
+    /// <summary>
+    /// 컴포넌트가 있으면 그것을, 없으면 붙여서 돌려준다.
+    /// `GetComponent() ?? AddComponent()`는 쓰지 않는다 — 에디터의 GetComponent는 없을 때 '가짜 null'을
+    /// 돌려줄 수 있어서 `??`가 그걸 진짜 객체로 보고 AddComponent를 건너뛴다.
+    /// </summary>
+    static T Ensure<T>(GameObject go) where T : Component
+    {
+        if (!go.TryGetComponent(out T c)) c = go.AddComponent<T>();
+        return c;
     }
 
     static RectTransform NewRect(string name, Transform parent)
