@@ -801,18 +801,18 @@ MonoBehaviour:
   - gameId: field
     sprite: {fileID: 21300000, guid: 2890c96124d1a4d429fd2a7edb46923f, type: 3}
   purchaseTile: {fileID: 21300000, guid: 18105c37cdc814b58a54adc1801f88e9, type: 3}
-  startIdle: {fileID: 21300000, guid: 39050caf6398147e9a4560d4db7d0c8e, type: 3}
-  startHover: {fileID: 21300000, guid: ae04a05c493834a34ba6fb63e6d72eff, type: 3}
-  startPressed: {fileID: 21300000, guid: 9bcfcd9106bab48b0ac512803b3437ba, type: 3}
-  purchaseIdle: {fileID: 21300000, guid: 5d0313f006e0340ccab92c85eae1b408, type: 3}
-  purchaseHover: {fileID: 21300000, guid: 2c2ef1f51da2348f196120eb6bf0eddc, type: 3}
-  purchasePressed: {fileID: 21300000, guid: 4dcbd9c92a5034658bd82cec38b02eea, type: 3}
+  startIdle: {fileID: 21300000, guid: b55ad5d3a698ab346b86646cd673b165, type: 3}
+  startHover: {fileID: 21300000, guid: 6eaff5148a14c4449948e176d49650ed, type: 3}
+  startPressed: {fileID: 21300000, guid: fab2df1252016974bb51ec3f235e3a88, type: 3}
+  purchaseIdle: {fileID: 21300000, guid: 4caee6ab877c89e4bb3422e481ee656a, type: 3}
+  purchaseHover: {fileID: 21300000, guid: a680063e048bc6d4bb3bb4c232795698, type: 3}
+  purchasePressed: {fileID: 21300000, guid: 7a85fcf671da137469a465256d6da516, type: 3}
   labelFont: {fileID: 12800000, guid: efc965a787e3b924ca57f9ea644cc358, type: 3}
   tileY: 91
   firstX: -377
   stepX: 240.5
   tileSize: {x: 234, y: 294}
-  buttonSize: {x: 171, y: 61}
+  buttonSize: {x: 160, y: 35}
   buttonY: -76.5
   tileRoot: {fileID: 1253794371}
   storageLabel: {fileID: 320371915}
@@ -8235,14 +8235,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4bd190be6808425b895c6d9cd91afb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TatoGames.Launcher.ShopView
-  buyIdle: {fileID: 21300000, guid: 803da38c99b914929b6207da9917f8ea, type: 3}
-  buyHover: {fileID: 21300000, guid: 48ca3c3dd9194472fbb155f5e513ef9d, type: 3}
-  buyPressed: {fileID: 21300000, guid: 61c4ec71ab94449738e0c6961522d310, type: 3}
-  ownedIdle: {fileID: 21300000, guid: bff08afb61d494aec87e3678f4fa1370, type: 3}
+  buyIdle: {fileID: 21300000, guid: 4caee6ab877c89e4bb3422e481ee656a, type: 3}
+  buyHover: {fileID: 21300000, guid: a680063e048bc6d4bb3bb4c232795698, type: 3}
+  buyPressed: {fileID: 21300000, guid: 7a85fcf671da137469a465256d6da516, type: 3}
+  ownedIdle: {fileID: 21300000, guid: d914d08b605ffee47821e70919bc9927, type: 3}
   labelFont: {fileID: 12800000, guid: efc965a787e3b924ca57f9ea644cc358, type: 3}
   tileRoot: {fileID: 571723116}
   tileSize: {x: 234, y: 294}
-  buttonSize: {x: 171, y: 61}
+  buttonSize: {x: 160, y: 35}
   buttonY: -76.5
   tileArts:
   - gameId: snake
@@ -9338,8 +9338,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -140}
-  m_SizeDelta: {x: 250, y: 88}
+  m_AnchoredPosition: {x: 0, y: -100}
+  m_SizeDelta: {x: 232, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1635076340
 MonoBehaviour:
@@ -9370,9 +9370,9 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
-    m_HighlightedSprite: {fileID: 21300000, guid: 34231db6bce8a4cc2a9a58dc3d60af14, type: 3}
-    m_PressedSprite: {fileID: 21300000, guid: 8dbef67bc4e6a4cf0bdac05880a0eba3, type: 3}
-    m_SelectedSprite: {fileID: 21300000, guid: 6f536678873df45b8a909cd024ce599f, type: 3}
+    m_HighlightedSprite: {fileID: 21300000, guid: 6eaff5148a14c4449948e176d49650ed, type: 3}
+    m_PressedSprite: {fileID: 21300000, guid: fab2df1252016974bb51ec3f235e3a88, type: 3}
+    m_SelectedSprite: {fileID: 21300000, guid: b55ad5d3a698ab346b86646cd673b165, type: 3}
     m_DisabledSprite: {fileID: 0}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
@@ -9405,7 +9405,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6f536678873df45b8a909cd024ce599f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b55ad5d3a698ab346b86646cd673b165, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

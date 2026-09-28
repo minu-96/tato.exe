@@ -37,11 +37,6 @@ MonoBehaviour:
     amount: 2
     hits: 1
     status: 2
-  - label: "\uACF5\uACA9"
-    kind: 0
-    amount: 8
-    hits: 1
-    status: 0
   patternLoop: 1
   transformOnBlockBreak: 0
   transformAtHalfHp: 1
@@ -63,9 +58,4 @@ MonoBehaviour:
     amount: 3
     hits: 2
     status: 2
-  - label: "\uACF5\uACA9"
-    kind: 0
-    amount: 5
-    hits: 2
-    status: 0
   phase2Artwork: {fileID: 21300000, guid: 0b25828bb3ce141908b481075e143800, type: 3}
