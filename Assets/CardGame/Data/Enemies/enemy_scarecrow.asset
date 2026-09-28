@@ -43,7 +43,8 @@ MonoBehaviour:
     hits: 1
     status: 0
   patternLoop: 1
-  transformOnBlockBreak: 1
+  transformOnBlockBreak: 0
+  transformAtHalfHp: 1
   phase2Name: "\uBC2D\uC758 \uC218\uD638\uC790 \uD5C8\uC218\uC544\uBE44"
   phase2Hp: 20
   phase2Pattern:

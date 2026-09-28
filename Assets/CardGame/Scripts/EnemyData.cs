@@ -50,11 +50,14 @@ namespace TatoGames.CardGame
         public List<EnemyAction> pattern = new();
         public bool patternLoop = true;
 
-        [Header("2페이즈 변신 (감자벌레류)")]
-        [Tooltip("공격 방어가 0으로 깨지면 2페이즈로 변신")]
+        [Header("2페이즈 변신")]
+        [Tooltip("공격 방어가 0으로 깨지면 2페이즈로 변신 — 체력을 phase2Hp로 새로 채운다 (감자벌레)")]
         public bool transformOnBlockBreak;
+        [Tooltip("체력이 절반 이하가 되면 2페이즈로 변신 — 체력은 그대로, 패턴·이름·그림만 바뀐다 (보스).\n" +
+                 "한 번에 쓰러뜨려도 체력 1로 버텨 반드시 변신한다")]
+        public bool transformAtHalfHp;
         public string phase2Name;
-        [Tooltip("변신 후 새 체력 (감자벌레: 10)")] public int phase2Hp;
+        [Tooltip("방어가 깨져 변신한 뒤의 새 체력 (감자벌레: 10). 체력 절반 변신에서는 쓰지 않는다")] public int phase2Hp;
         public List<EnemyAction> phase2Pattern = new();
         [Tooltip("변신 후 그림 (비우면 artwork 그대로)")]
         public Sprite phase2Artwork;

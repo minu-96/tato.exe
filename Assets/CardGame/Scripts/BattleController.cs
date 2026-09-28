@@ -410,6 +410,7 @@ namespace TatoGames.CardGame
             if (enemyData == null || pattern.Count == 0) return;
 
             enemy.OnTurnStart();
+            HoldForPhase2();
             if (enemy.IsDead) { Banner($"{enemy.name}{CardText.Josa(enemy.name, "이", "가")} 중독으로 쓰러졌어요!"); Win(); return; }
 
             var act = pattern[Mathf.Clamp(enemyIndex, 0, pattern.Count - 1)];
@@ -460,11 +461,14 @@ namespace TatoGames.CardGame
             if (reflected > 0)
             {
                 enemy.TakeLoss(reflected);
+                HoldForPhase2();
                 if (enemy.IsDead) { Win(); return; }
             }
 
             enemy.OnTurnEnd();
             AdvanceEnemy();
+            // 적 턴 도중(중독·반사)에 절반 아래로 떨어졌으면 이번 행동을 마친 뒤 변신 — 예고한 행동은 그대로 한다
+            TryHalfHpTransform();
         }
 
         // 장별 스케일 (§11.6) — 2·3단계 적이 더 단단하고 더 아프다
@@ -499,6 +503,32 @@ namespace TatoGames.CardGame
             Banner($"{before}의 블록이 무너졌어요! {enemy.name}{CardText.Josa(enemy.name, "이", "가")} 본모습을 드러냈어요 (체력 {enemy.maxHp})", 3.5f);
         }
 
+        /// <summary>
+        /// 체력이 절반 이하가 되면 2페이즈 변신(보스). 체력은 그대로 두고 이름·패턴·그림만 바꾼다.
+        /// </summary>
+        void TryHalfHpTransform()
+        {
+            if (transformed || enemyData == null || !enemyData.transformAtHalfHp || enemy.IsDead) return;
+            if (enemy.hp * 2 > enemy.maxHp) return;
+            transformed = true;
+            enemyIndex = 0;
+            string before = enemy.name;
+            enemy.name = string.IsNullOrEmpty(enemyData.phase2Name) ? enemy.name : enemyData.phase2Name;
+            // 체력이 그대로라 떠오르는 피해 숫자는 그대로 보여준다 (snapEnemyRef를 비우지 않는다)
+            Banner(before == enemy.name
+                ? $"{before}{CardText.Josa(before, "이", "가")} 분노했어요! 공격 방식이 바뀌어요"
+                : $"{before}{CardText.Josa(before, "이", "가")} 쓰러지지 않고 {enemy.name}{CardText.Josa(enemy.name, "으로", "로")} 깨어났어요! 공격 방식이 바뀌어요", 3.5f);
+        }
+
+        /// <summary>
+        /// 체력 절반 변신 보스는 변신 전에 쓰러지지 않는다 — 한 번에 큰 피해를 받아도 체력 1로 버텨 2페이즈를 반드시 보여준다.
+        /// </summary>
+        void HoldForPhase2()
+        {
+            if (transformed || enemyData == null || !enemyData.transformAtHalfHp) return;
+            if (enemy.hp <= 0) enemy.hp = 1;
+        }
+
         // ══════════════════════════════════════════════ 카드 플레이 ════════════
         void PlayCard(BattleCard played)
         {
@@ -517,6 +547,8 @@ namespace TatoGames.CardGame
             if (card.keyword != CardKeyword.Exhaust) discard.Add(played);
 
             TryTransform(blockBefore);       // 방어 깨지면 변신(사망 판정보다 먼저)
+            HoldForPhase2();
+            TryHalfHpTransform();            // 체력 절반 이하면 변신(보스)
             if (enemy.IsDead) { Win(); return; }
             Refresh();
         }
